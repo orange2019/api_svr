@@ -1,0 +1,14 @@
+{
+ "lv_0":{
+   "u_1": [
+     {
+       "num": 100000,
+       "rate" : 6,
+       "st" : 0,
+       "et": 0
+     }
+   ]
+ } 
+}
+
+// 收益计算公式{level_0:[{user_id:用户id,base_num:计算基准数,rate:计算比率,startTime:开始时间,endTime:结束时间}]}
