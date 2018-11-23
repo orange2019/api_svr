@@ -57,8 +57,21 @@ class AdminService {
     if(!admin || !admin.id) {
       ret.code = errCode.FAIL.code
       ret.message = errCode.FAIL.message
+    }else {
+      ret.data = admin
     }
     
+    ctx.result = ret
+    return ret
+  }
+
+  async logout(ctx) {
+    let ret = {
+      code : errCode.SUCCESS.code,
+      message : errCode.SUCCESS.message
+    }
+
+    ctx.session.admin = null
     ctx.result = ret
     return ret
   }

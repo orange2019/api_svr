@@ -14,6 +14,11 @@ router.post('/check' , async(req, res) => {
   return res.return(req.ctx)
 })
 
+router.post('/logout' , async(req, res) => {
+  await adminService.logout(req.ctx)
+  return res.return(req.ctx)
+})
+
 
 
 module.exports = router
