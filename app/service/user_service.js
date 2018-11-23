@@ -197,7 +197,7 @@ class UserService {
 
     // 找到用户
     let user = await this.getById(ctx, userId)
-    Log.info(ctx.UID, 'invest().user', user)
+    Log.info(ctx.uuid, 'invest().user', user)
     if (!user) {
       ret.code = 200001
       ret.message = '未找到用户'
@@ -206,7 +206,7 @@ class UserService {
 
     // 判断资产是否足够
     let userAssets = await this.getAssestByUserId(ctx, userId)
-    Log.info(ctx.UID, 'invest().userAssets', userAssets)
+    Log.info(ctx.uuid, 'invest().userAssets', userAssets)
     if (!userAssets || userAssets.fod_num < fodNum) {
       ret.code = 200002
       ret.message = '用户资产不足'
@@ -219,7 +219,7 @@ class UserService {
 
     // 设置自己的收益计算公式
     let selfFormula = await this.setUserFormula(ctx, userId, investData, userId, 0, t)
-    Log.info(ctx.UID, 'invest().selfFormula', selfFormula)
+    Log.info(ctx.uuid, 'invest().selfFormula', selfFormula)
     if (!selfFormula) {
       ret.code = 200003
       ret.message = '设置自己收益数据失败'
@@ -231,7 +231,7 @@ class UserService {
     if (user.pid != 0) {
       // 找到所有父级用户
       let fUsers = await this.getAllToRoot(ctx, user.pid)
-      Log.info(ctx.UID, 'invest().fUsers', fUsers)
+      Log.info(ctx.uuid, 'invest().fUsers', fUsers)
 
       // 设置父级的收益计算公式
       for (let index = 0; index < fUsers.length; index++) {
@@ -255,7 +255,7 @@ class UserService {
     }, {
       transaction: t
     })
-    Log.info(ctx.UID, 'invest().userAssetUpdate', userAssetUpdate)
+    Log.info(ctx.uuid, 'invest().userAssetUpdate', userAssetUpdate)
     if (!userAssetUpdate) {
       ret.code = 200004
       ret.message = '设置自己fod币失败'
@@ -277,7 +277,7 @@ class UserService {
   async getById(ctx, id) {
 
     let ret = await UserModel().model().findById(id)
-    Log.info(ctx.UID, 'getById().ret', ret)
+    Log.info(ctx.uuid, 'getById().ret', ret)
     return ret
   }
 
@@ -335,18 +335,18 @@ class UserService {
    * @param {*} level 
    */
   async setUserFormula(ctx, userId, investData, levelUserId, level = 0, t = null) {
-    Log.info(ctx.UID, 'setUserFormula()', userId, investData, levelUserId, level)
+    Log.info(ctx.uuid, 'setUserFormula()', userId, investData, levelUserId, level)
     investData.rate = INVEST_RATES[level] || 0.1
 
     let userFormula = await this.getFormulaByUserId(ctx, userId)
-    Log.info(ctx.UID, 'setUserFormula().userFormula', userFormula)
+    Log.info(ctx.uuid, 'setUserFormula().userFormula', userFormula)
 
     let formula = userFormula ? userFormula.invest_formula : {}
 
     let levelData = formula && formula.hasOwnProperty('lv_' + level) ? formula['lv_' + level] : {}
     let userData = (levelData && levelData.hasOwnProperty('u_' + levelUserId)) ? levelData['u_' + levelUserId] : []
 
-    Log.info(ctx.UID, 'setUserFormula().userData', userData)
+    Log.info(ctx.uuid, 'setUserFormula().userData', userData)
 
     let startTime = parseInt(Date.now() / 1000)
     let endTime = startTime + (investData.days + 1) * 24 * 3600 - 100
@@ -361,7 +361,7 @@ class UserService {
 
     levelData['u_' + levelUserId] = userData
     formula['lv_' + level] = levelData
-    Log.info(ctx.UID, 'setUserFormula().formula', formula)
+    Log.info(ctx.uuid, 'setUserFormula().formula', formula)
 
     let opts = {}
     if (t) opts.transaction = t
@@ -387,7 +387,7 @@ class UserService {
    */
   async getFormulaByUserId(ctx, userId) {
     let ret = await UserModel().formulaModel().findById(userId)
-    Log.info(ctx.UID, 'getFormulaByUserId().ret', ret)
+    Log.info(ctx.uuid, 'getFormulaByUserId().ret', ret)
     return ret
   }
 

@@ -6,7 +6,7 @@ const uuid = require('uuid')
 // })
 
 // let ctx = {
-//   UID: uuid.v4()
+//   uuid: uuid.v4()
 // }
 // let userId = 1
 // let investData = {

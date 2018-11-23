@@ -47,7 +47,7 @@ app.use(methodOverride('_method'))
 
 // 记录请求id
 app.use((req, res, next) => {
-  req.UID = uuid.v4()
+  req.uuid = req.uuid || uuid.v4()
   next()
 })
 
@@ -90,7 +90,7 @@ app.use(function(req, res, next){
 
 /* istanbul ignore next */
 if (!module.parent) {
-  let port = 9001
+  let port = 4001
   app.listen(port)
   log.info('Express server started on port:' + port)
   // console.log('express web started on port 8080')
