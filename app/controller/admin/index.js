@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const CryptoJS = require('crypto-js')
+const adminService = require('./../../service/admin_service')
 
 router.use(async(req, res, next)=> {
 
@@ -40,8 +41,14 @@ router.use('/auth' , require('./auth'))
 router.use(async(req, res, next)=> {
 
   // 检验授权
-
+  let ret = await adminService.check(req.ctx)
+  if(ret.code !== 0){
+    return res.return(req.ctx)
+  }
+  
   next()
 })
+
+router.use('/news' , require('./news'))
 
 module.exports = router

@@ -3,17 +3,32 @@
  */
 
 const express = require('express') // express
-// const logger = require('morgan') // log
 // const fs = require('fs')
 const path = require('path')
 // const session = require('express-session') // session
 const bodyParser = require('body-parser') // 处理请求中body的内容
 const methodOverride = require('method-override')
 const uuid = require('uuid')
+const config = require('./config/index')
+
 
 let log = require('./lib/log')('app')
 
-let app = module.exports = express()
+let app = express()
+
+// const cors = require('cors')
+// var corsOptions = {
+//   origin: 'http://localhost:4000',
+//   // optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+// }
+// app.use(cors(corsOptions))
+
+// 单独起一个文件服务
+// let app2 = express()
+// app2.use('/uploads', express.static(path.join(__dirname , './uploads')))
+// app2.listen(config.port.file_svr, () => {
+//   log.info('file server started on port:' + config.port.file_svr)
+// })
 
 // 设置模板引擎
 // let viewPath = path.join(__dirname , './app/views')
@@ -21,14 +36,7 @@ let app = module.exports = express()
 // app.engine('html', require('ejs').__express)
 // app.set('view engine' , 'html')
 
-// log
-// let accessLogStream = fs.createWriteStream(path.join(__dirname, './logs/app' + (new Date()).toLocaleDateString() + '.log'), {flags: 'a'})
-// if (!module.parent) app.use(logger('combined', {stream: accessLogStream}))
-
 // 静态文件
-app.use('/assets', express.static(path.join(__dirname , './public/assets')))
-app.use('/uploads', express.static(path.join(__dirname , './public/uploads')))
-
 // session 支持
 // app.use(session({
 //   resave: true, // don't save session if unmodified
@@ -90,9 +98,11 @@ app.use(function(req, res, next){
 
 /* istanbul ignore next */
 if (!module.parent) {
-  let port = 4001
-  app.listen(port)
-  log.info('Express server started on port:' + port)
+  let port = config.port.api_svr
+  app.listen(port , () => {
+    log.info('api server started on port:' + port)
+  })
+  
   // console.log('express web started on port 8080')
   
 }

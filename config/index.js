@@ -12,6 +12,13 @@ let config = {
     maxLimit: 1000,
   },
 
+  port: {
+    api_svr: 4001,
+    file_svr: 4002
+  },
+
+  file_svr_domain: 'http://127.0.0.1:4002',
+
   INVEST_RATES : [6 , 3 , 1.5 , 0.75 , 0.38 , 0.19 , 0.1],
 
   key : {

@@ -55,8 +55,8 @@ class AdminService {
     let session = ctx.session
     let admin = session.admin || null
     if(!admin || !admin.id) {
-      ret.code = errCode.FAIL.code
-      ret.message = errCode.FAIL.message
+      ret.code = errCode.ADMIN.authFail.code
+      ret.message = errCode.ADMIN.authFail.message
     }else {
       ret.data = admin
     }
