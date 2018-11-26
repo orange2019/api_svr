@@ -23,12 +23,17 @@ router.post('/list' , async(req, res) => {
   
 // })
 
-// router.post('/status' , async(req, res) => {
+router.post('/status' , async(req, res) => {
 
-//   await newsService.status(req.ctx)
-//   return res.return(req.ctx)
+  await userService.status(req.ctx)
+  return res.return(req.ctx)
   
-// })
+})
+
+router.post('/investInfoAndLogs', async(req, res) => {
+  await userService.investInfoAndLogs(req.ctx)
+  return res.return(req.ctx)
+})
 
 
 

@@ -22,6 +22,10 @@ module.exports = {
     newsUpdateError: {
       code : 100002,
       message: '更新资讯失败'
+    },
+    userFindError: {
+      code : 100101,
+      message: '未找到对应用户'
     }
   }
 

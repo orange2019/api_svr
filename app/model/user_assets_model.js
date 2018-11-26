@@ -6,7 +6,7 @@ class UserAssetsModel extends BaseModel {
   constructor() {
     super()
 
-    let model = this.db().define('user', {
+    let model = this.db().define('user_assets', {
       id: {
         type: Sequelize.BIGINT,
         primaryKey: true,

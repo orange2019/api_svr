@@ -20,14 +20,14 @@ class UserService {
     let logger = require('./../../lib/log')('compute')
     let investLogsModel = UserModel().investLogsModel()
     let count = await UserModel().formulaModel().count()
-    logger.info('compute().start|count:' , count)
+    logger.info('compute().start|count:', count)
 
-    
+
     let limit = 10
     let page = Math.ceil(count / limit)
     let investFormula = {}
     let now = parseInt(Date.now() / 1000)
-    logger.info('compute().page' , page)
+    logger.info('compute().page', page)
 
     let ret = {
       success: [],
@@ -81,9 +81,9 @@ class UserService {
           for (let index = 0; index < selfFormulas.length; index++) {
             let selfFormula = selfFormulas[index]
             if (selfFormula.st < now && selfFormula.et > now) {
-              
+
               selfNumUnfrozen += selfFormula.num / selfFormula.days
-              
+
               selfNumInvest += selfFormula.num * selfFormula.rate / selfFormula.days / 100
               if (!baseNum) baseNum = selfFormula.num
 
@@ -159,10 +159,10 @@ class UserService {
 
           await investLogsModel.create({
             user_id: userId,
-            num : investNum,
-            num_frozen : selfNumUnfrozen,
-            num_self : selfNumInvest,
-            num_child : childNumInvest
+            num: investNum,
+            num_frozen: selfNumUnfrozen,
+            num_self: selfNumInvest,
+            num_child: childNumInvest
           })
 
           user = await UserAssetsModel().model().findById(userId)
@@ -181,6 +181,7 @@ class UserService {
 
     return ret
   }
+
   /**
    * 投产
    * @param {*} ctx 
@@ -359,7 +360,7 @@ class UserService {
       rate: investData.rate,
       st: startTime,
       et: endTime,
-      days : investData.days
+      days: investData.days
     })
 
     levelData['u_' + levelUserId] = userData
@@ -402,10 +403,10 @@ class UserService {
    * @param {*} offset 
    * @param {*} limit 
    */
-  async getUserInfoList(ctx, where ={} , offset = 0 , limit = 10){
+  async getUserInfoList(ctx, where = {}, offset = 0, limit = 10) {
     let ret = {
-      code : errCode.SUCCESS.code,
-      message : errCode.SUCCESS.message
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
     }
 
     Log.info(ctx.uuid, 'getUserInfoList().body', ctx.body)
@@ -415,22 +416,38 @@ class UserService {
     limit = ctx.body.limit || 10
 
     let map = {}
-    if(where.keyword){
-      map.mobile = {[Op.like] : `%${where.keyword}%`}
+    if (where.keyword) {
+      map.mobile = {
+        [Op.like]: `%${where.keyword}%`
+      }
     }
 
-    Log.info(ctx.uuid, 'getUserInfoList().where', where , 'offset|limit' , offset , limit)
+    Log.info(ctx.uuid, 'getUserInfoList().where', where, 'offset|limit', offset, limit)
 
     let userModel = UserModel().model()
     let userInfoModel = UserModel().infoModel()
+    let userAssetsModel = UserAssetsModel().model()
 
-    userModel.hasOne(userInfoModel , {foreignKey : 'user_id'})
+    userModel.hasOne(userInfoModel, {
+      foreignKey: 'user_id'
+    })
+    // userAssetsModel.belongsTo(userModel , {foreignKey : 'id'})
+    userModel.hasOne(userAssetsModel, {
+      foreignKey: 'user_id'
+    })
 
     let data = await userModel.findAndCountAll({
-      where : map,
-      include : {model : userInfoModel},
+      where: map,
+      include: [
+        {
+          model: userInfoModel
+        },
+        {
+          model: userAssetsModel
+        }
+      ],
       offset: offset,
-      limit : limit
+      limit: limit
     })
     Log.info(ctx.uuid, 'getUserInfoList().ret', ret)
     ret.data = data
@@ -439,6 +456,86 @@ class UserService {
 
   }
 
+  /**
+   * 修改状态
+   * @param {*} ctx 
+   */
+  async status(ctx) {
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+
+    Log.info(`${ctx.uuid}|status().body`, ctx.body)
+    let userId = ctx.body.user_id || 0
+    let status = ctx.body.status || 0
+
+    if (!userId) {
+      ret.code = errCode.ADMIN.userFindError.code
+      ret.message = errCode.ADMIN.userFindError.message
+
+      ctx.result = ret
+      return ret
+    }
+
+    let user = await UserModel().model().findById(userId)
+    Log.info(`${ctx.uuid}|status().news`, user)
+    if (!user) {
+      ret.code = errCode.ADMIN.userFindError.code
+      ret.message = errCode.ADMIN.userFindError.message
+
+      ctx.result = ret
+      return ret
+    }
+
+    user.status = status
+    await user.save()
+
+    ctx.result = ret
+    Log.info(`${ctx.uuid}|status().ret`, ret)
+    return ret
+
+  }
+
+  /**
+   * 获取信息
+   * @param {*} ctx 
+   */
+  async investInfoAndLogs(ctx){
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+
+    Log.info(`${ctx.uuid}|status().body`, ctx.query)
+    let userId = ctx.query.user_id || 0
+
+    let investInfo = UserModel().formulaModel().findOne({
+      where: {user_id : userId}
+    })
+    let investLog = UserModel().investLogsModel().findAll({
+      where:{user_id :userId},
+      order: [
+        ['log_date' , 'DESC']
+      ]
+    })
+
+    let queryRet = await Promise.all([investInfo , investLog])
+    Log.info(`${ctx.uuid}|status().queryRet`, queryRet)
+
+    let investInfoData = queryRet[0].invest_formula
+    console.log(investInfoData)
+    console.log(investInfoData['lv_0'])
+    let investInfoRet = investInfoData['lv_0'] ? (investInfoData['lv_0']['u_' + userId] || null) : null
+    ret.data = {
+      info : investInfoRet,
+      logs : queryRet[1]
+    }
+
+    ctx.result = ret
+
+    return ret
+  }
 }
 
 module.exports = new UserService()
