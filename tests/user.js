@@ -5,9 +5,9 @@ const uuid = require('uuid')
 //   console.log(ret)
 // })
 
-// let ctx = {
-//   uuid: uuid.v4()
-// }
+let ctx = {
+  uuid: uuid.v4()
+}
 // let userId = 1
 // let investData = {
 //   num : 20000,
@@ -22,8 +22,12 @@ const uuid = require('uuid')
 //   console.log(JSON.stringify(ret))
 // })
 
-UserService.compute().then((result) => {
-  console.log(result)
-}).catch((err) => {
-  console.log(err)
-});
+// UserService.compute().then((result) => {
+//   console.log(result)
+// }).catch((err) => {
+//   console.log(err)
+// });
+
+UserService.getUserInfoList(ctx).then(ret => {
+  console.log(ret)
+})

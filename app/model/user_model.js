@@ -61,6 +61,68 @@ class UserModel extends BaseModel {
     return this
   }
 
+  infoModel(){
+    let model = this.db().define('user_info' , {
+      id : {
+        type: Sequelize.BIGINT,
+        primaryKey: true,
+        autoIncrement: false
+      },
+      user_id: {
+        type : Sequelize.BIGINT,
+        defaultValue: 0
+      },
+      nickname: {
+        type: Sequelize.STRING(128),
+        defaultValue:''
+      },
+      realname: {
+        type: Sequelize.STRING(128),
+        defaultValue:''
+      },
+      sex: {
+        type : Sequelize.TINYINT(1),
+        defaultValue:0
+      },
+      birth: {
+        type : Sequelize.BIGINT(11),
+        defaultValue:0
+      },
+      idcard_no: {
+        type: Sequelize.STRING(32),
+        defaultValue:''
+      },
+      idcard_positive: {
+        type: Sequelize.STRING(255),
+        defaultValue:''
+      },
+      idcard_reverse: {
+        type: Sequelize.STRING(255),
+        defaultValue:''
+      },
+      address: {
+        type: Sequelize.TEXT,
+        defaultValue: '',
+        get() {
+          const text = this.getDataValue('address')
+          return text ? JSON.parse(text) : {}
+        },
+        set(val) {
+          let text = val ? JSON.stringify(val) : ''
+          this.setDataValue('address', text)
+        }
+      }
+    },{
+      timestamps: false,
+      createdAt: false,
+      updatedAt: false,
+      freezeTableName: true,
+      tableName: 't_user_info'
+    })
+
+    return model
+  }
+
   formulaModel(){
     let model = this.db().define('user_formula' , {
       user_id : {

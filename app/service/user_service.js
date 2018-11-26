@@ -5,6 +5,8 @@ const UserAssetsModel = require('./../model/user_assets_model')
 const UuidUtils = require('./../utils/uuid_utils')
 const dateUtils = require('./../utils/date_utils')
 const errCode = require('./../common/err_code')
+const Op = require('sequelize').Op
+
 const {
   INVEST_RATES
 } = require('./../../config')
@@ -136,8 +138,9 @@ class UserService {
                   logger.info(`${userId}|level:${level}|childFormula`, childFormula)
 
                   if (childFormula.st < now && childFormula.et > now) {
-                    // childNumInvest += childFormula.num * childFormula.rate / 100
-                    childNumInvest += childFormula.num * childFormula.rate / 100 / childFormula.days // TODO是否除以天数  
+                    let childFormulaNum = (baseNum > childFormula.num) ? childFormula.num : baseNum // 下级购买数量大于自己，使用自己的作为基数
+                    childNumInvest += childFormulaNum * childFormula.rate / 100
+                    // childNumInvest += childFormula.num * childFormula.rate / 100 / childFormula.days // TODO是否除以天数  
                   }
 
                 }
@@ -389,6 +392,51 @@ class UserService {
     let ret = await UserModel().formulaModel().findById(userId)
     Log.info(ctx.uuid, 'getFormulaByUserId().ret', ret)
     return ret
+  }
+
+
+  /**
+   * 获取用户列表，关联查询
+   * @param {*} ctx 
+   * @param {*} where 
+   * @param {*} offset 
+   * @param {*} limit 
+   */
+  async getUserInfoList(ctx, where ={} , offset = 0 , limit = 10){
+    let ret = {
+      code : errCode.SUCCESS.code,
+      message : errCode.SUCCESS.message
+    }
+
+    Log.info(ctx.uuid, 'getUserInfoList().body', ctx.body)
+
+    where = ctx.body.where || {}
+    offset = ctx.body.offset || 0
+    limit = ctx.body.limit || 10
+
+    let map = {}
+    if(where.keyword){
+      map.mobile = {[Op.like] : `%${where.keyword}%`}
+    }
+
+    Log.info(ctx.uuid, 'getUserInfoList().where', where , 'offset|limit' , offset , limit)
+
+    let userModel = UserModel().model()
+    let userInfoModel = UserModel().infoModel()
+
+    userModel.hasOne(userInfoModel , {foreignKey : 'user_id'})
+
+    let data = await userModel.findAndCountAll({
+      where : map,
+      include : {model : userInfoModel},
+      offset: offset,
+      limit : limit
+    })
+    Log.info(ctx.uuid, 'getUserInfoList().ret', ret)
+    ret.data = data
+    ctx.result = ret
+    return ret
+
   }
 
 }
