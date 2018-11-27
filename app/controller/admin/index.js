@@ -51,5 +51,6 @@ router.use(async(req, res, next)=> {
 
 router.use('/news' , require('./news'))
 router.use('/user' , require('./user'))
+router.use('/config' , require('./config'))
 
 module.exports = router
