@@ -42,6 +42,11 @@ router.post('/transactionList' , async(req, res) => {
   return res.return(req.ctx)
 })
 
+router.post('/transactionApply' , async(req, res) => {
+  await userTransactionService.apply(req.ctx)
+  return res.return(req.ctx)
+})
+
 
 
 

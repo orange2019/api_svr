@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize')
 const BaseModel = require('./base_model')
-
+const errCode = require('./../common/err_code')
 class UserAssetsModel extends BaseModel {
 
   constructor() {
@@ -61,6 +61,44 @@ class UserAssetsModel extends BaseModel {
 
     this._model = model
     return this
+  }
+
+  /**
+   * 添加用户fodnum
+   * @param {*} userId 
+   * @param {*} num 
+   * @param {*} t 
+   */
+  async addFodNum(ctx, userId , num , t = null){
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+
+    if(num < 0) {
+      ret.code = errCode.FAIL.code
+      ret.message = 'num error'
+      return ret
+    }
+
+    let data = await this.model().findOne({
+      where: { user_id : userId}
+    })
+    let opts = {}
+    if(t) opts.transaction = t
+
+    if(!data){
+      data = await this.model().create({
+        user_id: userId,
+        fod_num: num
+      })
+    }else {
+      data.fod_num = data.fod_num + num
+      data.save()
+    }
+
+    return ret
+
   }
 
 }

@@ -6,6 +6,10 @@ const Op = require('sequelize').Op
 
 class UserTransactionService {
 
+  /**
+   * 交易列表
+   * @param {*} ctx 
+   */
   async list(ctx){
     let ret = {
       code: errCode.SUCCESS.code,
@@ -51,6 +55,68 @@ class UserTransactionService {
     ctx.result = ret
     return ret
 
+  }
+
+  async apply(ctx){
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+
+    let body = ctx.body || {}
+    Log.info(ctx.uuid, 'getUserInfoList().body', body)
+    let t = await UserModel().getTrans()
+
+    let userTransaction = await UserModel().transactionModel().findOne({
+      where: {uuid: body.uuid}
+    })
+    if(!userTransaction){
+      ret.code = errCode.SUCCESS.code
+      ret.message = '未找到相关条目'
+
+      ctx.result = ret
+      return ret
+    }
+
+    try {
+      // TODO 是否要从接口更新资产
+
+      userTransaction.status = 1
+      let saveRet = await userTransaction.save({transaction: t})
+      if(saveRet.id && userTransaction.type == 1){
+        // 用户资产添加
+        let userId = userTransaction.user_id
+        let num = userTransaction.num_get
+        let addAssetsRet = await UserAssetsModel().addFodNum(ctx , userId , num , t)
+        if(addAssetsRet.code != 0){
+          ret.code = addAssetsRet.code
+          ret.message = addAssetsRet.message
+
+          t.rollback()
+          ctx.result = ret
+          return ret
+        }
+      }
+       
+      // TODO 减少资产
+
+      t.commit()
+      ctx.result = ret
+      return ret
+
+    }catch(err){
+      console.log(err)
+      Log.info(ctx.uuid, 'getUserInfoList().err', err)
+      t.rollback()
+
+      ret.code = errCode.FAIL.code
+      ret.message = '操作失败'
+
+      ctx.result = ret
+      return ret
+    }
+    
+    
   }
 
   /**
