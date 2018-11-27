@@ -111,13 +111,89 @@ class UserModel extends BaseModel {
           let text = val ? JSON.stringify(val) : ''
           this.setDataValue('address', text)
         }
+      },
+      create_time: {
+        type: Sequelize.BIGINT(11),
+        defaultValue: parseInt(Date.now() / 1000)
+      },
+      update_time: {
+        type: Sequelize.BIGINT(11),
+        defaultValue: parseInt(Date.now() / 1000)
       }
     },{
-      timestamps: false,
-      createdAt: false,
-      updatedAt: false,
+      timestamps: true,
+      createdAt: 'create_time',
+      updatedAt: 'update_time',
       freezeTableName: true,
       tableName: 't_user_info'
+    })
+
+    return model
+  }
+
+  transactionModel(){
+    let model = this.db().define('user_transaction' , {
+      id: {
+        type: Sequelize.BIGINT,
+        primaryKey: true,
+        autoIncrement: true
+      },
+      user_id : {
+        type: Sequelize.BIGINT,
+        defaultValue: 0
+      },
+      type: {
+        type: Sequelize.TINYINT(2),
+        defaultValue:1
+      },
+      num_get: {
+        type: Sequelize.BIGINT,
+        defaultValue: 0,
+        get() {
+          const num = this.getDataValue('num_get')
+          return num / 100000000
+        },
+        set(val) {
+          this.setDataValue('num_get', val * 100000000)
+        }
+      },
+      num_sent: {
+        type: Sequelize.BIGINT,
+        defaultValue: 0,
+        get() {
+          const num = this.getDataValue('num_sent')
+          return num / 100000000
+        },
+        set(val) {
+          this.setDataValue('num_sent', val * 100000000)
+        }
+      },
+      score_get:{
+        type: Sequelize.BIGINT,
+        defaultValue:0
+      },
+      create_time: {
+        type: Sequelize.BIGINT(11),
+        defaultValue: parseInt(Date.now() / 1000)
+      },
+      update_time: {
+        type: Sequelize.BIGINT(11),
+        defaultValue: parseInt(Date.now() / 1000)
+      },
+      status: {
+        type: Sequelize.TINYINT(2),
+        defaultValue:0
+      },
+      uuid: {
+        type:Sequelize.STRING(64),
+        defaultValue: Sequelize.UUIDV4
+      }
+    }, {
+      timestamps: true,
+      createdAt: 'create_time',
+      updatedAt: 'update_time',
+      freezeTableName: true,
+      tableName: 't_user_transaction'
     })
 
     return model

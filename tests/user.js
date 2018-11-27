@@ -1,4 +1,6 @@
 const UserService = require('./../app/service/user_service')
+const UserTransactionService = require('./../app/service/user_transaction_service')
+
 const uuid = require('uuid')
 
 // UserService.getById(1).then(ret => {
@@ -28,6 +30,19 @@ let ctx = {
 //   console.log(err)
 // });
 
-UserService.getUserInfoList(ctx).then(ret => {
-  console.log(ret)
+// UserService.getUserInfoList(ctx).then(ret => {
+//   console.log(ret)
+// })
+
+UserTransactionService.list(ctx).then(ret => {
+  console.log('UserTransactionService.list.ret' , ret)
 })
+
+// ctx.body = {
+//   user_id: 1,
+//   type: 1,
+//   num: 1500
+// }
+// UserTransactionService.add(ctx).then(ret => {
+//   console.log('UserTransactionService.add.ret' , ret)
+// })
