@@ -24,11 +24,11 @@ let app = express()
 // app.use(cors(corsOptions))
 
 // 单独起一个文件服务
-// let app2 = express()
-// app2.use('/uploads', express.static(path.join(__dirname , './uploads')))
-// app2.listen(config.port.file_svr, () => {
-//   log.info('file server started on port:' + config.port.file_svr)
-// })
+let app2 = express()
+app2.use('/uploads', express.static(path.join(__dirname , './uploads')))
+app2.listen(config.port.file_svr, () => {
+  log.info('file server started on port:' + config.port.file_svr)
+})
 
 // 设置模板引擎
 // let viewPath = path.join(__dirname , './app/views')
