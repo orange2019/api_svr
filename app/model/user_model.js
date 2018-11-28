@@ -2,6 +2,7 @@ const Sequelize = require('sequelize')
 const BaseModel = require('./base_model')
 const UuidUtils = require('./../utils/uuid_utils')
 const dateUtils = require('./../utils/date_utils')
+const uuidUtils = require('./../utils/uuid_utils')
 
 class UserModel extends BaseModel {
 
@@ -48,6 +49,10 @@ class UserModel extends BaseModel {
         type: Sequelize.STRING(128),
         defaultValue: UuidUtils.v4()
       },
+      code: {
+        type: Sequelize.STRING(12),
+        defaultValue: uuidUtils.random(8)
+      }
 
     }, {
       timestamps: true,
