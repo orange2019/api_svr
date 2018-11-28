@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const CryptoJS = require('crypto-js')
+// const CryptoJS = require('crypto-js')
 const adminService = require('./../../service/admin_service')
 
 router.use(async(req, res, next)=> {
@@ -8,14 +8,15 @@ router.use(async(req, res, next)=> {
   // 解密
 
   // let decryptData = cryptoUtils.decrypt(req.body.data , key.private)
-  let decryptData = CryptoJS.AES.decrypt(req.body.data, 'kaximu2018').toString(CryptoJS.enc.Utf8)
-  decryptData = decryptData ? JSON.parse(decryptData): {}
-
+  // let decryptData = CryptoJS.AES.decrypt(req.body.data, 'kaximu2018').toString(CryptoJS.enc.Utf8)
+  // decryptData = decryptData ? JSON.parse(decryptData): {}
+  let uuid = req.body.uuid
+  let content = req.body.content
   req.ctx = {
-    uuid : req.body.uuid || req.uuid,
-    body : decryptData.body || {},
-    session: decryptData.session || {},
-    query: decryptData.query || {},
+    uuid : uuid,
+    body : content.body || {},
+    session: content.session || {},
+    query: content.query || {},
     result : {}
   }
 
