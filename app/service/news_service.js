@@ -3,8 +3,43 @@ const newsModel = require('./../model/news_model')
 const errCode = require('./../common/err_code')
 const dateUtils = require('./../utils/date_utils')
 const Op = require('sequelize').Op
+const {domain} = require('./../../config')
 
 class NewsService {
+
+  async h5List(ctx){
+    let ret = {
+      code : errCode.SUCCESS.code,
+      message : errCode.SUCCESS.message
+    }
+    Log.info(`${ctx.uuid}|h5List().query` , ctx.query)
+
+    let where = {}
+    let offset = parseInt(ctx.query.offset) || 0
+    let limit = parseInt(ctx.query.limit) || 10
+
+    where.status = 1
+    where.type = ctx.query.type || 1
+    where.category = ctx.query.category || 'NOTICE'
+    Log.info(`${ctx.uuid}|list().where` , where)
+    let queryRet = await newsModel().model().findAndCountAll({
+      where: where,
+      offset: offset,
+      limit: limit,
+      attributes: { exclude: ['content'] },
+      order : [
+        ['sort' , 'asc'],
+        ['post_time' , 'DESC']
+      ]
+    })
+
+    queryRet.rows.forEach( item=> {
+      item.dataValues.cover = domain.img1 + item.dataValues.cover
+    })
+    ret.data = queryRet
+    ctx.result = ret
+    return ret
+  }
 
   async list(ctx){
 

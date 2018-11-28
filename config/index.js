@@ -43,6 +43,11 @@ Kg/tinmLPSqrwKkueOYiXm2XlKso0Wwp45N1QCE831nSWLbBdP1Mvacz1QJAeYt9
 8kq94IKy36X2Vyy7dwJBAKXJKABVdHfmk/gZ/SMk3y4PzoMunktbyxY6MbIjEGeQ
 OZUBe+Rk2hypwpP1KfI/omEP8N7bv51ytNCsblwodyU=
 -----END RSA PRIVATE KEY-----`
+  },
+
+  domain: {
+    img1: 'http://127.0.0.1:4004',
+    img2: 'http://127.0.0.1:4002'
   }
 
 }
