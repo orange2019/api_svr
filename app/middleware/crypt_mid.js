@@ -11,7 +11,7 @@ module.exports = async (req, res, next) => {
       content,
       sign
     } = req.body
-    Log.info(`${uuid}|${req.originalUrl}|${req.body}`)
+    Log.info(`${uuid}|${req.originalUrl}|req.body` , req.body)
     if (!uuid || !content || !sign) {
       return res.status(400).json({
         code: -1,

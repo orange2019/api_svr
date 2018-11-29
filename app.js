@@ -63,8 +63,8 @@ app.use((req, res, next) => {
 // app.use(responseExtendMid)
 
 // 解析post请求数据加密
-// let cryptMid = require('./app/middleware/crypt_mid')
-// app.use(cryptMid)
+let cryptMid = require('./app/middleware/crypt_mid')
+app.use(cryptMid)
 
 // load controllers
 let controller = require('./lib/boot')

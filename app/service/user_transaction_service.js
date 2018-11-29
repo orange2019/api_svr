@@ -158,12 +158,36 @@ class UserTransactionService {
 
       }
 
+      let userAssets = await UserModel().assetsModel().findOne({
+        where: {
+          user_id : userId
+        }
+      })
+      Log.info(ctx.uuid, 'userAssetsUpdate().userAssets', userAssets)
+      if(!userAssets){
+        userAssets = await UserModel().assetsModel().create({
+          user_id: userId
+        })
+      }
+      Log.info(ctx.uuid, 'userAssetsUpdate().userAssets', userAssets)
+
       // TODO 接口获取用户信息
-      let fetchUserInfo = {}
-      let newFodNum = fetchUserInfo.fod_num || user.fod_num + 1
+      let fetchUserInfoRet = {
+        code : 0,
+        message: 'err',
+        data : {
+          token_balance : 10000
+        }
+      }
+
+      if(fetchUserInfoRet.code != 0){
+        throw new Error(fetchUserInfoRet)
+      }
+
+      let newFodNum = fetchUserInfoRet.data.token_balance
       // 测试片段
 
-      if (newFodNum == user.fod_num) {
+      if (newFodNum == userAssets.fod_num) {
 
         ctx.result = ret
         if (t && !self) {

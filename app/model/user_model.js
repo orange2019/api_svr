@@ -50,9 +50,25 @@ class UserModel extends BaseModel {
         type: Sequelize.STRING(128),
         defaultValue: UuidUtils.v4()
       },
-      code: {
+      invite_code: {
         type: Sequelize.STRING(12),
         defaultValue: uuidUtils.random(8)
+      },
+      is_self: {
+        type: Sequelize.TINYINT(2),
+        defaultValue: 1
+      },
+      cookie: {
+        type: Sequelize.TEXT,
+        defaultValue : '',
+        get() {
+          const text = this.getDataValue('cookie')
+          return text ? JSON.parse(text) : {}
+        },
+        set(val) {
+          let text = val ? JSON.stringify(val) : ''
+          this.setDataValue('cookie', text)
+        }
       }
 
     }, {
@@ -125,7 +141,7 @@ class UserModel extends BaseModel {
       update_time: {
         type: Sequelize.BIGINT(11),
         defaultValue: parseInt(Date.now() / 1000)
-      }
+      },
     },{
       timestamps: true,
       createdAt: 'create_time',

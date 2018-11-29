@@ -3,9 +3,46 @@ const UserModel = require('./../model/user_model')
 const UserAssetsModel = require('./../model/user_assets_model')
 const errCode = require('./../common/err_code')
 const Op = require('sequelize').Op
+const userTransactionServie = require('./user_transaction_service')
 
 class UserService {
 
+  /**
+   * 授权
+   * @param {*} ctx 
+   */
+  async getByToken(ctx){
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+
+    let token = ctx.query.token || ''
+    if(!token){
+      ret.code = -1
+      ret.message = 'token err'
+
+      ctx.result = ret
+      return ret
+    }
+
+    let user = await UserModel().model().findOne({
+      where : {auth_token: token}
+    })
+    if(!user || !user.cookie){
+      ret.code = -100
+      ret.message = 'auth err'
+
+      ctx.result = ret
+      return ret
+    }
+
+    ctx.body.user_id = user.id
+    ctx.body.user_uuid = user.uuid
+    ctx.cookie = user.cookie
+
+    return ret
+  }
   /**
    * 获取用户列表，关联查询
    * @param {*} ctx 
@@ -106,6 +143,241 @@ class UserService {
     return ret
 
   }
+
+  /**
+   * 用户信息
+   * @param {*} ctx 
+   */
+  async info(ctx){
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+
+    Log.info(`${ctx.uuid}|info().body`, ctx.body)
+    let userId = ctx.body.user_id || 0
+    
+    let userModel = UserModel().model()
+    let userInfoModel = UserModel().infoModel()
+    // let userAssetsModel = UserAssetsModel().model()
+
+    userModel.hasOne(userInfoModel, {
+      foreignKey: 'user_id'
+    })
+    // userAssetsModel.belongsTo(userModel , {foreignKey : 'id'})
+    // userModel.hasOne(userAssetsModel, {
+    //   foreignKey: 'user_id'
+    // })
+
+    let user = await userModel.findOne({
+      where: {id:userId},
+      include: [
+        {
+          model: userInfoModel
+        },
+        
+      ],
+      attributes: ['id' , 'uuid' , 'mobile' , 'fod_token' , 'status']
+    })
+
+    Log.info(`${ctx.uuid}|info().user`, user)
+
+    // 去接口拿
+    // let infoRetApi = {
+    //   code: 0,
+    //   message: '',
+    //   data : {}
+    // }
+    // if(infoRetApi.code == 0){
+    //   // 判断比较fod币是否一致
+
+    // }
+
+
+    if(!user){
+      ret.code = errCode.FAIL.code
+      ret.message = '未找到用户'
+    }
+    
+    ret.data = {
+      user : user
+    }
+
+    ctx.result = ret
+    return ret
+  }
+
+  async userAssets(ctx){
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+
+    Log.info(`${ctx.uuid}|userAssets().body`, ctx.body)
+    let userId = ctx.body.user_id || 0
+    
+    let userModel = UserModel().model()
+
+    let user = await userModel.findById(userId)
+
+    Log.info(`${ctx.uuid}|userAssets().user`, user)
+    if(!user){
+      ret.code = errCode.FAIL.code
+      ret.message = '未找到用户'
+      ctx.result = ret
+      return ret
+    }
+
+    // 调用userTransactionService 更新 asset
+    let retUserAssetsUpdate = await userTransactionServie.userAssetsUpdate(ctx, userId)
+    Log.info(`${ctx.uuid}|userAssets().retUserAssetsUpdate`, retUserAssetsUpdate)
+
+    let userAssets = await UserModel().assetsModel().findOne({
+      where: {user_id : userId}
+    })
+    Log.info(`${ctx.uuid}|userAssets().userAssets`, userAssets)
+    ret.data = {
+      assets : userAssets
+    }
+
+    ctx.result = ret
+    return ret
+  }
+
+  async infoUpdate(ctx){
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+
+    let body = ctx.body
+    Log.info(`${ctx.uuid}|infoUpdate().body`, ctx.body)
+    let userId = ctx.body.user_id || 0
+
+    let userInfo = await UserModel().infoModel().findOne({
+      where : {user_id : userId}
+    })
+
+    Log.info(`${ctx.uuid}|infoUpdate().userInfo`, ctx.userInfo)
+    if(!userInfo){
+      let userData = {
+        realname: body.realname,
+        idcard_no: body.idcard_no,
+        idcard_positive: body.idcard_positive,
+        idcard_reverse: body.idcard_positive,
+        user_id: userId
+      }
+
+      let retUpdate = await UserModel().infoModel().create(userData)
+
+      if(!retUpdate){
+        ret.code = errCode.FAIL.code
+        ret.message = '更新失败'
+
+        ctx.result = ret
+        return ret
+      }
+    }else{
+      userInfo.realname = body.realname
+      userInfo.idcard_no = body.idcard_no
+      userInfo.idcard_positive = body.idcard_positive
+      userInfo.idcard_reverse  = body.idcard_positive
+
+      let retUpdate = await userInfo.save()
+      if(!retUpdate){
+        ret.code = errCode.FAIL.code
+        ret.message = '更新失败'
+
+        ctx.result = ret
+        return ret
+      }
+    }
+
+    return ret
+  }
+
+  /**
+   * 邀请列表
+   */
+  async inviteList(ctx){
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+
+    Log.info(ctx.uuid, 'inviteList().body', ctx.body)
+
+    let userId = ctx.body.user_id || 0
+    if(!userId){
+      ret.code = errCode.FAIL.code
+      ret.message = 'user_id err'
+    }
+
+    let map = {}
+    map.pid = userId
+    map.status = 1
+
+    Log.info(ctx.uuid, 'inviteList().where', map)
+
+    let userModel = UserModel().model()
+    let userInfoModel = UserModel().infoModel()
+
+    userModel.hasOne(userInfoModel, {
+      foreignKey: 'user_id'
+    })
+
+    let data = await userModel.findAndCountAll({
+      where: map,
+      include: [
+        {
+          model: userInfoModel
+        }
+      ],
+      order: [
+        ['create_time' , 'DESC']
+      ],
+      attributes: ['id' , 'uuid' , 'mobile' , 'fod_token' , 'status']
+    })
+    
+    ret.data = data
+    Log.info(ctx.uuid, 'inviteList().ret', ret)
+    ctx.result = ret
+    return ret
+  }
+
+  /**
+   * 更改密码
+   * @param {*} ctx 
+   */
+  async changePwd(ctx){
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+    
+
+    // 请求接口 TODO
+
+    ctx.result = ret
+    return ret
+  }
+
+  /**
+   * 设置交易密码
+   * @param {*} ctx 
+   */
+  setTradePwd(ctx){
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+
+    // 请求接口
+
+    ctx.result = ret
+    return ret
+  }
+
 
 }
 
