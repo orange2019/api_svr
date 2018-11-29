@@ -21,6 +21,18 @@ let config = {
 
   INVEST_RATES : [6 , 3 , 1.5 , 0.75 , 0.38 , 0.19 , 0.1],
 
+  TRANSACTION_TYPE : {
+    ASSETS_IN: 1, // 充值
+    ASSETS_OUT: 2, // 提现
+    TRANSTER_IN: 3, //转账入
+    TRANSTER_OUT: 4, // 转账出
+    INVEST_IN: 5, // 投资入
+    INVEST_OUT: 6, // 投资出
+    SCORE_IN: 7, // 积分兑换
+    SCORE_OUT: 8, // 积分消费
+    UPDATE: 9
+  },
+
   key : {
     public: `-----BEGIN PUBLIC KEY-----
 MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCTxS5zZcYCvciblqNcNmPIVKQa
