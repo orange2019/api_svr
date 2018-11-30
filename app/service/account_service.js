@@ -15,17 +15,64 @@ class Account_Service {
     /**
      * 用户注册
      */
-    async accountRegister()
+    async accountRegister(ctx)
     {
+        let ret = {
+            code : errCode.SUCCESS.code,
+            message : errCode.SUCCESS.message
+        };
+        var user = await UserModel().model().build({
+            'mobile'     : ctx.mobile,
+            'password'   : ctx.password,
+            'fod_token'  : ctx.fod_token,
+            'auth_token' : ctx.auth_token,
+            'status' : 0,
+            'pid'    : ctx.pid || 0,
+            'uuid'   : '',
 
+        });
+        user = await user.save();
+        //TODO 生成token
+        let token = await this._generateToken(user);
+        ret.data = {
+            token : token
+        };
+  
+        ctx.result = ret
+        return ret
     }
 
     /**
      * 用户登陆
      */
-    async accountLogin()
+    async accountLogin(ctx)
     {
-
+        let ret = {
+            code : errCode.SUCCESS.code,
+            message : errCode.SUCCESS.message
+          }
+          let { mobile, password } = ctx.body
+      
+          let user = await UserModel().model().findOne({
+            where: {
+                mobile: mobile
+            }
+          })
+          Log.info(`${ctx.uuid}|login().admin` , user , cryptoUtils.md5(password))
+      
+          if(!user || user.password.toUpperCase() != cryptoUtils.md5(password)){
+            ret.code = errCode.ACCOUNT.loginFail.code;
+            ret.message = errCode.ACCOUNT.loginFail.message;
+          }else {
+            //TODO 生成token
+            let token = await this._generateToken(user);
+            ret.data = {
+                token : token
+            };
+          }
+      
+          ctx.result = ret
+          return ret
     }
 
     /**
@@ -50,6 +97,31 @@ class Account_Service {
         return data;
     }
 
+    /**
+     * 修改用户信息
+     * @param {Object} params 
+     */
+    async accountInfoUpdate(params){
+        let ret = {
+            code: errCode.SUCCESS.code,
+            message: errCode.SUCCESS.message
+        };
+
+        let userId = params.userId || '';
+        let user = await this.accountInfo(userId);
+
+        if(!user){
+            ret.code = errCode.ACCOUNT.accountNotFound.code;
+            ret.message = errCode.ACCOUNT.accountNotFound.message;
+            // ctx.result = ret
+            return ret;
+        }
+        user.nickname = params.nickname || user.nickname;
+        user.birth = params.birth || user.birth;
+        await user.save();
+        return ret;
+    }
+
     async accountChangePassword()
     {
         //TODO: 校验验证码完成后，再执行修改密码
@@ -69,20 +141,31 @@ class Account_Service {
     {
         Log.info(`_changePassword | ${params}`);
         console.log(params);
+        let ret = {
+            code: errCode.SUCCESS.code,
+            message: errCode.SUCCESS.message
+          }
         let userId = params.userId || 0 ;
         let password = params.password || null ;
         if( !password )
         {
-            throw new Error('修改密码不能为空！');
+            ret.code = errCode.ACCOUNT.accountNotFound.code;
+            ret.message = errCode.ACCOUNT.accountNotFound.message;
+            // ctx.result = ret
+            return ret;
         }
         let user = await UserModel().model().findById(userId);
         if (!user) {
-            throw new Error('未找到对应用户！');
+            ret.code = errCode.ACCOUNT.passwordNotNull.code;
+            ret.message = errCode.ACCOUNT.passwordNotNull.message;
+            // ctx.result = ret
+            return ret;
         }
         //保存密码
         user.password = password;
         await user.save();
-        return true;
+        // ctx.result = ret
+        return ret;
     }
 
     /**

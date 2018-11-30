@@ -27,6 +27,22 @@ module.exports = {
       code : 100101,
       message: '未找到对应用户'
     }
+  },
+
+  ACCOUNT: {
+    accountNotFound : {
+      code    : 40001,
+      message : '未找到对应用户' 
+    },
+    passwordNotNull : {
+      code    : 40002,
+      message : '修改密码不能为空' 
+    },
+    loginFail : {
+      code    : 40003,
+      message : '登陆失败'
+    }
+
   }
 
 }

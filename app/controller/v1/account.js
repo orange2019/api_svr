@@ -19,23 +19,24 @@ router.post('/register', (req,res) => {
     )
 });
 
-router.post('/change_pw',(req,res) => {
-    let message;
+router.post('/change_pw', async (req,res) => {
+    // let message;
     let params = req.body;
-    accountService._changePassword(params)
-    .then(data=>{
-        message = 'success!';
-        return res.send(
-            JSON.stringify({code:200,message:message})
-        )
-    })
-    .catch(err=>{
-        console.log(err);
-        message = err.message;
-        return res.send(
-            JSON.stringify({code:200,message:message})
-        )
-    })
+     await accountService._changePassword(params)
+     return res.return(req.ctx);
+    // .then(data=>{
+    //     message = 'success!';
+    //     return res.send(
+    //         JSON.stringify({code:200,message:message})
+    //     )
+    // })
+    // .catch(err=>{
+    //     console.log(err);
+    //     message = err.message;
+    //     return res.send(
+    //         JSON.stringify({code:200,message:message})
+    //     )
+    // })
 });
 
 router.post('/info',(req,res) => {
@@ -47,6 +48,10 @@ router.post('/info',(req,res) => {
         )
     });
 
+});
+
+router.post('/updateInfo', async ( req, res ) => {
+    accountService.
 });
 
 
