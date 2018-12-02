@@ -4,6 +4,7 @@ const UserAssetsModel = require('./../model/user_assets_model')
 const errCode = require('./../common/err_code')
 const Op = require('sequelize').Op
 const userTransactionServie = require('./user_transaction_service')
+const cryptoUtils = require('./../utils/crypto_utils')
 
 class UserService {
 
@@ -27,9 +28,15 @@ class UserService {
     }
 
     let user = await UserModel().model().findOne({
-      where : {auth_token: token}
+      where : {
+        [Op.or] : [
+          {auth_token_1: token},
+          {auth_token_2: token}
+        ]
+      }
     })
-    if(!user || !user.cookie){
+
+    if(!user){
       ret.code = -100
       ret.message = 'auth err'
 
@@ -39,10 +46,10 @@ class UserService {
 
     ctx.body.user_id = user.id
     ctx.body.user_uuid = user.uuid
-    ctx.cookie = user.cookie
 
     return ret
   }
+  
   /**
    * 获取用户列表，关联查询
    * @param {*} ctx 
@@ -155,19 +162,14 @@ class UserService {
     }
 
     Log.info(`${ctx.uuid}|info().body`, ctx.body)
-    let userId = ctx.body.user_id || 0
+    let userId = ctx.body.user_id
     
     let userModel = UserModel().model()
     let userInfoModel = UserModel().infoModel()
-    // let userAssetsModel = UserAssetsModel().model()
 
     userModel.hasOne(userInfoModel, {
       foreignKey: 'user_id'
     })
-    // userAssetsModel.belongsTo(userModel , {foreignKey : 'id'})
-    // userModel.hasOne(userAssetsModel, {
-    //   foreignKey: 'user_id'
-    // })
 
     let user = await userModel.findOne({
       where: {id:userId},
@@ -182,18 +184,6 @@ class UserService {
 
     Log.info(`${ctx.uuid}|info().user`, user)
 
-    // 去接口拿
-    // let infoRetApi = {
-    //   code: 0,
-    //   message: '',
-    //   data : {}
-    // }
-    // if(infoRetApi.code == 0){
-    //   // 判断比较fod币是否一致
-
-    // }
-
-
     if(!user){
       ret.code = errCode.FAIL.code
       ret.message = '未找到用户'
@@ -207,6 +197,10 @@ class UserService {
     return ret
   }
 
+  /**
+   * 用户资产
+   * @param {*} ctx 
+   */
   async userAssets(ctx){
     let ret = {
       code: errCode.SUCCESS.code,
@@ -214,19 +208,8 @@ class UserService {
     }
 
     Log.info(`${ctx.uuid}|userAssets().body`, ctx.body)
-    let userId = ctx.body.user_id || 0
-    
-    let userModel = UserModel().model()
-
-    let user = await userModel.findById(userId)
-
-    Log.info(`${ctx.uuid}|userAssets().user`, user)
-    if(!user){
-      ret.code = errCode.FAIL.code
-      ret.message = '未找到用户'
-      ctx.result = ret
-      return ret
-    }
+    let userId = ctx.body.user_id // 鉴权通过了，不可能是0
+  
 
     // 调用userTransactionService 更新 asset
     let retUserAssetsUpdate = await userTransactionServie.userAssetsUpdate(ctx, userId)
@@ -244,6 +227,10 @@ class UserService {
     return ret
   }
 
+  /**
+   * 更新
+   * @param {*} ctx 
+   */
   async infoUpdate(ctx){
     let ret = {
       code: errCode.SUCCESS.code,
@@ -307,11 +294,7 @@ class UserService {
 
     Log.info(ctx.uuid, 'inviteList().body', ctx.body)
 
-    let userId = ctx.body.user_id || 0
-    if(!userId){
-      ret.code = errCode.FAIL.code
-      ret.message = 'user_id err'
-    }
+    let userId = ctx.body.user_id
 
     let map = {}
     map.pid = userId
@@ -355,29 +338,17 @@ class UserService {
       message: errCode.SUCCESS.message
     }
     
+    let userId = ctx.body.user_id
+    let password = ctx.body.password 
 
-    // 请求接口 TODO
+    let user = await UserModel().model().findById(userId)
 
-    ctx.result = ret
-    return ret
-  }
-
-  /**
-   * 设置交易密码
-   * @param {*} ctx 
-   */
-  setTradePwd(ctx){
-    let ret = {
-      code: errCode.SUCCESS.code,
-      message: errCode.SUCCESS.message
-    }
-
-    // 请求接口
+    user.password = cryptoUtils.md5(password)
+    user.save()
 
     ctx.result = ret
     return ret
   }
-
 
 }
 

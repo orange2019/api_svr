@@ -38,11 +38,11 @@ class UserModel extends BaseModel {
         type: Sequelize.INTEGER(2),
         defaultValue: 0
       },
-      auth_token: {
+      auth_token_1: {
         type: Sequelize.STRING(128),
         defaultValue: ''
       },
-      fod_token: {
+      auth_token_2: {
         type: Sequelize.STRING(128),
         defaultValue: ''
       },
@@ -54,22 +54,14 @@ class UserModel extends BaseModel {
         type: Sequelize.STRING(12),
         defaultValue: uuidUtils.random(8)
       },
-      is_self: {
-        type: Sequelize.TINYINT(2),
-        defaultValue: 1
+      wallet_address: {
+        type: Sequelize.STRING(64),
+        defaultValue: ''
       },
-      cookie: {
-        type: Sequelize.TEXT,
-        defaultValue : '',
-        get() {
-          const text = this.getDataValue('cookie')
-          return text ? JSON.parse(text) : {}
-        },
-        set(val) {
-          let text = val ? JSON.stringify(val) : ''
-          this.setDataValue('cookie', text)
-        }
-      }
+      private_key: {
+        type: Sequelize.STRING(128),
+        defaultValue: ''
+      },
 
     }, {
       timestamps: true,

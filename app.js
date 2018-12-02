@@ -70,7 +70,6 @@ app.use(cryptMid)
 let controller = require('./lib/boot')
 controller(app, { verbose: !module.parent })
 
-
 app.use(function(err, req, res, next){
   // log it
   if (!module.parent) {

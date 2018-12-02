@@ -3,13 +3,14 @@ const router = express.Router()
 const userService = require('./../../service/user_service')
 const Log = require('./../../../lib/log')('app-control')
 
-router.use(async(req, res, next)=> {
+// 解析请求数据
+router.use(async (req, res, next) => {
 
   let uuid = req.body.uuid
   let content = req.body.content
   req.ctx = {
-    uuid : uuid,
-    body : content || {},
+    uuid: uuid,
+    body: content || {},
     query: req.query || {}
   }
 
@@ -17,14 +18,15 @@ router.use(async(req, res, next)=> {
 })
 
 
-router.use('/common' , require('./common'))
-router.use('/auth' , require('./auth'))
+router.use('/common', require('./common'))
+router.use('/auth', require('./auth'))
 
-router.use(async(req, res , next) => {
+// 鉴权
+router.use(async (req, res, next) => {
 
   let checkToken = await userService.getByToken(req.ctx)
-  Log.info(req.ctx.uuid , 'checkToken' , checkToken)
-  if(checkToken.code !== 0){
+  Log.info(req.ctx.uuid, 'checkToken', checkToken)
+  if (checkToken.code !== 0) {
     return res.json(checkToken)
   }
 
@@ -32,7 +34,7 @@ router.use(async(req, res , next) => {
 })
 
 // 需要鉴权的
-router.use('/account' , require('./account'))
+router.use('/account', require('./account'))
 
 
 module.exports = router

@@ -50,10 +50,9 @@ OZUBe+Rk2hypwpP1KfI/omEP8N7bv51ytNCsblwodyU=
 # 钱包APP接口
 
 ## 用户模块
+
 ### 0. 发送验证码
-
-
-`/common/vrcode`  
+`/common/verifyCode`  
 
 body 无
 
@@ -64,6 +63,7 @@ body 无
   message :''
 }
 ```
+ps: 还未申请短信接口，默认发送成功
 
 ### 1.注册
 
@@ -74,7 +74,7 @@ body
 {
   mobile : '', // 手机号
   password : '', // 密码
-  vr: '', // 验证码 
+  verify_code: '', // 验证码 
   invite_code: '' //邀请码 
 }
 ```
@@ -116,7 +116,7 @@ body
 {
   mobile : '', // 手机号
   password : '', // 密码
-  vr: '' // 验证码
+  verify_code: '' // 验证码
 }
 ```
 

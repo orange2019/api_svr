@@ -9,7 +9,7 @@ let content = {
   mobile: '18676669416',
   password: '123456',
   vr: '',
-  invite_code: '888888'
+  invite_code: ''
 }
 let cryptStr = cryptUtils.hmacMd5(content, reqUuid)
 let sign = cryptUtils.sign(cryptStr, config.private)
