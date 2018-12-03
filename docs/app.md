@@ -202,5 +202,23 @@ body
 }
 
 
+## 其他
+
+### 上传文件
+
+`/upload`
+
+body 无
+
+返回
+```js
+{
+  code: 0,
+  message: ''
+  data: {
+    url : url
+  }
+}
+
 
 

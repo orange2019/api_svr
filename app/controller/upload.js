@@ -5,7 +5,8 @@ const path = require('path')
 const fs = require('fs')
 const dateUtils = require('./../utils/date_utils')
 const uuidUtils = require('./../utils/uuid_utils')
-
+const config = require('./../../config')
+const Log = require('./../../lib/log')('upload')
 
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -32,15 +33,21 @@ router.post('/', async (req, res) => {
 
   upload(req, res, (err) => {
     if(err){
-      console.log(err)
-      return res.json({error:1, message: '上传失败'})
+      Log.error(err)
+      return res.json({code:1, message: '上传失败'})
     }
 
-    console.log(req.files)
+    Log.info(req.files)
     let filePath = path.join('/uploads/images/' , dateUtils.dateFormat(null, 'YYYYMMDD/') , req.files[0].filename)
-    return res.send(
-      JSON.stringify({error:0, url: filePath})
-    )
+    let url = config.domain.img2 + filePath
+    Log.info(url)
+    return res.json({
+      code: 0 ,
+      message: '上传成功',
+      data : {
+        url : url
+      }
+    })
     // 
   })
 
