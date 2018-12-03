@@ -44,23 +44,34 @@ class Web3Proxy {
     }
     let signed = await this.web3.eth.accounts.signTransaction(tx, account.privateKey)
     console.log(signed.rawTransaction)
+
     let tran = this.web3.eth.sendSignedTransaction(signed.rawTransaction)
-    tran.on('confirmation', (confirmationNumber, receipt) => {
-      console.log('confirmation: ' + confirmationNumber)
-    })
-
-    tran.on('transactionHash', hash => {
-      console.log('hash')
-      console.log(hash)
-    })
-
-    tran.on('receipt', receipt => {
-      console.log('reciept')
-      console.log(receipt)
-    })
-
-    tran.on('error', console.error)
-    return 
+    let getTranRet = (tran) => {
+      return new Promise((r,j)=> {
+        tran.on('confirmation', (confirmationNumber, receipt) => {
+          console.log('confirmation: ' + confirmationNumber)
+        })
+    
+        tran.on('transactionHash', hash => {
+          console.log('hash')
+          console.log(hash)
+        })
+    
+        tran.on('receipt', receipt => {
+          console.log('reciept')
+          console.log(receipt)
+          r(receipt)
+        })
+    
+        tran.on('error', err => {
+          console.error(err)
+          j(err)
+        })
+        
+      })
+    }
+    
+    return await getTranRet(tran)
 
     let estimateGas = await deploy.estimateGas()
     // console.log(estimateGas)

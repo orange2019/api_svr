@@ -43,6 +43,10 @@ class TestModel extends BaseModel {
 
   async update(params){
     let data = await this.getData()
+    if(!data){
+      data = await this.model().create(params)
+      return data
+    }
     return await data.update(params)
   }
 
