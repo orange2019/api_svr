@@ -1,7 +1,8 @@
 const Web3 = require('web3')
-const erc20Json = require('./erc20.json')
+const erc20Json = require('./KxmCoin.json')
 var Tx = require('ethereumjs-tx')
-// var TestRPC = require("ethereumjs-testrpc");
+var BigNumber = require('big-number')
+// var TestRPC = require("ethereumjs-testrpc")
 
 class Web3Proxy {
 
@@ -14,7 +15,7 @@ class Web3Proxy {
       // console.log('get web3')
       this.web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"))
       // this.web3.setProvider(TestRPC.provider())
-      // web3.setProvider(ganache.provider());
+      // web3.setProvider(ganache.provider())
     }
 
     // var connected = this.web3.isConnected()
@@ -22,6 +23,74 @@ class Web3Proxy {
     //   return null
     // } 
 
+  }
+
+  /**
+   * 部署合约
+   * @param {*} from 
+   */
+  async deployContract(account) {
+    let abi = erc20Json.abi
+    let contract = new this.web3.eth.Contract(abi)
+    let deploy = contract.deploy({
+      data: erc20Json.bytecode
+    })
+
+    // console.log(deploy.encodeABI())
+    let tx = {
+      from: account.address,
+      gas: 2000000,
+      data: deploy.encodeABI()
+    }
+    let signed = await this.web3.eth.accounts.signTransaction(tx, account.privateKey)
+    console.log(signed.rawTransaction)
+    let tran = this.web3.eth.sendSignedTransaction(signed.rawTransaction)
+    tran.on('confirmation', (confirmationNumber, receipt) => {
+      console.log('confirmation: ' + confirmationNumber)
+    })
+
+    tran.on('transactionHash', hash => {
+      console.log('hash')
+      console.log(hash)
+    })
+
+    tran.on('receipt', receipt => {
+      console.log('reciept')
+      console.log(receipt)
+    })
+
+    tran.on('error', console.error)
+    return 
+
+    let estimateGas = await deploy.estimateGas()
+    // console.log(estimateGas)
+    let gasPrice = await this.getGasPrice()
+    gasPrice = (estimateGas * gasPrice).toString()
+    // console.log(gasPrice)
+    console.log('这将花费:', this.web3.utils.fromWei(gasPrice))
+
+    deploy.send({
+      from: from,
+      gas: estimateGas,
+      gasPrice: gasPrice
+    }, function (error, transactionHash) {
+      console.log('transactionHash:', transactionHash)
+    })
+      .on('error', function (error) {
+
+      })
+      .on('transactionHash', function (transactionHash) {
+
+      })
+      .on('receipt', function (receipt) {
+        console.log(receipt.contractAddress) // contains the new contract address
+      })
+      .on('confirmation', function (confirmationNumber, receipt) {
+
+      })
+      .then(function (newContractInstance) {
+        console.log(newContractInstance.options.address) // instance with the new contract address
+      })
   }
 
   async getGasPrice() {
@@ -32,15 +101,24 @@ class Web3Proxy {
 
   }
 
-  async sendTransaction(from, to, value , privateKey) {
+  /**
+   * 发送交易，在私链上
+   * @param {*} from 
+   * @param {*} to 
+   * @param {*} value 
+   */
+  async sendTransaction(from, to, value) {
+    value = this.web3.utils.toWei(value.toString())
+    let result = this.web3.eth.sendTransaction({
+      from: from,
+      to: to,
+      value: value
+    })
+    return result
+  }
 
-    // let result = this.web3.eth.sendTransaction({
-    //   from: from,
-    //   to: to,
-    //   value: value
-    // })
+  async sendSignTransaction(from, to, value, privateKey) {
 
-    // return result
     let nonce = await this.web3.eth.getTransactionCount(from, this.web3.eth.defaultBlock.pending)
     nonce++
 
