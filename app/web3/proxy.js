@@ -1,7 +1,7 @@
 const Web3 = require('web3')
 const erc20Json = require('./KxmCoin.json')
 var Tx = require('ethereumjs-tx')
-var BigNumber = require('big-number')
+// var BigNumber = require('big-number')
 // var TestRPC = require("ethereumjs-testrpc")
 
 class Web3Proxy {
