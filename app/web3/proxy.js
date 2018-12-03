@@ -1,6 +1,6 @@
 const Web3 = require('web3')
 const erc20Json = require('./KxmCoin.json')
-var Tx = require('ethereumjs-tx')
+// var Tx = require('ethereumjs-tx')
 // var BigNumber = require('big-number')
 // var TestRPC = require("ethereumjs-testrpc")
 
@@ -128,42 +128,42 @@ class Web3Proxy {
     return result
   }
 
-  async sendSignTransaction(from, to, value, privateKey) {
+  // async sendSignTransaction(from, to, value, privateKey) {
 
-    let nonce = await this.web3.eth.getTransactionCount(from, this.web3.eth.defaultBlock.pending)
-    nonce++
+  //   let nonce = await this.web3.eth.getTransactionCount(from, this.web3.eth.defaultBlock.pending)
+  //   nonce++
 
-    var txData = {
-      // nonce每次++，以免覆盖之前pending中的交易
-      nonce: this.web3.utils.toHex(nonce++),
-      // 设置gasLimit和gasPrice
-      gasLimit: this.web3.utils.toHex(99000),
-      gasPrice: this.web3.utils.toHex(10e9),
-      // 要转账的哪个账号  
-      to: to,
-      // 从哪个账号转
-      from: from,
-      // 0.001 以太币
-      value: this.web3.utils.toHex(10e14),
-      data: ''
-    }
+  //   var txData = {
+  //     // nonce每次++，以免覆盖之前pending中的交易
+  //     nonce: this.web3.utils.toHex(nonce++),
+  //     // 设置gasLimit和gasPrice
+  //     gasLimit: this.web3.utils.toHex(99000),
+  //     gasPrice: this.web3.utils.toHex(10e9),
+  //     // 要转账的哪个账号  
+  //     to: to,
+  //     // 从哪个账号转
+  //     from: from,
+  //     // 0.001 以太币
+  //     value: this.web3.utils.toHex(10e14),
+  //     data: ''
+  //   }
 
-    var tx = new Tx(txData)
+  //   var tx = new Tx(txData)
 
-    // 引入私钥，并转换为16进制
-    privateKey = new Buffer(privateKey, 'hex')
+  //   // 引入私钥，并转换为16进制
+  //   privateKey = new Buffer(privateKey, 'hex')
 
-    // 用私钥签署交易
-    tx.sign(privateKey)
+  //   // 用私钥签署交易
+  //   tx.sign(privateKey)
 
-    // 序列化
-    var serializedTx = tx.serialize().toString('hex')
+  //   // 序列化
+  //   var serializedTx = tx.serialize().toString('hex')
 
-    this.web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex')).on('receipt', console.log)
+  //   this.web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex')).on('receipt', console.log)
 
-    return true
+  //   return true
 
-  }
+  // }
 
   async balanceOf(address) {
     let value = await this.web3.eth.getBalance(address)
