@@ -59,7 +59,9 @@ OZUBe+Rk2hypwpP1KfI/omEP8N7bv51ytNCsblwodyU=
 
   domain: {
     img1: 'http://127.0.0.1:4004',
-    img2: 'http://127.0.0.1:4002'
+    img2: 'http://127.0.0.1:4002',
+
+    blockchain: 'http://localhost:8545'
   }
 
 }

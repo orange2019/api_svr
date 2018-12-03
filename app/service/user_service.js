@@ -1,10 +1,11 @@
 const Log = require('./../../lib/log')('user_service')
 const UserModel = require('./../model/user_model')
 const UserAssetsModel = require('./../model/user_assets_model')
+const ContractTokenModel = require('./../model/contract_token_model')
 const errCode = require('./../common/err_code')
 const Op = require('sequelize').Op
-const userTransactionServie = require('./user_transaction_service')
 const cryptoUtils = require('./../utils/crypto_utils')
+const web3 = require('./../web3')
 
 class UserService {
 
@@ -49,7 +50,7 @@ class UserService {
 
     return ret
   }
-  
+
   /**
    * 获取用户列表，关联查询
    * @param {*} ctx 
@@ -209,19 +210,21 @@ class UserService {
 
     Log.info(`${ctx.uuid}|userAssets().body`, ctx.body)
     let userId = ctx.body.user_id // 鉴权通过了，不可能是0
-  
 
-    // 调用userTransactionService 更新 asset
-    let retUserAssetsUpdate = await userTransactionServie.userAssetsUpdate(ctx, userId)
-    Log.info(`${ctx.uuid}|userAssets().retUserAssetsUpdate`, retUserAssetsUpdate)
+    let user = await UserModel().model().findById(userId)
+    let accountAddress = user.wallet_address
 
-    let userAssets = await UserModel().assetsModel().findOne({
-      where: {user_id : userId}
-    })
-    Log.info(`${ctx.uuid}|userAssets().userAssets`, userAssets)
-    ret.data = {
-      assets : userAssets
-    }
+    let contractToken = await ContractTokenModel().getData()
+    let contractAddress = contractToken.contract_address
+    
+    let userBalance = await web3.getBalance(accountAddress)
+    let userTokenBalance = await web3.getTokenBalance(contractAddress, accountAddress)
+
+    let data = user.dataValues
+    data.balance = userBalance
+    data.token_balance = userTokenBalance
+    
+    ret.data = data
 
     ctx.result = ret
     return ret
