@@ -166,8 +166,8 @@ class UserService {
           })
 
           user = await UserAssetsModel().model().findById(userId)
-          user.fod_num = user.fod_num + investNum
-          user.fod_num_frozen = user.fod_num_frozen - selfNumUnfrozen
+          user.token_num = user.token_num + investNum
+          user.token_num_frozen = user.token_num_frozen - selfNumUnfrozen
           await user.save()
 
         } catch (err) {
@@ -192,7 +192,7 @@ class UserService {
    */
   async invest(ctx, userId, investData) {
 
-    let fodNum = investData.num
+    let tokenNum = investData.num
     let ret = {
       code: errCode.SUCCESS.code,
       message: errCode.SUCCESS.message,
@@ -211,7 +211,7 @@ class UserService {
     // 判断资产是否足够
     let userAssets = await this.getAssestByUserId(ctx, userId)
     Log.info(ctx.uuid, 'invest().userAssets', userAssets)
-    if (!userAssets || userAssets.fod_num < fodNum) {
+    if (!userAssets || userAssets.token_num < tokenNum) {
       ret.code = 200002
       ret.message = '用户资产不足'
       return ret
@@ -254,8 +254,8 @@ class UserService {
 
     // 更新资产
     let userAssetUpdate = await userAssets.update({
-      fod_num: userAssets.fod_num - fodNum,
-      fod_num_frozen: userAssets.fod_num_frozen + fodNum
+      token_num: userAssets.token_num - tokenNum,
+      token_num_frozen: userAssets.token_num_frozen + tokenNum
     }, {
       transaction: t
     })

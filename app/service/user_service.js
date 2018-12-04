@@ -180,7 +180,7 @@ class UserService {
         },
         
       ],
-      attributes: ['id' , 'uuid' , 'mobile' , 'fod_token' , 'status']
+      attributes: ['id' , 'uuid' , 'mobile' ,'wallet_address' ,'status']
     })
 
     Log.info(`${ctx.uuid}|info().user`, user)
@@ -322,7 +322,7 @@ class UserService {
       order: [
         ['create_time' , 'DESC']
       ],
-      attributes: ['id' , 'uuid' , 'mobile' , 'fod_token' , 'status']
+      attributes: ['id' , 'uuid' , 'mobile' , 'status']
     })
     
     ret.data = data
@@ -342,12 +342,18 @@ class UserService {
     }
     
     let userId = ctx.body.user_id
-    let password = ctx.body.password 
+    let { password , password_again}  = ctx.body 
+    if(password !== password_again){
+      ret.code = errCode.FAIL.code
+      ret.message = '两次密码输入不一致'
 
+      ctx.result = ret
+      return ret
+    }
     let user = await UserModel().model().findById(userId)
 
     user.password = cryptoUtils.md5(password)
-    user.save()
+    await user.save()
 
     ctx.result = ret
     return ret

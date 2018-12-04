@@ -11,7 +11,7 @@ class AccountService {
    * 用户资产
    * @param {*} ctx 
    */
-  async userAssets(ctx){
+  async userAssets(ctx) {
     let ret = {
       code: errCode.SUCCESS.code,
       message: errCode.SUCCESS.message
@@ -25,16 +25,20 @@ class AccountService {
 
     let contractToken = await ContractTokenModel().getData()
     let contractAddress = contractToken.contract_address
-    
+    let contractOwner = contractToken.address
+    Log.info(`${ctx.uuid}|userAssets().contractAddress`, contractAddress)
+    Log.info(`${ctx.uuid}|userAssets().accountAddress`, accountAddress)
+
     let userBalance = await web3.getBalance(accountAddress)
-    let userTokenBalance = await web3.getTokenBalance(contractAddress, accountAddress)
+    Log.info(`${ctx.uuid}|userAssets().userBalance`, userBalance)
+    let userTokenBalance = await web3.getTokenBalance(contractAddress, accountAddress, contractOwner)
 
     let data = {
-      user_id : user.uuid
+      user_id: user.uuid
     }
     data.balance = userBalance
     data.token_balance = userTokenBalance
-    
+
     ret.data = data
     Log.info(`${ctx.uuid}|userAssets().ret`, ret)
 
@@ -42,7 +46,7 @@ class AccountService {
     return ret
   }
 
-  async assetsIn(ctx){
+  async assetsIn(ctx) {
     let ret = {
       code: errCode.SUCCESS.code,
       message: errCode.SUCCESS.message
@@ -62,7 +66,7 @@ class AccountService {
     return ret
   }
 
-  async assetsOut(ctx){
+  async assetsOut(ctx) {
 
     let ret = {
       code: errCode.SUCCESS.code,
@@ -75,7 +79,7 @@ class AccountService {
     let user = await UserModel().model().findById(userId)
     let accountAddress = user.wallet_address
 
-    
+
 
     Log.info(`${ctx.uuid}|userAssets().ret`, ret)
 
@@ -83,7 +87,7 @@ class AccountService {
     return ret
   }
 
-  async assetsTransfer(ctx){
+  async assetsTransfer(ctx) {
 
     let ret = {
       code: errCode.SUCCESS.code,
@@ -96,7 +100,7 @@ class AccountService {
     let user = await UserModel().model().findById(userId)
     let accountAddress = user.wallet_address
 
-    
+
 
     Log.info(`${ctx.uuid}|userAssets().ret`, ret)
 

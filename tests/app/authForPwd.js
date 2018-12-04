@@ -7,8 +7,8 @@ const reqUuid = uuid.v4()
 
 let content = {
   mobile: '18676669410',
-  password: '',
-  vr: ''
+  password: '12345678',
+  verify_code: ''
 }
 let cryptStr = cryptUtils.hmacMd5(content, reqUuid)
 let sign = cryptUtils.sign(cryptStr, config.private)

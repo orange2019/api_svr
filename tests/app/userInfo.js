@@ -17,14 +17,14 @@ let postData = {
   sign: sign
 }
 
-// request.post('http://127.0.0.1:4001/app/account/info?token=123456').send(postData).type('json').then(ret => {
-//   console.log(ret.body)
-// })
+request.post('http://127.0.0.1:4001/app/account/info?token=53633f30-33c6-40f9-9dcc-2e42683e384a').send(postData).type('json').then(ret => {
+  console.log(ret.body)
+})
 
 // request.post('http://127.0.0.1:4001/app/account/assets?token=123456').send(postData).type('json').then(ret => {
 //   console.log(ret.body)
 // })
 
-request.post('http://127.0.0.1:4001/app/account/inviteList?token=123456').send(postData).type('json').then(ret => {
+request.post('http://127.0.0.1:4001/app/account/inviteList?token=53633f30-33c6-40f9-9dcc-2e42683e384a').send(postData).type('json').then(ret => {
   console.log(ret.body)
 })

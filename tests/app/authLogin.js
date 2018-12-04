@@ -1,12 +1,12 @@
 const request = require('superagent')
 const cryptUtils = require('../../app/utils/crypt_utils')
 const config = require('../../config').key
-const uuid=  require('uuid')
+const uuid = require('uuid')
 
 const reqUuid = uuid.v4()
 
 let content = {
-  mobile: '18676669415',
+  mobile: '18676669410',
   password: '123456'
 }
 let cryptStr = cryptUtils.hmacMd5(content, reqUuid)

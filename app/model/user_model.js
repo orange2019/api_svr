@@ -16,7 +16,7 @@ class UserModel extends BaseModel {
         primaryKey: true,
         autoIncrement: true
       },
-      pid : {
+      pid: {
         type: Sequelize.BIGINT,
         defaultValue: 0
       },
@@ -75,44 +75,44 @@ class UserModel extends BaseModel {
     return this
   }
 
-  infoModel(){
-    let model = this.db().define('user_info' , {
-      id : {
+  infoModel() {
+    let model = this.db().define('user_info', {
+      id: {
         type: Sequelize.BIGINT,
         primaryKey: true,
         autoIncrement: false
       },
       user_id: {
-        type : Sequelize.BIGINT,
+        type: Sequelize.BIGINT,
         defaultValue: 0
       },
       nickname: {
         type: Sequelize.STRING(128),
-        defaultValue:''
+        defaultValue: ''
       },
       realname: {
         type: Sequelize.STRING(128),
-        defaultValue:''
+        defaultValue: ''
       },
       sex: {
-        type : Sequelize.TINYINT(1),
-        defaultValue:0
+        type: Sequelize.TINYINT(1),
+        defaultValue: 0
       },
       birth: {
-        type : Sequelize.BIGINT(11),
-        defaultValue:0
+        type: Sequelize.BIGINT(11),
+        defaultValue: 0
       },
       idcard_no: {
         type: Sequelize.STRING(32),
-        defaultValue:''
+        defaultValue: ''
       },
       idcard_positive: {
         type: Sequelize.STRING(255),
-        defaultValue:''
+        defaultValue: ''
       },
       idcard_reverse: {
         type: Sequelize.STRING(255),
-        defaultValue:''
+        defaultValue: ''
       },
       address: {
         type: Sequelize.TEXT,
@@ -134,7 +134,7 @@ class UserModel extends BaseModel {
         type: Sequelize.BIGINT(11),
         defaultValue: parseInt(Date.now() / 1000)
       },
-    },{
+    }, {
       timestamps: true,
       createdAt: 'create_time',
       updatedAt: 'update_time',
@@ -145,20 +145,20 @@ class UserModel extends BaseModel {
     return model
   }
 
-  transactionModel(){
-    let model = this.db().define('user_transaction' , {
+  transactionModel() {
+    let model = this.db().define('user_transaction', {
       id: {
         type: Sequelize.BIGINT,
         primaryKey: true,
         autoIncrement: true
       },
-      user_id : {
+      user_id: {
         type: Sequelize.BIGINT,
         defaultValue: 0
       },
       type: {
         type: Sequelize.TINYINT(2),
-        defaultValue:1
+        defaultValue: 1
       },
       num: {
         type: Sequelize.BIGINT,
@@ -171,39 +171,9 @@ class UserModel extends BaseModel {
           this.setDataValue('num', val * 100000000)
         }
       },
-      num_old: {
+      score: {
         type: Sequelize.BIGINT,
-        defaultValue: 0,
-        get() {
-          const num = this.getDataValue('num_sent')
-          return num / 100000000
-        },
-        set(val) {
-          this.setDataValue('num_sent', val * 100000000)
-        }
-      },
-      num_new: {
-        type: Sequelize.BIGINT,
-        defaultValue: 0,
-        get() {
-          const num = this.getDataValue('num_new')
-          return num / 100000000
-        },
-        set(val) {
-          this.setDataValue('num_new', val * 100000000)
-        }
-      },
-      score:{
-        type: Sequelize.BIGINT,
-        defaultValue:0
-      },
-      score_old:{
-        type: Sequelize.BIGINT,
-        defaultValue:0
-      },
-      score_new:{
-        type: Sequelize.BIGINT,
-        defaultValue:0
+        defaultValue: 0
       },
       create_time: {
         type: Sequelize.BIGINT(11),
@@ -215,14 +185,14 @@ class UserModel extends BaseModel {
       },
       status: {
         type: Sequelize.TINYINT(2),
-        defaultValue:0
+        defaultValue: 0
       },
       uuid: {
-        type:Sequelize.STRING(64),
+        type: Sequelize.STRING(64),
         defaultValue: Sequelize.UUIDV4
       },
-      locationUserId: {
-        type : Sequelize.BIGINT(20),
+      to_user_id: {
+        type: Sequelize.BIGINT(20),
         defaultValue: 0
       }
     }, {
@@ -236,9 +206,9 @@ class UserModel extends BaseModel {
     return model
   }
 
-  formulaModel(){
-    let model = this.db().define('user_formula' , {
-      user_id : {
+  formulaModel() {
+    let model = this.db().define('user_formula', {
+      user_id: {
         type: Sequelize.BIGINT,
         primaryKey: true,
         autoIncrement: false
@@ -255,7 +225,7 @@ class UserModel extends BaseModel {
           this.setDataValue('invest_formula', text);
         }
       }
-    },{
+    }, {
       timestamps: false,
       createdAt: false,
       updatedAt: false,
@@ -266,14 +236,14 @@ class UserModel extends BaseModel {
     return model
   }
 
-  investLogsModel(){
-    let model = this.db().define('user_invest_logs' , {
+  investLogsModel() {
+    let model = this.db().define('user_invest_logs', {
       id: {
         type: Sequelize.BIGINT,
         primaryKey: true,
         autoIncrement: true
       },
-      user_id : {
+      user_id: {
         type: Sequelize.BIGINT,
         defaultValue: 0
       },
@@ -283,9 +253,9 @@ class UserModel extends BaseModel {
       },
       log_date: {
         type: Sequelize.STRING(8),
-        defaultValue: dateUtils.dateFormat(null , 'YYYYMMDD')
+        defaultValue: dateUtils.dateFormat(null, 'YYYYMMDD')
       },
-      num : {
+      num: {
         type: Sequelize.BIGINT,
         defaultValue: 0,
         get() {
@@ -296,7 +266,7 @@ class UserModel extends BaseModel {
           this.setDataValue('num', val * 100000000)
         }
       },
-      num_frozen : {
+      num_frozen: {
         type: Sequelize.BIGINT,
         defaultValue: 0,
         get() {
@@ -307,7 +277,7 @@ class UserModel extends BaseModel {
           this.setDataValue('num_frozen', val * 100000000)
         }
       },
-      num_self : {
+      num_self: {
         type: Sequelize.BIGINT,
         defaultValue: 0,
         get() {
@@ -318,7 +288,7 @@ class UserModel extends BaseModel {
           this.setDataValue('num_self', val * 100000000)
         }
       },
-      num_child : {
+      num_child: {
         type: Sequelize.BIGINT,
         defaultValue: 0,
         get() {
@@ -329,7 +299,7 @@ class UserModel extends BaseModel {
           this.setDataValue('num_child', val * 100000000)
         }
       },
-    },{
+    }, {
       timestamps: true,
       createdAt: 'create_time',
       updatedAt: false,
@@ -340,37 +310,37 @@ class UserModel extends BaseModel {
     return model
   }
 
-  assetsModel(){
+  assetsModel() {
     let model = this.db().define('user_assets', {
       id: {
         type: Sequelize.BIGINT,
         primaryKey: true,
         autoIncrement: true
       },
-      user_id : {
+      user_id: {
         type: Sequelize.BIGINT,
         defaultValue: 0
       },
-      fod_num: {
+      token_num: {
         type: Sequelize.BIGINT,
         defaultValue: 0,
         get() {
-          const num = this.getDataValue('fod_num')
+          const num = this.getDataValue('token_num')
           return num / 100000000
         },
         set(val) {
-          this.setDataValue('fod_num', val * 100000000)
+          this.setDataValue('token_num', val * 100000000)
         }
       },
-      fod_num_frozen: {
+      token_num_frozen: {
         type: Sequelize.BIGINT,
         defaultValue: 0,
         get() {
-          const num = this.getDataValue('fod_num_frozen')
+          const num = this.getDataValue('token_num_frozen')
           return num / 100000000
         },
         set(val) {
-          this.setDataValue('fod_num_frozen', val * 100000000)
+          this.setDataValue('token_num_frozen', val * 100000000)
         }
       },
       create_time: {
@@ -406,13 +376,13 @@ class UserModel extends BaseModel {
    * @param {*} remark 
    * @param {*} t 
    */
-  async userTransactionCreate(userId , amount , type = 1 , locationUserId = 0 , remark = {} , t = null){
+  async userTransactionCreate(userId, amount, type = 1, locationUserId = 0, remark = {}, t = null) {
     let ret = {
       code: errCode.FAIL.code,
       message: errCode.FAIL.message
     }
 
-    if(amount <= 0){
+    if (amount <= 0) {
       ret.message = 'amount err'
       return ret
     }
@@ -425,13 +395,13 @@ class UserModel extends BaseModel {
     //   where : {user_id : userId}
     // })
 
-    if(type == 1 || type == 3 || type == 5 || type == 9){
+    if (type == 1 || type == 3 || type == 5 || type == 9) {
       num = amount
-    }else if(type == 2 || type == 4 || type == 6){
+    } else if (type == 2 || type == 4 || type == 6) {
       num = -1 * amount
-    }else if(type == 7){
+    } else if (type == 7) {
       score = amount
-    }else if(type == 8){
+    } else if (type == 8) {
       score = -1 * amount
     }
 
@@ -441,7 +411,7 @@ class UserModel extends BaseModel {
     // let scoreNew = 0
 
     // if(userAssest){
-    //   numOld = userAssest.fod_num
+    //   numOld = userAssest.token_num
     //   scoreOld = userAssest.score
 
     //   if(type == 9){
@@ -449,13 +419,13 @@ class UserModel extends BaseModel {
     //   }else {
     //     numNew = numOld + num 
     //   }
-      
+
     //   scoreNew = scoreOld + score
     //   if(numNew < 0 || scoreNew < 0){
     //     ret.message = 'amount new err'
     //     return ret
     //   }
-      
+
     // }else {
     //   numOld = 0
     //   numNew = num
@@ -464,29 +434,32 @@ class UserModel extends BaseModel {
     // }
 
     let createData = {
-      user_id : userId,
+      user_id: userId,
       num: num,
       // num_old: numOld,
       // num_new: numNew,
       score: score,
       // score_old: scoreOld,
       // score_new: scoreNew,
-      remark : remark ? JSON.stringify(remark): '',
+      remark: remark ? JSON.stringify(remark) : '',
       location_user_id: locationUserId
     }
 
     let opts = {}
-    if(t){
+    if (t) {
       opts.transaction = t
     }
 
-    let createRet = await this.transactionModel().create(createData , opts)
-    if(!createRet.id){
+    let createRet = await this.transactionModel().create(createData, opts)
+    if (!createRet.id) {
       ret.message = 'create err'
       return ret
     }
 
-    ret.data = {id: createRet.id , uuid : createRet.uuid}
+    ret.data = {
+      id: createRet.id,
+      uuid: createRet.uuid
+    }
     ret.code = errCode.SUCCESS.code
     ret.message = errCode.SUCCESS.message
     return ret
@@ -496,23 +469,27 @@ class UserModel extends BaseModel {
    * 用户交易完成，资产更新
    * @param {*} uuid 
    */
-  async userTransUpdateComplete(uuid , userId, t = null){
+  async userTransUpdateComplete(uuid, userId, t = null) {
     let ret = {
       code: errCode.FAIL.code,
       message: errCode.FAIL.message
     }
 
     let userTrans = await this.transactionModel().findOne({
-      where : {uuid:uuid}
+      where: {
+        uuid: uuid
+      }
     })
 
-    if(!userTrans != userTrans.user_id != userId){
+    if (!userTrans != userTrans.user_id != userId) {
       ret.message = 'trans item find err'
       return ret
     }
 
     let userAssets = await this.assetsModel().findOne({
-      where: {user_id : userTrans.user_id}
+      where: {
+        user_id: userTrans.user_id
+      }
     })
     // if(!userAssets){
     //   ret.message = 'user assest find err'
@@ -521,29 +498,29 @@ class UserModel extends BaseModel {
     let num = userTrans.num
     let score = userTrans.score
 
-    let numOld =0
+    let numOld = 0
     let numNew = 0
     let scoreOld = 0
     let scoreNew = 0
     let type = userTrans.dataValues.type
 
-    if(userAssets){
-      numOld = userAssets.fod_num
+    if (userAssets) {
+      numOld = userAssets.token_num
       scoreOld = userAssets.score
 
-      if(type == 9){
+      if (type == 9) {
         numNew = num
-      }else {
-        numNew = numOld + num 
+      } else {
+        numNew = numOld + num
       }
-      
+
       scoreNew = scoreOld + score
-      if(numNew < 0 || scoreNew < 0){
+      if (numNew < 0 || scoreNew < 0) {
         ret.message = 'amount new err'
         return ret
       }
-      
-    }else {
+
+    } else {
       numOld = 0
       numNew = num
       scoreOld = 0
@@ -551,14 +528,14 @@ class UserModel extends BaseModel {
     }
 
     let opts = {}
-    if(t){
+    if (t) {
       opts.transaction = t
     }
-    userAssets.fod_num = numNew
+    userAssets.token_num = numNew
     userAssets.score = scoreNew
 
     let userAssestRet = await userAssets.save(opts)
-    if(!userAssestRet){
+    if (!userAssestRet) {
       ret.message = 'user assets update err'
       return ret
     }
@@ -569,7 +546,7 @@ class UserModel extends BaseModel {
     userTrans.score_old = scoreOld
     userTrans.score_new = scoreNew
     let userTransRet = await userTrans.save(opts)
-    if(!userTransRet){
+    if (!userTransRet) {
       ret.message = 'user trans update err'
       return ret
     }

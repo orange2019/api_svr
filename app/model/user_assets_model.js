@@ -16,26 +16,26 @@ class UserAssetsModel extends BaseModel {
         type: Sequelize.BIGINT,
         defaultValue: 0
       },
-      fod_num: {
+      token_num: {
         type: Sequelize.BIGINT,
         defaultValue: 0,
         get() {
-          const num = this.getDataValue('fod_num')
+          const num = this.getDataValue('token_num')
           return num / 100000000
         },
         set(val) {
-          this.setDataValue('fod_num', val * 100000000)
+          this.setDataValue('token_num', val * 100000000)
         }
       },
-      fod_num_frozen: {
+      token_num_frozen: {
         type: Sequelize.BIGINT,
         defaultValue: 0,
         get() {
-          const num = this.getDataValue('fod_num_frozen')
+          const num = this.getDataValue('token_num_frozen')
           return num / 100000000
         },
         set(val) {
-          this.setDataValue('fod_num_frozen', val * 100000000)
+          this.setDataValue('token_num_frozen', val * 100000000)
         }
       },
       create_time: {
@@ -64,12 +64,12 @@ class UserAssetsModel extends BaseModel {
   }
 
   /**
-   * 添加用户fodnum
+   * 添加用户tokenNum
    * @param {*} userId 
    * @param {*} num 
    * @param {*} t 
    */
-  async addFodNum(ctx, userId , num , t = null){
+  async addtokenNum(ctx, userId , num , t = null){
     let ret = {
       code: errCode.SUCCESS.code,
       message: errCode.SUCCESS.message
@@ -90,10 +90,10 @@ class UserAssetsModel extends BaseModel {
     if(!data){
       data = await this.model().create({
         user_id: userId,
-        fod_num: num
+        token_num: num
       })
     }else {
-      data.fod_num = data.fod_num + num
+      data.token_num = data.token_num + num
       data.save()
     }
 

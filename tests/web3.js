@@ -28,20 +28,27 @@ const web3 = require('web3')
 //   console.log(res)
 // })
 
-;(async () => {
-  let contractAddress = '0x5253c428dacde589b9b26489f18cbc627f7c72ae'
-  let defaultAccount = '0xc80e071d617ce5a769d41d8fb69e63d7581f079d'
-  let account2 = '0x059F3B0862e3d2e5Ac74627938165611A251c477'
+;
+(async () => {
 
-  let privateKey3 = '7588b2d2f12cd57e0e47807d1c23e71c3b7e4906fc4c2ff44f99fc7e89af87f2'
-  let account3 = '0x6B36D0c11BF0e48693fc41431BC87553b7F5a780'
+  let contract = web3Proxy.contract('0x2116575b45527dA0ac700d349551cdAA9C241d35')
 
-  let value = web3.utils.toWei('1')
-  console.log(value)
-  let trans = await web3Proxy.sendTransaction(account3 ,account2 , value , privateKey3)
-  console.log(trans , trans)
-  let balance = await web3Proxy.balanceOf(account3)
-  console.log('before balance ' , balance)
+  // console.log(contract)
+  let tokenBalance = await web3Proxy.getTokenBalance(contract, '0xC243bd2d140041c3088605211ce892fAe6Bd6518')
+  console.log(tokenBalance)
+  // let contractAddress = '0x5253c428dacde589b9b26489f18cbc627f7c72ae'
+  // let defaultAccount = '0xc80e071d617ce5a769d41d8fb69e63d7581f079d'
+  // let account2 = '0x059F3B0862e3d2e5Ac74627938165611A251c477'
+
+  // let privateKey3 = '7588b2d2f12cd57e0e47807d1c23e71c3b7e4906fc4c2ff44f99fc7e89af87f2'
+  // let account3 = '0x6B36D0c11BF0e48693fc41431BC87553b7F5a780'
+
+  // let value = web3.utils.toWei('1')
+  // console.log(value)
+  // let trans = await web3Proxy.sendTransaction(account3 ,account2 , value , privateKey3)
+  // console.log(trans , trans)
+  // let balance = await web3Proxy.balanceOf(account3)
+  // console.log('before balance ' , balance)
 
   // let account = await web3Proxy.accountFromPK('7588b2d2f12cd57e0e47807d1c23e71c3b7e4906fc4c2ff44f99fc7e89af87f2')
   // console.log('account' , account)
@@ -76,7 +83,7 @@ const web3 = require('web3')
   // let newAccountAddress = newAccount.address
   // console.log('new account ' , newAccount)
 
-  web3Proxy.getAccounts().then(console.log)
+  // web3Proxy.getAccounts().then(console.log)
   // web3Proxy.unlockAccount('0xc7417A026EfC3717758efE17586Dd3Dd1545D58A' , password).then(console.log)
 
   // console.log('new account ' , newAccountAddress)
@@ -90,9 +97,5 @@ const web3 = require('web3')
   // console.log('new account balance' , newAccountBalance)
 
 })().catch(err => {
-  console.log( 'err' + err)
+  console.log('err' + err)
 })
-
-
-
-

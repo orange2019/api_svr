@@ -47,30 +47,30 @@ class Web3Proxy {
 
     let tran = this.web3.eth.sendSignedTransaction(signed.rawTransaction)
     let getTranRet = (tran) => {
-      return new Promise((r,j)=> {
+      return new Promise((r, j) => {
         tran.on('confirmation', (confirmationNumber, receipt) => {
           console.log('confirmation: ' + confirmationNumber)
         })
-    
+
         tran.on('transactionHash', hash => {
           console.log('hash')
           console.log(hash)
         })
-    
+
         tran.on('receipt', receipt => {
           console.log('reciept')
           console.log(receipt)
           r(receipt)
         })
-    
+
         tran.on('error', err => {
           console.error(err)
           j(err)
         })
-        
+
       })
     }
-    
+
     return await getTranRet(tran)
 
     let estimateGas = await deploy.estimateGas()
@@ -81,12 +81,12 @@ class Web3Proxy {
     console.log('这将花费:', this.web3.utils.fromWei(gasPrice))
 
     deploy.send({
-      from: from,
-      gas: estimateGas,
-      gasPrice: gasPrice
-    }, function (error, transactionHash) {
-      console.log('transactionHash:', transactionHash)
-    })
+        from: from,
+        gas: estimateGas,
+        gasPrice: gasPrice
+      }, function (error, transactionHash) {
+        console.log('transactionHash:', transactionHash)
+      })
       .on('error', function (error) {
 
       })
@@ -204,10 +204,7 @@ class Web3Proxy {
 
   contract(contractAddress) {
     let abi = erc20Json.abi
-    let contract = new this.web3.eth.Contract(abi, contractAddress, {
-      // from : accountAddress,
-      // gasPrice: '100000000'
-    })
+    let contract = new this.web3.eth.Contract(abi, contractAddress)
     return contract
   }
 
@@ -217,6 +214,7 @@ class Web3Proxy {
    * @param {*} address 
    */
   async getTokenBalance(contract, address) {
+
     let result = await contract.methods.balanceOf(address).call()
     return result
   }

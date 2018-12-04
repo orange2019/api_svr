@@ -6,7 +6,7 @@ let config = {
   db: {
     host: '59939c0a9a983.gz.cdb.myqcloud.com',
     port: 5579,
-    dbname: '2018_kaximu_test',
+    dbname: '2018_kxm_dev',
     username: 'kaximu',
     password: 'kaximu2018',
     maxLimit: 1000,
@@ -19,21 +19,19 @@ let config = {
 
   file_svr_domain: 'http://127.0.0.1:4002',
 
-  INVEST_RATES : [6 , 3 , 1.5 , 0.75 , 0.38 , 0.19 , 0.1],
+  INVEST_RATES: [6, 3, 1.5, 0.75, 0.38, 0.19, 0.1],
 
-  TRANSACTION_TYPE : {
+  TRANSACTION_TYPE: {
     ASSETS_IN: 1, // 充值
     ASSETS_OUT: 2, // 提现
-    TRANSTER_IN: 3, //转账入
-    TRANSTER_OUT: 4, // 转账出
+    TRANSTER: 3, //转账入
     INVEST_IN: 5, // 投资入
     INVEST_OUT: 6, // 投资出
     SCORE_IN: 7, // 积分兑换
     SCORE_OUT: 8, // 积分消费
-    UPDATE: 9
   },
 
-  key : {
+  key: {
     public: `-----BEGIN PUBLIC KEY-----
 MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCTxS5zZcYCvciblqNcNmPIVKQa
 Qcp3LJPAMQuF0D4B+vC6xg7lUa2YtN8eyVowq0z1PypQ7nAfUpWCwSpmS1cjaTcV

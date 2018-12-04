@@ -6,8 +6,8 @@ const uuid=  require('uuid')
 const reqUuid = uuid.v4()
 
 let content = {
-  password_old: '',
-  password_new: ''
+  password: '123456',
+  password_again: '123456'
 }
 let cryptStr = cryptUtils.hmacMd5(content, reqUuid)
 let sign = cryptUtils.sign(cryptStr, config.private)
@@ -19,6 +19,6 @@ let postData = {
 }
 
 
-request.post('http://127.0.0.1:4001/app/account/changePwd?token=888888').send(postData).type('json').then(ret => {
+request.post('http://127.0.0.1:4001/app/account/changePwd?token=96c95fd1-1658-4e35-9703-056aaabe5236').send(postData).type('json').then(ret => {
   console.log(ret.body)
 })

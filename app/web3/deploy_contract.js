@@ -1,11 +1,11 @@
 const web3Proxy = require('./proxy')
 const ContractTokenModel = require('./../model/contract_token_model')
-
-;(async ()=> {
+process.env.NODE_ENV = 'dev';
+(async () => {
 
   let accounts = await web3Proxy.getAccounts()
   let defaultAccount = accounts[0]
-  console.log('default account' , defaultAccount)
+  console.log('default account', defaultAccount)
 
   let saveData = {}
 
@@ -25,23 +25,23 @@ const ContractTokenModel = require('./../model/contract_token_model')
   let accountAddress = account.address
   let balance = await web3Proxy.balanceOf(accountAddress)
   console.log(balance)
-  if(balance == 0){
+  if (balance == 0) {
     console.log('无资产')
-    await web3Proxy.sendTransaction(defaultAccount,accountAddress,5)
+    await web3Proxy.sendTransaction(defaultAccount, accountAddress, 5)
     balance = await web3Proxy.balanceOf(accountAddress)
     console.log(balance)
   }
 
   let ret = await web3Proxy.deployContract(account)
   let contractAddress = ret.contractAddress
-  console.log('deployContract ' , contractAddress)
+  console.log('deployContract ', contractAddress)
 
   saveData.contract_address = contractAddress
-  console.log('saveData' , saveData)
+  console.log('saveData', saveData)
   let save = await ContractTokenModel().update(saveData)
-  console.log('save ' , save.id)
+  console.log('save ', save.id)
 
   let contract = await web3Proxy.contract(contractAddress)
-  let tokenBalance = await web3Proxy.getTokenBalance(contract , account.address)
-  console.log('tokenBalance' , tokenBalance)
+  let tokenBalance = await web3Proxy.getTokenBalance(contract, account.address)
+  console.log('tokenBalance', tokenBalance)
 })()

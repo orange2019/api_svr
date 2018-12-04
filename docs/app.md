@@ -130,7 +130,7 @@ body
 
 ### 4.用户信息
 
-`/account/info`
+`/account/info?token={}`
 
 body 无
 
@@ -138,13 +138,16 @@ body 无
 ```js
 {
   code: 0,
-  message: ''
+  message: '',
+  data: {
+
+  }
 }
 ```
 
 ### 5.好友列表(邀请的人)
 
-`/account/inviteList`
+`/account/inviteList?token={}`
 
 body 无
 
@@ -162,7 +165,7 @@ body 无
 
 ### 6.实名认证(更新用户信息)
 
-`/account/infoUpdate`
+`/account/infoUpdate?token={}`
 
 body
 ```js
@@ -184,13 +187,13 @@ body
 
 ### 7.更改密码 
 
-`/account/changePwd`
+`/account/changePwd?token={}`
 
 body
 ```js
 {
-  password_old : '', // 真实姓名
-  password_new : '', // 身份整号码
+  password : '', // 
+  password_again : '', // 
 }
 ```
 
@@ -200,6 +203,27 @@ body
   code: 0,
   message: ''
 }
+```
+
+## 资产
+
+### 用户资产
+
+`/account/assets?token={}`
+
+body 无
+
+返回
+```js
+{
+  code: 0,
+  message: '',
+  data : {
+    balance: '', // 
+    token_balance: '' // 显示这个代币
+  }
+}
+```
 
 
 ## 其他

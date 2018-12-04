@@ -101,7 +101,7 @@ class AuthService {
         ret.message = '无效邀请码'
         return ret
       } else {
-        pid = inviteUser.user_id
+        pid = inviteUser.id
       }
     }
 
@@ -113,7 +113,7 @@ class AuthService {
 
     user = await UserModel().model().create({
       mobile: mobile,
-      password: password,
+      password: cryptoUtils.md5(password),
       status: 0,
       pid: pid,
       wallet_address: address || '',
