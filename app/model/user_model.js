@@ -194,6 +194,10 @@ class UserModel extends BaseModel {
       to_user_id: {
         type: Sequelize.BIGINT(20),
         defaultValue: 0
+      },
+      hash: {
+        type: Sequelize.STRING(128),
+        defaultValue: ''
       }
     }, {
       timestamps: true,

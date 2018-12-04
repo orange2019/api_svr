@@ -63,11 +63,47 @@ class UserTransactionService {
 
   /**
    * 交易(充值，提现，转账)
-   * @param {*} from 
-   * @param {*} to 
-   * @param {*} num 
+   * ctx
    */
-  transafer(ctx) {
+  async transafer(ctx, t = null) {
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+
+    let body = ctx.body || {}
+    Log.info(ctx.uuid, 'transafer().query', body)
+
+    let transType = body.type || 3
+    let hash = body.hash || ''
+    let userId = body.user_id
+    let toUserId = 0
+
+    if (transType == 3) {
+      toUserId = body.to_user_id
+    }
+
+    let transationData = {
+      user_id: userId,
+      num: body.num || 0,
+      type: transType,
+      to: toUserId,
+      hash: hash
+    }
+
+    let opts = {}
+    if (t) {
+      opts.transaction = t
+    }
+    let saveRet = await UserModel().transactionModel().create(transationData, opts)
+    if (!saveRet) {
+      ret.code = errCode.FAIL.code
+      ret.message = '保存用户交易记录失败'
+
+    }
+
+    ctx.result = ret
+    return ret
 
   }
 

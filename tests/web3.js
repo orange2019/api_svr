@@ -31,11 +31,12 @@ const web3 = require('web3')
 ;
 (async () => {
 
-  let contract = web3Proxy.contract('0x2116575b45527dA0ac700d349551cdAA9C241d35')
+
+  // let contract = web3Proxy.contract('0x2116575b45527dA0ac700d349551cdAA9C241d35')
 
   // console.log(contract)
-  let tokenBalance = await web3Proxy.getTokenBalance(contract, '0xC243bd2d140041c3088605211ce892fAe6Bd6518')
-  console.log(tokenBalance)
+  // let tokenBalance = await web3Proxy.getTokenBalance(contract, '0xC243bd2d140041c3088605211ce892fAe6Bd6518')
+  // console.log(tokenBalance)
   // let contractAddress = '0x5253c428dacde589b9b26489f18cbc627f7c72ae'
   // let defaultAccount = '0xc80e071d617ce5a769d41d8fb69e63d7581f079d'
   // let account2 = '0x059F3B0862e3d2e5Ac74627938165611A251c477'

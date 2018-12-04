@@ -24,7 +24,7 @@ let config = {
   TRANSACTION_TYPE: {
     ASSETS_IN: 1, // 充值
     ASSETS_OUT: 2, // 提现
-    TRANSTER: 3, //转账入
+    TRANSTER: 3, //转账
     INVEST_IN: 5, // 投资入
     INVEST_OUT: 6, // 投资出
     SCORE_IN: 7, // 积分兑换

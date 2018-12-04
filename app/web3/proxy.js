@@ -25,6 +25,9 @@ class Web3Proxy {
 
   }
 
+  _web3() {
+    return this.web3
+  }
   /**
    * 部署合约
    * @param {*} from 
@@ -73,35 +76,11 @@ class Web3Proxy {
 
     return await getTranRet(tran)
 
-    let estimateGas = await deploy.estimateGas()
-    // console.log(estimateGas)
-    let gasPrice = await this.getGasPrice()
-    gasPrice = (estimateGas * gasPrice).toString()
-    // console.log(gasPrice)
-    console.log('这将花费:', this.web3.utils.fromWei(gasPrice))
+  }
 
-    deploy.send({
-        from: from,
-        gas: estimateGas,
-        gasPrice: gasPrice
-      }, function (error, transactionHash) {
-        console.log('transactionHash:', transactionHash)
-      })
-      .on('error', function (error) {
-
-      })
-      .on('transactionHash', function (transactionHash) {
-
-      })
-      .on('receipt', function (receipt) {
-        console.log(receipt.contractAddress) // contains the new contract address
-      })
-      .on('confirmation', function (confirmationNumber, receipt) {
-
-      })
-      .then(function (newContractInstance) {
-        console.log(newContractInstance.options.address) // instance with the new contract address
-      })
+  async estimateGas(tx) {
+    let gas = await this.web3.eth.estimateGas(tx)
+    return gas
   }
 
   async getGasPrice() {

@@ -2,6 +2,9 @@ const Log = require('./../../lib/log')('user_service')
 const UserModel = require('./../model/user_model')
 const ContractTokenModel = require('./../model/contract_token_model')
 const errCode = require('./../common/err_code')
+const userTransationService = require('./user_transaction_service')
+const TokenService = require('./token_service')
+const cryptoUtils = require('./../utils/crypto_utils')
 // const Op = require('sequelize').Op
 const web3 = require('./../web3')
 
@@ -37,7 +40,7 @@ class AccountService {
       user_id: user.uuid
     }
     data.balance = userBalance
-    data.token_balance = userTokenBalance
+    data.token_balance = userTokenBalance / (10 ** 8)
 
     ret.data = data
     Log.info(`${ctx.uuid}|userAssets().ret`, ret)
@@ -87,6 +90,10 @@ class AccountService {
     return ret
   }
 
+  /**
+   * 转账
+   * @param {*} ctx 
+   */
   async assetsTransfer(ctx) {
 
     let ret = {
@@ -94,16 +101,80 @@ class AccountService {
       message: errCode.SUCCESS.message
     }
 
-    Log.info(`${ctx.uuid}|userAssets().body`, ctx.body)
-    let userId = ctx.body.user_id // 鉴权通过了，不可能是0
+    try {
+      Log.info(`${ctx.uuid}|assetsTransfer().body`, ctx.body)
+      let userId = ctx.body.user_id // 鉴权通过了，不可能是0
+      let toAddress = ctx.body.to_address
+      let num = ctx.body.num
+      let password = ctx.body.password
 
-    let user = await UserModel().model().findById(userId)
-    let accountAddress = user.wallet_address
+      let user = await UserModel().model().findById(userId)
+      let accountAddress = user.wallet_address
+      if (user.password != cryptoUtils.md5(password)) {
+        throw new Error('密码错误')
+      }
+
+      let toUser = await UserModel().model().findOne({
+        where: {
+          wallet_address: toAddress
+        }
+      })
+      if (!toUser || !toUser.id) {
+        throw new Error('所转账至对方账户错误')
+      } else {
+        ctx.body.to_user_id = toUser.id
+      }
+
+      let privateKey = user.private_key
+      let account = await web3.getAccountFromPk(privateKey)
+      // if (user.address != account.private_key) {
+      //   throw new Error('私钥错误')
+      // }
+
+      let {
+        address
+      } = await TokenService.info()
+      let contract = await web3.getContract(address)
+
+      // 
+      let tokenBalance = await web3.getTokenBalance(address, account.address)
+      if (tokenBalance < num) {
+        throw new Error('代币余额不足')
+      }
+
+      let gas = await web3.tokenTransferGas(contract, account, toAddress, num, true)
+      Log.info(`${ctx.uuid}|assetsTransfer().gas`, gas)
+      // 确认燃料(gas)是否够
+      let userBalance = await web3.getBalance(accountAddress)
+      Log.info(`${ctx.uuid}|assetsTransfer().userBalance`, userBalance)
+      if (userBalance == 0 || userBalance < gas) {
+        throw new Error('无足够交易手续费GAS')
+      }
+
+      // 调用web3转账
+      let transRet = await web3.tokenTransfer(contract, account, toAddress, num)
+      Log.info(`${ctx.uuid}|assetsTransfer().transRet`, transRet)
+      if (!transRet) {
+        throw new Error('转账失败')
+      }
+
+      // 记录转账信息
+      ctx.body.type = 3 // 交易类型:转账
+      ctx.body.hash = transRet.transactionHash
+      let userTransRet = await userTransationService.transafer(ctx)
+      Log.info(`${ctx.uuid}|assetsTransfer().userTransRet`, userTransRet)
+      if (userTransRet.code !== 0) {
+        throw new Error(transRet.message)
+      }
 
 
+    } catch (err) {
+      console.log(err)
+      ret.code = errCode.FAIL.code
+      ret.message = err.message || 'err'
+    }
 
-    Log.info(`${ctx.uuid}|userAssets().ret`, ret)
-
+    Log.info(`${ctx.uuid}|assetsTransfer().ret`, ret)
     ctx.result = ret
     return ret
   }

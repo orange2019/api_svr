@@ -1,14 +1,15 @@
 # 说明
 
-所有都用post
+所有都用 post
 
-传参url
+传参 url
 
 ```js
 http://{domain}/app/{地址}?token={} // 需要鉴权带上token
 ```
 
 传参格式
+
 ```js
 {
   uuid: '' ,//
@@ -20,15 +21,17 @@ http://{domain}/app/{地址}?token={} // 需要鉴权带上token
 ```
 
 返回格式
+
 ```js
 {
   code: 0 // 0为成功 非0失败 -100 重新登录
   message : '',
-  data : {} 
+  data : {}
 }
 ```
 
-加密key
+加密 key
+
 ```js
 -----BEGIN RSA PRIVATE KEY-----
 MIICXAIBAAKBgQCTxS5zZcYCvciblqNcNmPIVKQaQcp3LJPAMQuF0D4B+vC6xg7l
@@ -45,41 +48,46 @@ Kg/tinmLPSqrwKkueOYiXm2XlKso0Wwp45N1QCE831nSWLbBdP1Mvacz1QJAeYt9
 8kq94IKy36X2Vyy7dwJBAKXJKABVdHfmk/gZ/SMk3y4PzoMunktbyxY6MbIjEGeQ
 OZUBe+Rk2hypwpP1KfI/omEP8N7bv51ytNCsblwodyU=
 -----END RSA PRIVATE KEY-----
-``` 
+```
 
-# 钱包APP接口
+# 钱包 APP 接口
 
 ## 用户模块
 
 ### 0. 发送验证码
-`/common/verifyCode`  
+
+`/common/verifyCode`
 
 body 无
 
 返回
+
 ```js
 {
   code:0,
   message :''
 }
 ```
+
 ps: 还未申请短信接口，默认发送成功
 
 ### 1.注册
 
 `/auth/register`
 
-body 
+body
+
 ```js
 {
   mobile : '', // 手机号
   password : '', // 密码
-  verify_code: '', // 验证码 
-  invite_code: '' //邀请码 
+  verify_code: '', // 验证码
+  invite_code: '' //邀请码
 }
 ```
 
 返回
+
 ```
 {
   code: 0,
@@ -91,7 +99,8 @@ body
 
 `/auth/login`
 
-body 
+body
+
 ```js
 {
   mobile : '', // 手机号
@@ -100,6 +109,7 @@ body
 ```
 
 返回
+
 ```
 {
   code: 0,
@@ -111,7 +121,8 @@ body
 
 `/auth/forgetPassword`
 
-body 
+body
+
 ```js
 {
   mobile : '', // 手机号
@@ -121,6 +132,7 @@ body
 ```
 
 返回
+
 ```js
 {
   code: 0,
@@ -135,6 +147,7 @@ body
 body 无
 
 返回
+
 ```js
 {
   code: 0,
@@ -152,6 +165,7 @@ body 无
 body 无
 
 返回
+
 ```js
 {
   code: 0,
@@ -168,6 +182,7 @@ body 无
 `/account/infoUpdate?token={}`
 
 body
+
 ```js
 {
   realname : '', // 真实姓名
@@ -178,6 +193,7 @@ body
 ```
 
 返回
+
 ```js
 {
   code: 0,
@@ -185,19 +201,21 @@ body
 }
 ```
 
-### 7.更改密码 
+### 7.更改密码
 
 `/account/changePwd?token={}`
 
 body
+
 ```js
 {
-  password : '', // 
-  password_again : '', // 
+  password : '', //
+  password_again : '', //
 }
 ```
 
 返回
+
 ```js
 {
   code: 0,
@@ -214,17 +232,42 @@ body
 body 无
 
 返回
+
 ```js
 {
   code: 0,
   message: '',
   data : {
-    balance: '', // 
+    balance: '', //
     token_balance: '' // 显示这个代币
   }
 }
 ```
 
+### 代币转账
+
+`/account/assetsTransfer?token={}`
+
+body
+
+```js
+{
+  num: 100.5000, // 转账数量
+  to_address: '0xD34f565DbA3a3afB197556E7901657E232b1B091', // 转账地址
+  password: '123456' // 密码
+}
+```
+
+返回
+
+```js
+{
+  code: 0,
+  message: '',
+  data : {
+  }
+}
+```
 
 ## 其他
 
@@ -235,6 +278,7 @@ body 无
 body 无
 
 返回
+
 ```js
 {
   code: 0,
@@ -243,6 +287,4 @@ body 无
     url : url
   }
 }
-
-
-
+```
