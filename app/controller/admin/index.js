@@ -3,7 +3,7 @@ const router = express.Router()
 // const CryptoJS = require('crypto-js')
 const adminService = require('./../../service/admin_service')
 
-router.use(async(req, res, next)=> {
+router.use(async (req, res, next) => {
 
   // 解密
 
@@ -13,23 +13,23 @@ router.use(async(req, res, next)=> {
   let uuid = req.body.uuid
   let content = req.body.content
   req.ctx = {
-    uuid : uuid,
-    body : content.body || {},
+    uuid: uuid,
+    body: content.body || {},
     session: content.session || {},
     query: content.query || {},
-    result : {}
+    result: {}
   }
 
 
   res.return = (ctx) => {
-    
+
     let data = {
-      uuid : ctx.uuid || req.uuid,
-      content : {
+      uuid: ctx.uuid || req.uuid,
+      content: {
         session: ctx.session || {},
         result: ctx.result || {}
       },
-      timestamp : Date.now()
+      timestamp: Date.now()
     }
     return res.json(data)
   }
@@ -37,21 +37,22 @@ router.use(async(req, res, next)=> {
   next()
 })
 
-router.use('/auth' , require('./auth'))
+router.use('/auth', require('./auth'))
 
-router.use(async(req, res, next)=> {
+router.use(async (req, res, next) => {
 
   // 检验授权
   let ret = await adminService.check(req.ctx)
-  if(ret.code !== 0){
+  if (ret.code !== 0) {
     return res.return(req.ctx)
   }
-  
+
   next()
 })
 
-router.use('/news' , require('./news'))
-router.use('/user' , require('./user'))
-router.use('/config' , require('./config'))
+router.use('/news', require('./news'))
+router.use('/user', require('./user'))
+router.use('/config', require('./config'))
+router.use('/assets', require('./assets'))
 
 module.exports = router
