@@ -288,3 +288,22 @@ body 无
   }
 }
 ```
+
+### 项目配置
+
+`/common/config`
+
+body 无
+
+返回
+
+```js
+{
+  code: 0,
+  message: ''
+  data: {
+    version : '',
+    news_url: '‘, //资讯h5页面
+  }
+}
+```

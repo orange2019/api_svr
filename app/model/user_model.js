@@ -198,6 +198,10 @@ class UserModel extends BaseModel {
       hash: {
         type: Sequelize.STRING(128),
         defaultValue: ''
+      },
+      gas_used: {
+        type: Sequelize.BIGINT,
+        defaultValue: ''
       }
     }, {
       timestamps: true,

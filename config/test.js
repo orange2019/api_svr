@@ -1,7 +1,9 @@
 module.exports = {
   domain: {
     img1: 'http://img1.kxm.cc512.com',
-    img2: 'http://img2.kxm.cc512.com'
+    img2: 'http://img2.kxm.cc512.com',
+    h5: 'http://h5.kxm.cc512.com',
+    blockchain: 'http://localhost:8545'
   },
 
   db: {

@@ -5,18 +5,54 @@ const errCode = require('./../common/err_code')
 
 class TokenService {
 
-  async info() {
+  /**
+   * 获取合约信息
+   */
+  async _info() {
     let contractToken = await ContractTokenModel().getData()
     let contractAddress = contractToken.contract_address
-    let ownerAddress = contractToken.address
+    // let ownerAddress = contractToken.address
     let ownerPrivateKey = contractToken.private_key
 
     let owner = await web3Proxy.accountFromPK(ownerPrivateKey)
+    let contract = await web3.getContract(contractAddress)
 
     return {
       owner: owner,
-      address: contractAddress
+      address: contractAddress,
+      contract: contract
     }
+  }
+
+  /**
+   * 获取合约对象
+   */
+  async _getContract() {
+    let {
+      address
+    } = await this._info()
+    let contract = await web3.getContract(address)
+    return contract
+
+  }
+
+  async _getOwner() {
+    let {
+      owner
+    } = await this._info()
+    return owner
+  }
+
+  /**
+   * 获取用户代币数量
+   * @param {*} accountAddress 
+   */
+  async _getUserTokenBalance(accountAddress) {
+    let {
+      address
+    } = await this._info()
+    let tolenBalance = await web3.getTokenBalance(address, accountAddress)
+    return tolenBalance / 100000000
   }
 
   async getInfo(ctx) {

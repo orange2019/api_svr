@@ -72,12 +72,13 @@ class UserTransactionService {
     }
 
     let body = ctx.body || {}
-    Log.info(ctx.uuid, 'transafer().query', body)
+    Log.info(ctx.uuid, 'transafer().body', body)
 
     let transType = body.type || 3
     let hash = body.hash || ''
     let userId = body.user_id
-    let toUserId = 0
+    let toUserId = body.to_user_id || 0
+    let gasUsed = body.gas || 0
 
     if (transType == 3) {
       toUserId = body.to_user_id
@@ -88,7 +89,8 @@ class UserTransactionService {
       num: body.num || 0,
       type: transType,
       to: toUserId,
-      hash: hash
+      hash: hash,
+      gas_used: gasUsed
     }
 
     let opts = {}
