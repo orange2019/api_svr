@@ -2,9 +2,12 @@ const Log = require('./../../lib/log')('user_service')
 const BaseModel = require('./../model/base_model')
 const UserModel = require('./../model/user_model')
 const UserAssetsModel = require('./../model/user_assets_model')
+const accountService = require('./account_service')
+const tokenService = require('./token_service')
 const UuidUtils = require('./../utils/uuid_utils')
 const dateUtils = require('./../utils/date_utils')
 const errCode = require('./../common/err_code')
+const cryptoUtils = require('./../utils/crypto_utils')
 const Op = require('sequelize').Op
 
 const {
@@ -45,7 +48,7 @@ class UserService {
 
       for (let j = 0; j < items.length; j++) {
 
-        let item = items[j];
+        let item = items[j]
         let level = -1
         let userId = item.user_id
 
@@ -165,8 +168,21 @@ class UserService {
             num_child: childNumInvest
           })
 
+          // 链上转币
+          let tokenNum = selfNumInvest + childNumInvest
+          let ctx = {
+            uuid: UuidUtils.v4(),
+            body: {
+              user_id: userId,
+              num: tokenNum,
+              type: 4
+            }
+          }
+          let retAssetsIn = await accountService.assetsIn(ctx)
+          logger.info(`${userId}|retAssetsIn`, retAssetsIn)
+
           user = await UserAssetsModel().model().findById(userId)
-          user.token_num = user.token_num + investNum
+          // user.token_num = user.token_num + investNum
           user.token_num_frozen = user.token_num_frozen - selfNumUnfrozen
           await user.save()
 
@@ -185,92 +201,96 @@ class UserService {
   /**
    * 投产
    * @param {*} ctx 
-   * @param {*} userId 
    * @param {
-   *  num:
+   *  num ： 数量
+   *  rate: 收益率
+   *  days： 天数
    * } investData 
    */
-  async invest(ctx, userId, investData) {
+  async invest(ctx) {
 
-    let tokenNum = investData.num
     let ret = {
       code: errCode.SUCCESS.code,
-      message: errCode.SUCCESS.message,
-      data: {}
-    }
-
-    // 找到用户
-    let user = await this.getById(ctx, userId)
-    Log.info(ctx.uuid, 'invest().user', user)
-    if (!user) {
-      ret.code = 200001
-      ret.message = '未找到用户'
-      return ret
-    }
-
-    // 判断资产是否足够
-    let userAssets = await this.getAssestByUserId(ctx, userId)
-    Log.info(ctx.uuid, 'invest().userAssets', userAssets)
-    if (!userAssets || userAssets.token_num < tokenNum) {
-      ret.code = 200002
-      ret.message = '用户资产不足'
-      return ret
+      message: errCode.SUCCESS.message
     }
 
     // 开启事务
     let baseModel = new BaseModel()
     let t = await baseModel.getTrans()
 
-    // 设置自己的收益计算公式
-    let selfFormula = await this.setUserFormula(ctx, userId, investData, userId, 0, t)
-    Log.info(ctx.uuid, 'invest().selfFormula', selfFormula)
-    if (!selfFormula) {
-      ret.code = 200003
-      ret.message = '设置自己收益数据失败'
+    try {
+      let userId = ctx.body.user_id
+      let investData = ctx.body.invest_data
+      let password = ctx.body.password
+      let tokenNum = investData.num
 
-      t.rollback()
-      return ret
-    }
-
-    if (user.pid != 0) {
-      // 找到所有父级用户
-      let fUsers = await this.getAllToRoot(ctx, user.pid)
-      Log.info(ctx.uuid, 'invest().fUsers', fUsers)
-
-      // 设置父级的收益计算公式
-      for (let index = 0; index < fUsers.length; index++) {
-        const fUser = fUsers[index];
-        let fUserFormula = await this.setUserFormula(ctx, fUser.id, investData, userId, index + 1, t)
-        if (!fUserFormula) {
-          ret.code = 200003
-          ret.message = `设置用户${fUser.id}收益数据失败@userID:${userId}`
-
-          t.rollback()
-          return ret
-        }
+      // 找到用户
+      let user = await this.getById(ctx, userId)
+      Log.info(ctx.uuid, 'invest().user', user)
+      if (!user) {
+        throw new Error('未找到用户')
       }
 
-    }
+      // 判断密码
+      if (user.password != cryptoUtils.md5(password)) {
+        throw new Error('密码错误')
 
-    // 更新资产
-    let userAssetUpdate = await userAssets.update({
-      token_num: userAssets.token_num - tokenNum,
-      token_num_frozen: userAssets.token_num_frozen + tokenNum
-    }, {
-      transaction: t
-    })
-    Log.info(ctx.uuid, 'invest().userAssetUpdate', userAssetUpdate)
-    if (!userAssetUpdate) {
-      ret.code = 200004
-      ret.message = '设置自己fod币失败'
+      }
+
+      // 判断资产是否足够
+      // let userAssets = await this.getAssestByUserId(ctx, userId)
+      let tokenBalance = await tokenService._getUserTokenBalance(user.address)
+      Log.info(ctx.uuid, 'invest().tokenBalance', tokenBalance)
+      if (!tokenBalance || tokenBalance < tokenNum) {
+        throw new Error('用户资产不足')
+      }
+
+      // 设置自己的收益计算公式
+      let selfFormula = await this.setUserFormula(ctx, userId, investData, userId, 0, t)
+      Log.info(ctx.uuid, 'invest().selfFormula', selfFormula)
+      if (!selfFormula) {
+        throw new Error('设置自己收益数据失败')
+      }
+
+      if (user.pid != 0) {
+        // 找到所有父级用户
+        let fUsers = await this.getAllToRoot(ctx, user.pid)
+        Log.info(ctx.uuid, 'invest().fUsers', fUsers)
+
+        // 设置父级的收益计算公式
+        for (let index = 0; index < fUsers.length; index++) {
+          const fUser = fUsers[index]
+          let fUserFormula = await this.setUserFormula(ctx, fUser.id, investData, userId, index + 1, t)
+          if (!fUserFormula) {
+            throw new Error(`设置用户${fUser.id}收益数据失败@userID:${userId}`)
+          }
+        }
+
+      }
+
+      // 更新资产
+      let userAssets = await this.getAssestByUserId(ctx, userId)
+      let userAssetUpdate = await userAssets.update({
+        token_num_frozen: userAssets.token_num_frozen + tokenNum
+      }, {
+        transaction: t
+      })
+      Log.info(ctx.uuid, 'invest().userAssetUpdate', userAssetUpdate)
+      if (!userAssetUpdate) {
+        throw new Error('更新用户资产失败')
+      }
+
+    } catch (err) {
+      ret.code = errCode.FAIL.code
+      ret.message = err.message || 'err'
 
       t.rollback()
-      return ret
+      ctx.result = ret
     }
 
     t.commit()
-
     return ret
+
   }
 
   /**
@@ -322,6 +342,12 @@ class UserService {
         user_id: userId
       }
     })
+    if (!ret) {
+      ret = await UserAssetsModel().model().create({
+        user_id: userId
+      })
+    }
+
     return ret
   }
 
@@ -399,7 +425,7 @@ class UserService {
    * 获取信息
    * @param {*} ctx 
    */
-  async investInfoAndLogs(ctx){
+  async investInfoAndLogs(ctx) {
     let ret = {
       code: errCode.SUCCESS.code,
       message: errCode.SUCCESS.message
@@ -409,16 +435,20 @@ class UserService {
     let userId = ctx.query.user_id || 0
 
     let investInfo = UserModel().formulaModel().findOne({
-      where: {user_id : userId}
+      where: {
+        user_id: userId
+      }
     })
     let investLog = UserModel().investLogsModel().findAll({
-      where:{user_id :userId},
+      where: {
+        user_id: userId
+      },
       order: [
-        ['log_date' , 'DESC']
+        ['log_date', 'DESC']
       ]
     })
 
-    let queryRet = await Promise.all([investInfo , investLog])
+    let queryRet = await Promise.all([investInfo, investLog])
     Log.info(`${ctx.uuid}|status().queryRet`, queryRet)
 
     let investInfoData = queryRet[0].invest_formula
@@ -426,8 +456,8 @@ class UserService {
     console.log(investInfoData['lv_0'])
     let investInfoRet = investInfoData['lv_0'] ? (investInfoData['lv_0']['u_' + userId] || null) : null
     ret.data = {
-      info : investInfoRet,
-      logs : queryRet[1]
+      info: investInfoRet,
+      logs: queryRet[1]
     }
 
     ctx.result = ret
@@ -435,7 +465,7 @@ class UserService {
     return ret
   }
 
-  
+
 }
 
 module.exports = new UserService()

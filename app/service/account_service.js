@@ -86,7 +86,7 @@ class AccountService {
         throw new Error('充值失败')
       }
 
-      ctx.body.type = 1 // 充值
+      ctx.body.type = ctx.body.type || 1 // 充值
       ctx.body.hash = transRet.transactionHash
       ctx.body.gas = transRet.cumulativeGasUsed
       let userTransRet = await userTransationService.transafer(ctx)

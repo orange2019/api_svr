@@ -55,6 +55,10 @@ class TokenService {
     return tolenBalance / 100000000
   }
 
+  async transferToAddress(address, num) {
+
+  }
+
   async getInfo(ctx) {
     let ret = {
       code: errCode.SUCCESS.code,
