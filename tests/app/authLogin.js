@@ -9,7 +9,7 @@ let content = {
   mobile: '18676669410',
   password: '123456'
 }
-let cryptStr = cryptUtils.hmacMd5(content, reqUuid)
+let cryptStr = cryptUtils.hmacMd5(JSON.stringify(content), reqUuid)
 let sign = cryptUtils.sign(cryptStr, config.private)
 
 let postData = {

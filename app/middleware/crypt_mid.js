@@ -11,7 +11,7 @@ module.exports = async (req, res, next) => {
       content,
       sign
     } = req.body
-    Log.info(`${uuid}|${req.originalUrl}|req.body` , req.body)
+    Log.info(`${uuid}|${req.originalUrl}|req.body`, req.body)
     if (!uuid || !content || !sign) {
       return res.status(400).json({
         code: -1,
@@ -19,10 +19,10 @@ module.exports = async (req, res, next) => {
       })
     }
 
-    let cryptStr = cryptUtil.hmacMd5(content, uuid)
+    let cryptStr = cryptUtil.hmacMd5(JSON.stringify(content), uuid)
     // 验证签名
     let verify = cryptUtil.verify(cryptStr, sign, publicKey)
-    Log.info(`${uuid}|${req.originalUrl}|verify:` , verify)
+    Log.info(`${uuid}|${req.originalUrl}|verify:`, verify)
 
     if (!verify) {
       return res.status(400).json({

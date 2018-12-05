@@ -38,7 +38,7 @@ class CryptUtils {
    * @param {*} sign 
    * @param {*} key 
    */
-  verify(str , signature , publicKey) {
+  verify(str, signature, publicKey) {
     var verify = crypto.createVerify('RSA-SHA256')
     verify.update(str)
     return verify.verify(publicKey, signature, 'hex')
@@ -49,7 +49,7 @@ class CryptUtils {
    * @param {*} str 
    * @param {*} privateKey 
    */
-  sign(str , privateKey){
+  sign(str, privateKey) {
     var sign = crypto.createSign('RSA-SHA256')
     sign.update(str)
     var signature = sign.sign(privateKey, 'hex')

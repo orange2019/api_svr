@@ -11,7 +11,7 @@ let content = {
   idcard_positive :'http://11111.com/a.jpg', // 身份证正面
   idcard_reverse : 'http://11111.com/b.jpg' // 身份证反面
 }
-let cryptStr = cryptUtils.hmacMd5(content, reqUuid)
+let cryptStr = cryptUtils.hmacMd5(JSON.stringify(content), reqUuid)
 let sign = cryptUtils.sign(cryptStr, config.private)
 
 let postData = {
