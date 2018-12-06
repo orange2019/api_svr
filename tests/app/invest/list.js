@@ -6,10 +6,7 @@ process.env.NODE_ENV = 'dev'
 const reqUuid = uuid.v4()
 
 let content = {
-  body: {
-    invest_id: 2,
-    password: '123456'
-  },
+  body: {},
   query: {
     token: '739e180b-b166-43e6-84b7-3b4bb380f43c'
   }
@@ -23,7 +20,7 @@ let postData = {
   sign: sign
 }
 
-request.post('http://127.0.0.1:4001/h5/investApply').send(postData).type('json').then(ret => {
+request.post('http://127.0.0.1:4001/h5/investList').send(postData).type('json').then(ret => {
   console.log(ret.body)
 }).catch(err => {
   console.error(err.message)

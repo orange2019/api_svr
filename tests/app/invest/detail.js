@@ -7,8 +7,7 @@ const reqUuid = uuid.v4()
 
 let content = {
   body: {
-    invest_id: 2,
-    password: '123456'
+    uuid: '79ca8472-c98f-461e-93b7-e327a08b9258'
   },
   query: {
     token: '739e180b-b166-43e6-84b7-3b4bb380f43c'
@@ -23,7 +22,7 @@ let postData = {
   sign: sign
 }
 
-request.post('http://127.0.0.1:4001/h5/investApply').send(postData).type('json').then(ret => {
+request.post('http://127.0.0.1:4001/h5/investUserDetail').send(postData).type('json').then(ret => {
   console.log(ret.body)
 }).catch(err => {
   console.error(err.message)

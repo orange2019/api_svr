@@ -70,7 +70,7 @@ router.post('/investInfo', async (req, res) => {
 
 // h5投产
 router.post('/investApply', async (req, res) => {
-  console.log('investApply............')
+
   await userInvestService.investApply(req.ctx)
   return res.return(req.ctx)
 })

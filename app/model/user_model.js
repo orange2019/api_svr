@@ -294,7 +294,7 @@ class UserModel extends BaseModel {
       },
       uuid: {
         type: Sequelize.STRING(64),
-        defaultValue: ''
+        defaultValue: Sequelize.UUIDV4
       }
     }, {
       timestamps: true,

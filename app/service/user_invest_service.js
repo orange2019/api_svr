@@ -56,7 +56,7 @@ class UserInvestService {
     let userAssets = await UserModel().getAssetsByUserId(userId)
     Log.info(ctx.uuid, 'info().userAssets', userAssets.token_num_frozen)
 
-    let tokenBalance = await tokenService._getUserTokenBalance(user.address)
+    let tokenBalance = await tokenService._getUserTokenBalance(user.wallet_address)
     Log.info(ctx.uuid, 'info().tokenBalance', tokenBalance)
 
     let canUseNum = tokenBalance - userAssets.token_num_frozen
@@ -95,7 +95,7 @@ class UserInvestService {
       list: list
     }
     ctx.result = ret
-
+    Log.info(`${ctx.uuid}|getList().ret`, ret)
     return
   }
 
@@ -119,7 +119,7 @@ class UserInvestService {
     ret.data = {
       info: info
     }
-
+    Log.info(`${ctx.uuid}|getList().ret`, ret)
     ctx.result = ret
     return ret
 
@@ -209,11 +209,11 @@ class UserInvestService {
       }
 
     } catch (err) {
-      console.error(err.message)
+      // console.error(err.message)
       ret.code = errCode.FAIL.code
       ret.message = err.message || 'err'
 
-      // t.rollback()
+      t.rollback()
 
     }
 
