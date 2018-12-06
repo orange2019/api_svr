@@ -225,7 +225,121 @@ class UserInvestService {
 
   }
 
-  async investCompute() {
+  /**
+   * 计算
+   */
+  async investComputes() {
+    let self = this
+    let now = parseInt(Date.now() / 1000)
+    let lists = await UserModel().investModel().findAll({
+      where: {
+        start_time: {
+          [Op.lt]: now
+        },
+        end_time: {
+          [Op.gt]: now
+        }
+      },
+      order: [
+        ['create_time', 'ASC']
+      ]
+    })
+    console.log('investComputes.lists.len', lists.length)
+
+    let userInvests = {}
+    lists.forEach(item => {
+      if (!userInvests[item.user_id]) {
+        userInvests[item.user_id] = []
+        console.log('investComputes.add user', item.user_id)
+      }
+      userInvests[item.user_id].push(item)
+    })
+
+    console.log('investComputes.userInvests.len', Object.keys(userInvests).length)
+
+    let userInvestArrs = Object.values(userInvests)
+    for (let index = 0; index < userInvestArrs.length; index++) {
+      const items = userInvestArrs[index]
+      console.log('investComputes.items.len', items.length)
+      let isFirst = true
+      for (let indexU = 0; indexU < items.length; indexU++) {
+        const userInvest = items[indexU]
+        await self.investComputed(userInvest, isFirst)
+        isFirst++
+      }
+
+    }
+  }
+
+  async investComputed(userInvest, isFirst = false) {
+    console.log(`计算 start ID:${userInvest.id}`)
+    let logDate = dateUtils.dateFormat(null, 'YYYYMMDD')
+
+    let userId = userInvest.user_id
+    let investId = userInvest.user_id
+    let userInvestId = userInvest.id
+
+    let isLog = await UserModel().investLogsModel().findOne({
+      where: {
+        user_invest_id: userInvestId,
+        log_date: logDate
+      }
+    })
+    if (isLog) {
+      console.log('已记录......', isLog.id)
+      return false
+    }
+
+    let baseNum = userInvest.num
+    let rate = userInvest.rate
+    let days = userInvest.days
+
+    let userAssets = await UserModel().getAssetsByUserId(userId)
+    let userAssetsFrozen = userAssets.token_num_frozen
+
+    let numFrozen = baseNum / days
+    if (userAssetsFrozen - numFrozen < 1) {
+      numFrozen = Math.ceil(numFrozen)
+    }
+
+    let numSelf = baseNum / rate / 100
+    let numChild = 0
+
+    if (isFirst) {
+      // TODO 去找子级的
+    }
+
+    let logsData = {
+      user_id: userId,
+      invest_id: investId,
+      user_invest_id: userInvestId,
+      num_frozen: numFrozen,
+      num_self: numSelf,
+      num_child: numChild,
+      log_date: dateUtils.dateFormat(null, 'YYYYMMDD')
+    }
+    console.log('logsData', logsData)
+    let logRet = await UserModel().investLogsModel().create(logsData)
+    console.log('logRet', logRet)
+
+
+    let numTokenInc = numSelf + numChild
+    console.log('numTokenInc', numTokenInc)
+    let ctx = {
+      uuid: UuidUtils.v4(),
+      body: {
+        user_id: userId,
+        num: numTokenInc,
+        type: 4
+      }
+    }
+    let retAssetsIn = await accountService.assetsIn(ctx)
+    console.log('retAssetsIn', retAssetsIn)
+
+    userAssets.token_num_frozen = userAssets.token_num_frozen - numFrozen
+    let userAssetsRet = await userAssets.save()
+    console.log('userAssetsRet.id', userAssetsRet.id)
+
 
   }
   /**

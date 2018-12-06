@@ -244,6 +244,18 @@ class AccountService {
       //   throw new Error('私钥错误')
       // }
 
+      // 确认是否足够代币
+      let userAssets = await UserModel().assetsModel().findOne({
+        where: {
+          user_id: userId
+        }
+      })
+      let forzenNum = 0
+      if (userAssets) {
+        Log.info(`${ctx.uuid}|assetsOut().userAssets`, userAssets)
+        forzenNum = userAssets.token_num_frozen
+        Log.info(`${ctx.uuid}|assetsOut().forzenNum`, forzenNum)
+      }
       // let {
       //   address
       // } = await tokenService._info()
@@ -255,8 +267,11 @@ class AccountService {
       //
       // let tokenBalance = await web3.getTokenBalance(address, account.address)
       let tokenBalance = await tokenBalance._getUserTokenBalance(account.address)
-      if (tokenBalance < num) {
-        throw new Error('代币余额不足')
+      // if (tokenBalance < num) {
+      //   throw new Error('代币余额不足')
+      // }
+      if (tokenBalance - forzenNum < num) {
+        throw new Error('代币可用余额不足')
       }
 
       let gas = await web3.tokenTransferGas(

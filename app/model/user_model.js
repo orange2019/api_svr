@@ -4,6 +4,7 @@ const UuidUtils = require('./../utils/uuid_utils')
 const dateUtils = require('./../utils/date_utils')
 const uuidUtils = require('./../utils/uuid_utils')
 const errCode = require('./../common/err_code')
+const Op = Sequelize.Op
 
 class UserModel extends BaseModel {
 
@@ -318,6 +319,10 @@ class UserModel extends BaseModel {
         type: Sequelize.BIGINT,
         defaultValue: 0
       },
+      invest_id: {
+        type: Sequelize.BIGINT,
+        defaultValue: 0
+      },
       create_time: {
         type: Sequelize.BIGINT(11),
         defaultValue: parseInt(Date.now() / 1000)
@@ -326,17 +331,17 @@ class UserModel extends BaseModel {
         type: Sequelize.STRING(8),
         defaultValue: dateUtils.dateFormat(null, 'YYYYMMDD')
       },
-      num: {
-        type: Sequelize.BIGINT,
-        defaultValue: 0,
-        get() {
-          const num = this.getDataValue('num')
-          return num / 100000000
-        },
-        set(val) {
-          this.setDataValue('num', val * 100000000)
-        }
-      },
+      // num: {
+      //   type: Sequelize.BIGINT,
+      //   defaultValue: 0,
+      //   get() {
+      //     const num = this.getDataValue('num')
+      //     return num / 100000000
+      //   },
+      //   set(val) {
+      //     this.setDataValue('num', val * 100000000)
+      //   }
+      // },
       num_frozen: {
         type: Sequelize.BIGINT,
         defaultValue: 0,
@@ -458,6 +463,39 @@ class UserModel extends BaseModel {
       })
     }
     return ret
+  }
+
+  /**
+   * 获取所有子级
+   * @param {*} userIds 
+   * @param {*} level 
+   * @param {*} arr 
+   */
+  async getAllChilds(userIds = [], level = 0, arr = []) {
+    let map = {
+      pid: {
+        [Op.in]: userIds
+      }
+    }
+
+    let items = await this.model().findAll({
+      where: map
+    })
+    if (items.length) {
+      let pids = []
+      arr[level] = []
+      items.forEach(item => {
+        arr[level].push(item.dataValues)
+        pids.push(item.id)
+      })
+
+      level++
+
+      return await this.getAllChilds(pids, level, arr)
+
+    } else {
+      return arr
+    }
   }
 
 }

@@ -1,15 +1,24 @@
 const UserService = require('./../app/service/user_service')
-const UserTransactionService = require('./../app/service/user_transaction_service')
+// const UserTransactionService = require('./../app/service/user_transaction_service')
+const UserInvestService = require('./../app/service/user_invest_service')
 
-const uuid = require('uuid')
+process.env.NODE_ENV = 'dev'
+
+UserInvestService.investComputes()
+// const UserModel = require('./../app/model/user_model')
+// UserModel().getAllChilds([12]).then(ret => {
+//   console.log(ret)
+// })
+
+// const uuid = require('uuid')
 
 // UserService.getById(1).then(ret => {
 //   console.log(ret)
 // })
 
-let ctx = {
-  uuid: uuid.v4()
-}
+// let ctx = {
+//   uuid: uuid.v4()
+// }
 // let userId = 1
 // let investData = {
 //   num : 20000,
@@ -34,9 +43,9 @@ let ctx = {
 //   console.log(ret)
 // })
 
-UserTransactionService.list(ctx).then(ret => {
-  console.log('UserTransactionService.list.ret' , ret)
-})
+// UserTransactionService.list(ctx).then(ret => {
+//   console.log('UserTransactionService.list.ret' , ret)
+// })
 
 // ctx.body = {
 //   user_id: 1,
