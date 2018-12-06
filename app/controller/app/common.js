@@ -10,6 +10,14 @@ router.post('/verifyCode', async (req, res) => {
   })
 })
 
+router.get('/verifyCode', async (req, res) => {
+
+  return res.json({
+    code: 0,
+    message: ''
+  })
+})
+
 router.post('/config', async (req, res) => {
   return res.json({
     code: 0,

@@ -26,6 +26,10 @@ class UserModel extends BaseModel {
       password: {
         type: Sequelize.STRING(128)
       },
+      password_trade: {
+        type: Sequelize.STRING(128),
+        defaultValue: ''
+      },
       create_time: {
         type: Sequelize.BIGINT(11),
         defaultValue: parseInt(Date.now() / 1000)
@@ -244,6 +248,65 @@ class UserModel extends BaseModel {
     return model
   }
 
+  investModel() {
+    let model = this.db().define('user_invest', {
+      id: {
+        type: Sequelize.BIGINT,
+        primaryKey: true,
+        autoIncrement: true
+      },
+      user_id: {
+        type: Sequelize.BIGINT,
+        defaultValue: 0
+      },
+      invest_id: {
+        type: Sequelize.BIGINT,
+        defaultValue: 0
+      },
+      create_time: {
+        type: Sequelize.BIGINT(11),
+        defaultValue: parseInt(Date.now() / 1000)
+      },
+      start_time: {
+        type: Sequelize.BIGINT(11),
+        defaultValue: 0
+      },
+      end_time: {
+        type: Sequelize.BIGINT(11),
+        defaultValue: 0
+      },
+      num: {
+        type: Sequelize.BIGINT,
+        defaultValue: 0,
+        get() {
+          const num = this.getDataValue('num')
+          return num / 100000000
+        },
+        set(val) {
+          this.setDataValue('num', val * 100000000)
+        }
+      },
+      rate: {
+        type: Sequelize.DECIMAL(2, 2)
+      },
+      days: {
+        type: Sequelize.BIGINT(11)
+      },
+      uuid: {
+        type: Sequelize.STRING(64),
+        defaultValue: ''
+      }
+    }, {
+      timestamps: true,
+      createdAt: 'create_time',
+      updatedAt: false,
+      freezeTableName: true,
+      tableName: 't_user_invest'
+    })
+
+    return model
+  }
+
   investLogsModel() {
     let model = this.db().define('user_invest_logs', {
       id: {
@@ -362,7 +425,7 @@ class UserModel extends BaseModel {
       score: {
         type: Sequelize.BIGINT,
         defaultValue: 0
-      },
+      }
 
     }, {
       timestamps: true,
@@ -376,194 +439,22 @@ class UserModel extends BaseModel {
   }
 
   /**
-   * 创建用户交易
+   * 获取用户资产
    * @param {*} userId 
-   * @param {*} amount 
-   * @param {*} type 
-   * @param {*} locationUserId 
-   * @param {*} remark 
-   * @param {*} t 
    */
-  async userTransactionCreate(userId, amount, type = 1, locationUserId = 0, remark = {}, t = null) {
-    let ret = {
-      code: errCode.FAIL.code,
-      message: errCode.FAIL.message
-    }
-
-    if (amount <= 0) {
-      ret.message = 'amount err'
-      return ret
-    }
-
-    let num = 0
-    let score = 0
-
-    // 完成的时候找
-    // let userAssest = await this.assetsModel().findOne({
-    //   where : {user_id : userId}
-    // })
-
-    if (type == 1 || type == 3 || type == 5 || type == 9) {
-      num = amount
-    } else if (type == 2 || type == 4 || type == 6) {
-      num = -1 * amount
-    } else if (type == 7) {
-      score = amount
-    } else if (type == 8) {
-      score = -1 * amount
-    }
-
-    // let numOld =0
-    // let numNew = 0
-    // let scoreOld = 0
-    // let scoreNew = 0
-
-    // if(userAssest){
-    //   numOld = userAssest.token_num
-    //   scoreOld = userAssest.score
-
-    //   if(type == 9){
-    //     numNew = num
-    //   }else {
-    //     numNew = numOld + num 
-    //   }
-
-    //   scoreNew = scoreOld + score
-    //   if(numNew < 0 || scoreNew < 0){
-    //     ret.message = 'amount new err'
-    //     return ret
-    //   }
-
-    // }else {
-    //   numOld = 0
-    //   numNew = num
-    //   scoreOld = 0
-    //   scoreNew = score
-    // }
-
-    let createData = {
-      user_id: userId,
-      num: num,
-      // num_old: numOld,
-      // num_new: numNew,
-      score: score,
-      // score_old: scoreOld,
-      // score_new: scoreNew,
-      remark: remark ? JSON.stringify(remark) : '',
-      location_user_id: locationUserId
-    }
-
-    let opts = {}
-    if (t) {
-      opts.transaction = t
-    }
-
-    let createRet = await this.transactionModel().create(createData, opts)
-    if (!createRet.id) {
-      ret.message = 'create err'
-      return ret
-    }
-
-    ret.data = {
-      id: createRet.id,
-      uuid: createRet.uuid
-    }
-    ret.code = errCode.SUCCESS.code
-    ret.message = errCode.SUCCESS.message
-    return ret
-  }
-
-  /**
-   * 用户交易完成，资产更新
-   * @param {*} uuid 
-   */
-  async userTransUpdateComplete(uuid, userId, t = null) {
-    let ret = {
-      code: errCode.FAIL.code,
-      message: errCode.FAIL.message
-    }
-
-    let userTrans = await this.transactionModel().findOne({
+  async getAssetsByUserId(userId) {
+    let ret = await this.assetsModel().findOne({
       where: {
-        uuid: uuid
+        user_id: userId
       }
     })
-
-    if (!userTrans != userTrans.user_id != userId) {
-      ret.message = 'trans item find err'
-      return ret
+    if (!ret) {
+      ret = await this.assetsModel().create({
+        user_id: userId
+      })
     }
-
-    let userAssets = await this.assetsModel().findOne({
-      where: {
-        user_id: userTrans.user_id
-      }
-    })
-    // if(!userAssets){
-    //   ret.message = 'user assest find err'
-    //   return ret
-    // }
-    let num = userTrans.num
-    let score = userTrans.score
-
-    let numOld = 0
-    let numNew = 0
-    let scoreOld = 0
-    let scoreNew = 0
-    let type = userTrans.dataValues.type
-
-    if (userAssets) {
-      numOld = userAssets.token_num
-      scoreOld = userAssets.score
-
-      if (type == 9) {
-        numNew = num
-      } else {
-        numNew = numOld + num
-      }
-
-      scoreNew = scoreOld + score
-      if (numNew < 0 || scoreNew < 0) {
-        ret.message = 'amount new err'
-        return ret
-      }
-
-    } else {
-      numOld = 0
-      numNew = num
-      scoreOld = 0
-      scoreNew = score
-    }
-
-    let opts = {}
-    if (t) {
-      opts.transaction = t
-    }
-    userAssets.token_num = numNew
-    userAssets.score = scoreNew
-
-    let userAssestRet = await userAssets.save(opts)
-    if (!userAssestRet) {
-      ret.message = 'user assets update err'
-      return ret
-    }
-
-    userTrans.status = 1
-    userTrans.num_old = numOld
-    userTrans.num_new = numNew
-    userTrans.score_old = scoreOld
-    userTrans.score_new = scoreNew
-    let userTransRet = await userTrans.save(opts)
-    if (!userTransRet) {
-      ret.message = 'user trans update err'
-      return ret
-    }
-
-    ret.code = errCode.SUCCESS.code
-    ret.message = errCode.SUCCESS.message
     return ret
   }
-
 
 }
 

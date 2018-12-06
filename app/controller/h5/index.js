@@ -34,10 +34,6 @@ router.use(async (req, res, next) => {
   next()
 })
 
-router.post('/', async (req, res) => {
-
-})
-
 router.post('/newsList', async (req, res) => {
   await newsService.h5List(req.ctx)
   return res.return(req.ctx)
@@ -62,9 +58,30 @@ router.use(async (req, res, next) => {
   next()
 })
 
+router.post('/investList', async (req, res) => {
+  await userInvestService.list(req.ctx)
+  return res.return(req.ctx)
+})
+
+router.post('/investInfo', async (req, res) => {
+  await userInvestService.info(req.ctx)
+  return res.return(req.ctx)
+})
+
 // h5投产
 router.post('/investApply', async (req, res) => {
-  await userInvestService.invest(req.ctx)
+  console.log('investApply............')
+  await userInvestService.investApply(req.ctx)
+  return res.return(req.ctx)
+})
+
+router.post('/investUserList', async (req, res) => {
+  await userInvestService.getList(req.ctx)
+  return res.return(req.ctx)
+})
+
+router.post('/investUserDetail', async (req, res) => {
+  await userInvestService.getDetail(req.ctx)
   return res.return(req.ctx)
 })
 

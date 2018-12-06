@@ -1,7 +1,8 @@
 const Log = require('./../../lib/log')('user_service')
 const BaseModel = require('./../model/base_model')
 const UserModel = require('./../model/user_model')
-const UserAssetsModel = require('./../model/user_assets_model')
+// const UserAssetsModel = require('./../model/user_assets_model')
+const InvestModel = require('./../model/invest_model')
 const accountService = require('./account_service')
 const tokenService = require('./token_service')
 const UuidUtils = require('./../utils/uuid_utils')
@@ -9,13 +10,224 @@ const dateUtils = require('./../utils/date_utils')
 const errCode = require('./../common/err_code')
 const cryptoUtils = require('./../utils/crypto_utils')
 const Op = require('sequelize').Op
+const uuid = require('uuid')
 
 const {
   INVEST_RATES
 } = require('./../../config')
 
-class UserService {
+class UserInvestService {
 
+  async list(ctx) {
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+    Log.info(`${ctx.uuid}|list().body`, ctx.body)
+
+    let list = await InvestModel().model().findAll({
+      where: {
+        status: 1
+      }
+    })
+
+    ret.data = {
+      list: list
+    }
+    Log.info(`${ctx.uuid}|list().ret`, ret)
+    ctx.result = ret
+    return ret
+  }
+
+  async info(ctx) {
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+    Log.info(`${ctx.uuid}|info().body`, ctx.body)
+
+    let userId = ctx.body.user_id
+    let investId = ctx.body.invest_id
+
+    let invest = await InvestModel().model().findById(investId)
+
+    let user = await this.getById(ctx, userId)
+
+    let userAssets = await UserModel().getAssetsByUserId(userId)
+    Log.info(ctx.uuid, 'info().userAssets', userAssets.token_num_frozen)
+
+    let tokenBalance = await tokenService._getUserTokenBalance(user.address)
+    Log.info(ctx.uuid, 'info().tokenBalance', tokenBalance)
+
+    let canUseNum = tokenBalance - userAssets.token_num_frozen
+    Log.info(ctx.uuid, 'info().canUseNum', canUseNum)
+
+    ret.data = {
+      invest: invest,
+      canUseNum: canUseNum,
+      tokenBalance: tokenBalance
+    }
+
+    Log.info(`${ctx.uuid}|info().ret`, ret)
+    ctx.result = ret
+    return ret
+  }
+
+  async getList(ctx) {
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+    Log.info(`${ctx.uuid}|getList().body`, ctx.body)
+
+    let userId = ctx.body.user_id
+    let now = parseInt(Date.now() / 1000)
+    let list = await UserModel().investModel().findAll({
+      where: {
+        user_id: userId,
+        end_time: {
+          [Op.gt]: now
+        }
+      }
+    })
+
+    ret.data = {
+      list: list
+    }
+    ctx.result = ret
+
+    return
+  }
+
+  async getDetail(ctx) {
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+    Log.info(`${ctx.uuid}|getList().body`, ctx.body)
+
+    let userId = ctx.body.user_id
+    let uuid = ctx.body.uuid
+
+    let info = await UserModel().investModel().findOne({
+      where: {
+        user_id: userId,
+        uuid: uuid
+      }
+    })
+
+    ret.data = {
+      info: info
+    }
+
+    ctx.result = ret
+    return ret
+
+  }
+
+
+  /**
+   * 投产
+   */
+  async investApply(ctx) {
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+
+    let t = await UserModel().getTrans()
+
+    try {
+      Log.info(`${ctx.uuid}|investApply().body`, ctx.body)
+      let userId = ctx.body.user_id
+      let investId = ctx.body.invest_id
+      let password = ctx.body.password || ''
+
+      // 找到用户
+      let user = await this.getById(ctx, userId)
+      Log.info(ctx.uuid, 'investApply().user', user)
+      if (!user) {
+        throw new Error('未找到用户')
+      }
+
+      let invest = await InvestModel().model().findById(investId)
+      if (!invest) {
+        throw new Error('无效产品')
+      }
+
+      // 判断密码
+      if (user.password != cryptoUtils.md5(password)) {
+        throw new Error('密码错误')
+      }
+
+      // 判断资产是否足够
+      let tokenNum = invest.num
+      Log.info(ctx.uuid, 'investApply().tokenNum', tokenNum)
+      let userAssets = await UserModel().getAssetsByUserId(userId)
+      Log.info(ctx.uuid, 'investApply().userAssets', userAssets.token_num_frozen)
+
+      let tokenBalance = await tokenService._getUserTokenBalance(user.wallet_address)
+      Log.info(ctx.uuid, 'investApply().tokenBalance', tokenBalance)
+
+      let canUseNum = tokenBalance - userAssets.token_num_frozen
+      Log.info(ctx.uuid, 'investApply().canUseNum', canUseNum)
+
+      if (canUseNum <= 0 || canUseNum < tokenNum) {
+        throw new Error('用户资产不足')
+      }
+
+      // 添加投产记录 
+      let startTime = parseInt(Date.now() / 1000)
+      let endTime = startTime + 30 * 24 * 3600
+      let userInvestData = {
+        user_id: userId,
+        invest_id: investId,
+        start_time: startTime,
+        end_time: endTime,
+        rate: invest.rate,
+        days: invest.days,
+        num: invest.num
+      }
+      Log.info(ctx.uuid, 'investApply().userInvestData', userInvestData)
+      let retUserInvest = await UserModel().investModel().create(userInvestData, {
+        transaction: t
+      })
+      Log.info(ctx.uuid, 'investApply().userInvestData', retUserInvest.id)
+      if (!retUserInvest) {
+        throw new Error('添加数据失败')
+      }
+
+      // 记录用户资产
+      let newNum = userAssets.token_num_frozen + tokenNum
+      Log.info(ctx.uuid, 'investApply().newNum', newNum)
+      userAssets.token_num_frozen = newNum
+      let retUserAssests = await userAssets.save({
+        transaction: t
+      })
+      if (!retUserAssests) {
+        throw new Error('记录用户数据失败')
+      }
+
+    } catch (err) {
+      console.error(err.message)
+      ret.code = errCode.FAIL.code
+      ret.message = err.message || 'err'
+
+      // t.rollback()
+
+    }
+
+    Log.info(`${ctx.uuid}|investApply().ret`, ret)
+    t.commit()
+    ctx.result = ret
+    return ret
+
+
+  }
+
+  async investCompute() {
+
+  }
   /**
    * 计算收益
    */
@@ -234,7 +446,6 @@ class UserService {
       // 判断密码
       if (user.password != cryptoUtils.md5(password)) {
         throw new Error('密码错误')
-
       }
 
       // 判断资产是否足够
@@ -468,4 +679,4 @@ class UserService {
 
 }
 
-module.exports = new UserService()
+module.exports = new UserInvestService()

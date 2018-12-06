@@ -1,6 +1,5 @@
 const Log = require('./../../lib/log')('user_service')
 const UserModel = require('./../model/user_model')
-const UserAssetsModel = require('./../model/user_assets_model')
 const ContractTokenModel = require('./../model/contract_token_model')
 const errCode = require('./../common/err_code')
 const Op = require('sequelize').Op
@@ -13,14 +12,14 @@ class UserService {
    * 授权
    * @param {*} ctx 
    */
-  async getByToken(ctx){
+  async getByToken(ctx) {
     let ret = {
       code: errCode.SUCCESS.code,
       message: errCode.SUCCESS.message
     }
 
     let token = ctx.query.token || ''
-    if(!token){
+    if (!token) {
       ret.code = -1
       ret.message = 'token err'
 
@@ -29,15 +28,18 @@ class UserService {
     }
 
     let user = await UserModel().model().findOne({
-      where : {
-        [Op.or] : [
-          {auth_token_1: token},
-          {auth_token_2: token}
+      where: {
+        [Op.or]: [{
+            auth_token_1: token
+          },
+          {
+            auth_token_2: token
+          }
         ]
       }
     })
 
-    if(!user){
+    if (!user) {
       ret.code = -100
       ret.message = 'auth err'
 
@@ -81,7 +83,7 @@ class UserService {
 
     let userModel = UserModel().model()
     let userInfoModel = UserModel().infoModel()
-    let userAssetsModel = UserAssetsModel().model()
+    let userAssetsModel = UserModel().assetsModel()
 
     userModel.hasOne(userInfoModel, {
       foreignKey: 'user_id'
@@ -93,8 +95,7 @@ class UserService {
 
     let data = await userModel.findAndCountAll({
       where: map,
-      include: [
-        {
+      include: [{
           model: userInfoModel
         },
         {
@@ -156,7 +157,7 @@ class UserService {
    * 用户信息
    * @param {*} ctx 
    */
-  async info(ctx){
+  async info(ctx) {
     let ret = {
       code: errCode.SUCCESS.code,
       message: errCode.SUCCESS.message
@@ -164,7 +165,7 @@ class UserService {
 
     Log.info(`${ctx.uuid}|info().body`, ctx.body)
     let userId = ctx.body.user_id
-    
+
     let userModel = UserModel().model()
     let userInfoModel = UserModel().infoModel()
 
@@ -173,25 +174,26 @@ class UserService {
     })
 
     let user = await userModel.findOne({
-      where: {id:userId},
-      include: [
-        {
+      where: {
+        id: userId
+      },
+      include: [{
           model: userInfoModel
         },
-        
+
       ],
-      attributes: ['id' , 'uuid' , 'mobile' ,'wallet_address' ,'status']
+      attributes: ['id', 'uuid', 'mobile', 'wallet_address', 'status']
     })
 
     Log.info(`${ctx.uuid}|info().user`, user)
 
-    if(!user){
+    if (!user) {
       ret.code = errCode.FAIL.code
       ret.message = '未找到用户'
     }
-    
+
     ret.data = {
-      user : user
+      user: user
     }
 
     ctx.result = ret
@@ -202,7 +204,7 @@ class UserService {
    * 用户资产
    * @param {*} ctx 
    */
-  async userAssets(ctx){
+  async userAssets(ctx) {
     let ret = {
       code: errCode.SUCCESS.code,
       message: errCode.SUCCESS.message
@@ -216,14 +218,14 @@ class UserService {
 
     let contractToken = await ContractTokenModel().getData()
     let contractAddress = contractToken.contract_address
-    
+
     let userBalance = await web3.getBalance(accountAddress)
     let userTokenBalance = await web3.getTokenBalance(contractAddress, accountAddress)
 
     let data = user.dataValues
     data.balance = userBalance
     data.token_balance = userTokenBalance
-    
+
     ret.data = data
 
     ctx.result = ret
@@ -234,7 +236,7 @@ class UserService {
    * 更新
    * @param {*} ctx 
    */
-  async infoUpdate(ctx){
+  async infoUpdate(ctx) {
     let ret = {
       code: errCode.SUCCESS.code,
       message: errCode.SUCCESS.message
@@ -245,11 +247,13 @@ class UserService {
     let userId = ctx.body.user_id || 0
 
     let userInfo = await UserModel().infoModel().findOne({
-      where : {user_id : userId}
+      where: {
+        user_id: userId
+      }
     })
 
     Log.info(`${ctx.uuid}|infoUpdate().userInfo`, ctx.userInfo)
-    if(!userInfo){
+    if (!userInfo) {
       let userData = {
         realname: body.realname,
         idcard_no: body.idcard_no,
@@ -260,21 +264,21 @@ class UserService {
 
       let retUpdate = await UserModel().infoModel().create(userData)
 
-      if(!retUpdate){
+      if (!retUpdate) {
         ret.code = errCode.FAIL.code
         ret.message = '更新失败'
 
         ctx.result = ret
         return ret
       }
-    }else{
+    } else {
       userInfo.realname = body.realname
       userInfo.idcard_no = body.idcard_no
       userInfo.idcard_positive = body.idcard_positive
-      userInfo.idcard_reverse  = body.idcard_positive
+      userInfo.idcard_reverse = body.idcard_positive
 
       let retUpdate = await userInfo.save()
-      if(!retUpdate){
+      if (!retUpdate) {
         ret.code = errCode.FAIL.code
         ret.message = '更新失败'
 
@@ -289,7 +293,7 @@ class UserService {
   /**
    * 邀请列表
    */
-  async inviteList(ctx){
+  async inviteList(ctx) {
     let ret = {
       code: errCode.SUCCESS.code,
       message: errCode.SUCCESS.message
@@ -314,17 +318,15 @@ class UserService {
 
     let data = await userModel.findAndCountAll({
       where: map,
-      include: [
-        {
-          model: userInfoModel
-        }
-      ],
+      include: [{
+        model: userInfoModel
+      }],
       order: [
-        ['create_time' , 'DESC']
+        ['create_time', 'DESC']
       ],
-      attributes: ['id' , 'uuid' , 'mobile' , 'status']
+      attributes: ['id', 'uuid', 'mobile', 'status']
     })
-    
+
     ret.data = data
     Log.info(ctx.uuid, 'inviteList().ret', ret)
     ctx.result = ret
@@ -335,15 +337,18 @@ class UserService {
    * 更改密码
    * @param {*} ctx 
    */
-  async changePwd(ctx){
+  async changePwd(ctx) {
     let ret = {
       code: errCode.SUCCESS.code,
       message: errCode.SUCCESS.message
     }
-    
+
     let userId = ctx.body.user_id
-    let { password , password_again}  = ctx.body 
-    if(password !== password_again){
+    let {
+      password,
+      password_again
+    } = ctx.body
+    if (password !== password_again) {
       ret.code = errCode.FAIL.code
       ret.message = '两次密码输入不一致'
 
