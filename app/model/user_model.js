@@ -370,6 +370,10 @@ class UserModel extends BaseModel {
           this.setDataValue('num_child', val * 100000000)
         }
       },
+      user_invest_id: {
+        type: Sequelize.BIGINT,
+        defaultValue: 0
+      }
     }, {
       timestamps: true,
       createdAt: 'create_time',
