@@ -19,8 +19,8 @@ module.exports = async (req, res, next) => {
       })
     }
 
-    Log.info(`${uuid}|${req.originalUrl}|req.content`, JSON.stringify(content))
-    let cryptStr = cryptUtil.hmacMd5(JSON.stringify(content), uuid)
+    Log.info(`${uuid}|${req.originalUrl}|req.content`, content)
+    let cryptStr = cryptUtil.hmacMd5(content, uuid)
     Log.info(`${uuid}|${req.originalUrl}|req.cryptStr`, cryptStr)
     // 验证签名
     let verify = cryptUtil.verify(cryptStr, sign, publicKey)
