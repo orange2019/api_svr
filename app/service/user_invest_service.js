@@ -83,13 +83,25 @@ class UserInvestService {
 
     let userId = ctx.body.user_id
     let now = parseInt(Date.now() / 1000)
-    let list = await UserModel().investModel().findAll({
+
+    let investUserModel = UserModel().investModel()
+    let investModel = InvestModel().model()
+
+    investUserModel.belongsTo(investModel, {
+      targetKey: 'id',
+      foreignKey: 'invest_id'
+    })
+    let list = await investUserModel.findAll({
       where: {
         user_id: userId,
         end_time: {
           [Op.gt]: now
         }
-      }
+      },
+      include: [{
+        model: investModel,
+        attributes: ['name']
+      }]
     })
 
     ret.data = {
@@ -116,9 +128,11 @@ class UserInvestService {
         uuid: uuid
       }
     })
+    let invest = await InvestModel().model().findById(info.invest_id)
 
     ret.data = {
-      info: info
+      info: info,
+      invest: invest
     }
     Log.info(`${ctx.uuid}|getList().ret`, ret)
     ctx.result = ret
