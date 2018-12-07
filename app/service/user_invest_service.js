@@ -342,6 +342,47 @@ class UserInvestService {
 
 
   }
+
+  async _computedChild(pid, baseNum) {
+    let childs = await UserModel().getAllChilds(pid)
+    let child0 = childs[0]
+    let childInvestUserIds = [] // 推荐下级购买
+
+    if (child0.length) {
+      let userIds = []
+      child0.forEach(child => {
+        userIds.push(child.id)
+      })
+      let childInvest = await UserModel().investModel().findAll({
+        where: {
+          user_id: {
+            [Op.in]: userIds
+          }
+        }
+      })
+
+      childInvest.forEach(item => {
+        if (childInvestUserIds.index(item.user_id) < 0) {
+          childInvestUserIds.push(item.user_id)
+        }
+      })
+
+    } else {
+      return false
+    }
+
+    let level = 0
+    if (child0.length > 0 && child0.length < 1) {
+      // 享受下一级
+      level = 0
+    } else if (child0.length > 1 && child0.length < 3) {
+      // 享受两级
+      level = 0
+    } else if (child0.length > 3) {
+      level = childs.length
+    }
+
+  }
   /**
    * 计算收益
    */
