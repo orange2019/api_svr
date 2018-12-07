@@ -5,7 +5,9 @@ const uuid = require('uuid')
 
 const reqUuid = uuid.v4()
 
-let content = {}
+let content = {
+
+}
 let cryptStr = cryptUtils.hmacMd5(content, reqUuid)
 let sign = cryptUtils.sign(cryptStr, config.private)
 

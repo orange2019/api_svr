@@ -1,5 +1,8 @@
 const Sequelize = require('sequelize')
 const BaseModel = require('./base_model')
+const {
+  INVEST_RATES
+} = require('./../../config/index')
 
 class ConfigModel extends BaseModel {
 
@@ -51,6 +54,20 @@ class ConfigModel extends BaseModel {
 
     this._model = model
     return this
+  }
+
+  async getRateLevel() {
+    let data = await this.model().findOne({
+      where: {
+        name: 'rateLevel'
+      }
+    })
+    console.log(typeof data.info)
+    if (data && data.info) {
+      return data.info.split('|')
+    } else {
+      return INVEST_RATES
+    }
   }
 
 

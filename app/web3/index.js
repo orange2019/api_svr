@@ -56,7 +56,7 @@ class Web3Class {
 
     let decimal = await contractObj.methods.decimals().call()
     console.log('contract decimal:', decimal)
-    let value = num * 10 ** decimal
+    let value = parseInt(num * 10 ** decimal)
     console.log('contract value:', value)
     let transafer = contractObj.methods.transfer(to, value)
 
@@ -86,7 +86,7 @@ class Web3Class {
 
     let decimal = await contractObj.methods.decimals().call()
     console.log('contract decimal:', decimal)
-    let value = num * 10 ** decimal
+    let value = parseInt(num * 10 ** decimal)
     console.log('contract value:', value)
 
     let transfer = contractObj.methods.transfer(to, value)

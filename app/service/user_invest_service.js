@@ -3,6 +3,7 @@ const BaseModel = require('./../model/base_model')
 const UserModel = require('./../model/user_model')
 // const UserAssetsModel = require('./../model/user_assets_model')
 const InvestModel = require('./../model/invest_model')
+const ConfigModel = require('./../model/config_model')
 const accountService = require('./account_service')
 const tokenService = require('./token_service')
 const UuidUtils = require('./../utils/uuid_utils')
@@ -231,7 +232,7 @@ class UserInvestService {
   async investComputes() {
     let self = this
     let now = parseInt(Date.now() / 1000)
-    let lists = await UserModel().investModel().findAll({
+    let userInvests = await UserModel().investModel().findAll({
       where: {
         start_time: {
           [Op.lt]: now
@@ -244,31 +245,20 @@ class UserInvestService {
         ['create_time', 'ASC']
       ]
     })
-    console.log('investComputes.lists.len', lists.length)
+    console.log('investComputes.userInvests.len', userInvests.length)
 
-    let userInvests = {}
-    lists.forEach(item => {
-      if (!userInvests[item.user_id]) {
-        userInvests[item.user_id] = []
-        console.log('investComputes.add user', item.user_id)
+    let userInvestIds = []
+    for (let index = 0; index < userInvests.length; index++) {
+      const userInvest = userInvests[index]
+      let userId = userInvest.user_id
+      let isFirst = false
+      if (userInvestIds.indexOf(userId) < 0) {
+        userInvestIds.push(userId)
+        isFirst = true
       }
-      userInvests[item.user_id].push(item)
-    })
-
-    console.log('investComputes.userInvests.len', Object.keys(userInvests).length)
-
-    let userInvestArrs = Object.values(userInvests)
-    for (let index = 0; index < userInvestArrs.length; index++) {
-      const items = userInvestArrs[index]
-      console.log('investComputes.items.len', items.length)
-      let isFirst = true
-      for (let indexU = 0; indexU < items.length; indexU++) {
-        const userInvest = items[indexU]
-        await self.investComputed(userInvest, isFirst)
-        isFirst++
-      }
-
+      await self.investComputed(userInvest, isFirst)
     }
+
   }
 
   async investComputed(userInvest, isFirst = false) {
@@ -307,6 +297,7 @@ class UserInvestService {
 
     if (isFirst) {
       // TODO 去找子级的
+      numChild = await this._computedChild(userId, baseNum)
     }
 
     let logsData = {
@@ -344,10 +335,13 @@ class UserInvestService {
   }
 
   async _computedChild(pid, baseNum) {
-    let childs = await UserModel().getAllChilds(pid)
-    let child0 = childs[0]
-    let childInvestUserIds = [] // 推荐下级购买
+    let now = parseInt(Date.now() / 1000)
+    let rateLevels = await ConfigModel().getRateLevel()
 
+    let childs = await UserModel().getAllChilds([pid])
+    let child0 = childs[0] // 子级
+    let childInvestUserIds = [] // 推荐下级购买的记录ids
+    console.log('child0.len', child0.length)
     if (child0.length) {
       let userIds = []
       child0.forEach(child => {
@@ -357,12 +351,18 @@ class UserInvestService {
         where: {
           user_id: {
             [Op.in]: userIds
+          },
+          start_time: {
+            [Op.lt]: now
+          },
+          end_time: {
+            [Op.gt]: now
           }
         }
       })
 
       childInvest.forEach(item => {
-        if (childInvestUserIds.index(item.user_id) < 0) {
+        if (childInvestUserIds.indexOf(item.user_id) < 0) {
           childInvestUserIds.push(item.user_id)
         }
       })
@@ -370,19 +370,55 @@ class UserInvestService {
     } else {
       return false
     }
-
+    console.log('childInvestUserIds', childInvestUserIds.length)
     let level = 0
-    if (child0.length > 0 && child0.length < 1) {
+    if (childInvestUserIds.length > 0 && childInvestUserIds.length <= 1) {
       // 享受下一级
-      level = 0
-    } else if (child0.length > 1 && child0.length < 3) {
+      level = 1
+    } else if (childInvestUserIds.length > 1 && childInvestUserIds.length <= 3) {
       // 享受两级
-      level = 0
-    } else if (child0.length > 3) {
+      level = 2
+    } else if (childInvestUserIds.length > 3) {
       level = childs.length
     }
+    console.log('level:', level)
+
+    // level = childs.length
+    let numChild = 0
+    for (let index = 0; index < level; index++) {
+      const childArr = childs[index]
+      // console.log('childArr len', childArr)
+      for (let indexC = 0; indexC < childArr.length; indexC++) {
+        const child = childArr[indexC]
+        console.log('child ', child.id)
+        let investUserChilds = await UserModel().investModel().findAll({
+          where: {
+            user_id: child.id,
+            start_time: {
+              [Op.lt]: now
+            },
+            end_time: {
+              [Op.gt]: now
+            }
+          }
+        })
+
+        investUserChilds.forEach(item => {
+          console.log('rate level ', rateLevels[index] || 0.1)
+          console.log('item.num', item.num)
+          let addNum = ((item.num > baseNum) ? baseNum : item.num) * (rateLevels[index] || 0.1) / 100
+          numChild += addNum
+          console.log('numChild:add:', addNum)
+        })
+      }
+
+    }
+
+    console.log('numChild:end:', numChild)
+    return (numChild > baseNum) ? baseNum : numChild
 
   }
+
   /**
    * 计算收益
    */

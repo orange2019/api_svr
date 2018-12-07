@@ -19,7 +19,7 @@ let config = {
 
   file_svr_domain: 'http://127.0.0.1:4002',
 
-  INVEST_RATES: [6, 3, 1.5, 0.75, 0.38, 0.19, 0.1],
+  INVEST_RATES: [3, 1.5, 0.75, 0.38, 0.19, 0.1],
 
   TRANSACTION_TYPE: {
     ASSETS_IN: 1, // 充值

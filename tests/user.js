@@ -5,6 +5,9 @@ const UserInvestService = require('./../app/service/user_invest_service')
 process.env.NODE_ENV = 'dev'
 
 UserInvestService.investComputes()
+// UserInvestService._computedChild(12, 10000).then(ret => {
+//   console.log(ret)
+// })
 // const UserModel = require('./../app/model/user_model')
 // UserModel().getAllChilds([12]).then(ret => {
 //   console.log(ret)
