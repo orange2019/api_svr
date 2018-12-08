@@ -35,6 +35,9 @@ router.post('/orderCancel', async (req,res) => {
   res.json(ret)
 })
 
-// router.post('order')
+router.post('pay', async (req,res) => {
+  let ret = await orderService.pay(req.ctx)
+  res.json(ret);
+})
 
 module.exports = router
