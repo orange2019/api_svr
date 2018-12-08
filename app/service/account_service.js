@@ -390,6 +390,60 @@ class AccountService {
     return ret
   }
 
+  async investChild(ctx) {
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+
+    Log.info(`${ctx.uuid}|investChild().body`, ctx.body)
+    let userId = ctx.body.user_id // 鉴权通过了，不可能是0
+    let offset = ctx.body.offset || 0
+    let limit = ctx.body.limit || 20
+
+    let userInfoModel = UserModel().infoModel()
+    let userInvestChildModel = UserModel().investChildModel()
+
+    userInvestChildModel.belongsTo(userInfoModel, {
+      targetKey: 'user_id',
+      foreignKey: 'child_id'
+    })
+    let queryRet = await userInvestChildModel.findAndCountAll({
+      where: {
+        user_id: userId
+      },
+      order: [
+        ['create_time', 'desc']
+      ],
+      include: [{
+        model: userInfoModel,
+        attributes: ['realname']
+      }],
+      offset: offset,
+      limit: limit
+    })
+    let childCount = await UserModel().model().count({
+      where: {
+        pid: userId,
+        status: 1
+      }
+    })
+    // let childInvest = await UserModel().investLogsModel().sum('num_child', {
+    //   where: {
+    //     user_id: userId
+    //   }
+    // })
+    ret.data = {
+      rows: queryRet.rows,
+      count: queryRet.count,
+      childCount: childCount
+    }
+    Log.info(`${ctx.uuid}|investChild().ret`, ret)
+
+    ctx.result = ret
+    return ret
+  }
+
 
 }
 

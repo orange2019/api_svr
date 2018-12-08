@@ -49,6 +49,7 @@ class UserService {
 
     ctx.body.user_id = user.id
     ctx.body.user_uuid = user.uuid
+    ctx.body.user_status = user.status
 
     return ret
   }
@@ -376,11 +377,11 @@ class UserService {
     let userId = ctx.body.user_id
     Log.info(`${ctx.uuid}|addressList() body:`, ctx.body)
     let userInfo = await UserModel().infoModel()
-        .findOne({
-          where: {
-            user_id: userId
-          }
-        })
+      .findOne({
+        where: {
+          user_id: userId
+        }
+      })
     let addressList = userInfo.address
     ret.data = addressList
     Log.info(`${ctx.uuid}|addressList().ret`, ret)
@@ -392,7 +393,7 @@ class UserService {
    * 更新地址
    * @param {*} ctx 
    */
-  async addressUpdate(ctx){
+  async addressUpdate(ctx) {
     let ret = {
       code: errCode.SUCCESS.code,
       message: errCode.SUCCESS.message

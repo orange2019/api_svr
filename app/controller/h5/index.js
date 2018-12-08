@@ -56,6 +56,12 @@ router.use(async (req, res, next) => {
     return res.json(checkToken)
   }
 
+  if (req.ctx.body.user_status != 1) {
+    return res.json({
+      code: -101,
+      message: '用户待审核'
+    })
+  }
   next()
 })
 
@@ -93,6 +99,11 @@ router.post('/assets', async (req, res) => {
 
 router.post('/assetsTransaction', async (req, res) => {
   await accountService.transactions(req.ctx)
+  return res.return(req.ctx)
+})
+
+router.post('/investTeam', async (req, res) => {
+  await accountService.investChild(req.ctx)
   return res.return(req.ctx)
 })
 
