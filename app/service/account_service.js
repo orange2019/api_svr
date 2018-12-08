@@ -42,10 +42,23 @@ class AccountService {
     )
 
     let data = {
-      user_id: user.uuid
+      // user_id: user.uuid
     }
     data.balance = userBalance
     data.token_balance = userTokenBalance / 10 ** 8
+    data.address = accountAddress
+
+    let userAssets = await UserModel().getAssetsByUserId(userId)
+    data.frozen_num = userAssets.token_num_frozen
+
+    let userInvest = await UserModel().investLogsModel().sum('num_self', {
+      user_id: userId
+    })
+    let userInvestChild = await UserModel().investLogsModel().sum('num_child', {
+      user_id: userId
+    })
+    data.invest = userInvest / 100000000
+    data.invest_child = userInvestChild / 100000000
 
     ret.data = data
     Log.info(`${ctx.uuid}|userAssets().ret`, ret)
@@ -341,6 +354,38 @@ class AccountService {
     }
 
     Log.info(`${ctx.uuid}|assetsTransfer().ret`, ret)
+    ctx.result = ret
+    return ret
+  }
+
+  async transactions(ctx) {
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+
+    Log.info(`${ctx.uuid}|transactions().body`, ctx.body)
+    let userId = ctx.body.user_id // 鉴权通过了，不可能是0
+    let offset = ctx.body.offset || 0
+    let limit = ctx.body.limit || 20
+
+    let queryRet = await UserModel().transactionModel().findAndCountAll({
+      where: {
+        user_id: userId
+      },
+      order: [
+        ['create_time', 'desc']
+      ],
+      offset: offset,
+      limit: limit
+    })
+
+    ret.data = {
+      rows: queryRet.rows,
+      count: queryRet.count
+    }
+    Log.info(`${ctx.uuid}|transactions().ret`, ret)
+
     ctx.result = ret
     return ret
   }
