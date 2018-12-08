@@ -6,12 +6,12 @@ const uuid = require('uuid')
 const reqUuid = uuid.v4()
 
 let content = {
-  'num': 200000.12345677,
+  'num': 20000.12345677,
   // 'to_address': '0xD34f565DbA3a3afB197556E7901657E232b1B091',
   'password': '123456'
 }
 
-let cryptStr = cryptUtils.hmacMd5(JSON.stringify(content), reqUuid)
+let cryptStr = cryptUtils.hmacMd5(content, reqUuid)
 let sign = cryptUtils.sign(cryptStr, config.private)
 
 let postData = {
@@ -20,6 +20,6 @@ let postData = {
   sign: sign
 }
 
-request.post('http://127.0.0.1:4001/app/account/assetsOut?token=739e180b-b166-43e6-84b7-3b4bb380f43c').send(postData).type('json').then(ret => {
+request.post('http://127.0.0.1:4001/app/account/assetsOut?token=cc5b4468-e2a2-44f8-b8e6-d3e274027c94').send(postData).type('json').then(ret => {
   console.log(ret.body)
 })

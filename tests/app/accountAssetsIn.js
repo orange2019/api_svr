@@ -11,7 +11,7 @@ let content = {
   'password': '123456'
 }
 
-let cryptStr = cryptUtils.hmacMd5(JSON.stringify(content), reqUuid)
+let cryptStr = cryptUtils.hmacMd5((content), reqUuid)
 let sign = cryptUtils.sign(cryptStr, config.private)
 
 let postData = {
@@ -20,6 +20,6 @@ let postData = {
   sign: sign
 }
 
-request.post('http://127.0.0.1:4001/app/account/assetsIn?token=739e180b-b166-43e6-84b7-3b4bb380f43c').send(postData).type('json').then(ret => {
+request.post('http://127.0.0.1:4001/app/account/assetsIn?token=cc5b4468-e2a2-44f8-b8e6-d3e274027c94').send(postData).type('json').then(ret => {
   console.log(ret.body)
 })

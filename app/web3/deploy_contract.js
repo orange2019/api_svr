@@ -1,6 +1,7 @@
 const web3Proxy = require('./proxy')
 const ContractTokenModel = require('./../model/contract_token_model')
-// process.env.NODE_ENV = 'dev';
+// process.env.NODE_ENV = 'dev'
+
 ;
 (async () => {
 

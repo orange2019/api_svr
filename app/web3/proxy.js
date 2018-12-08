@@ -36,7 +36,8 @@ class Web3Proxy {
     let abi = erc20Json.abi
     let contract = new this.web3.eth.Contract(abi)
     let deploy = contract.deploy({
-      data: erc20Json.bytecode
+      data: erc20Json.bytecode,
+      arguments: ['KxmCoin', 'KXC', 1000000000]
     })
 
     // console.log(deploy.encodeABI())

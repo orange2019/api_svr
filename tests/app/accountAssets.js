@@ -8,7 +8,7 @@ const reqUuid = uuid.v4()
 let content = {
 
 }
-let cryptStr = cryptUtils.hmacMd5(JSON.stringify(content), reqUuid)
+let cryptStr = cryptUtils.hmacMd5(content, reqUuid)
 let sign = cryptUtils.sign(cryptStr, config.private)
 
 let postData = {
@@ -17,6 +17,6 @@ let postData = {
   sign: sign
 }
 
-request.post('http://127.0.0.1:4001/app/account/assets?token=739e180b-b166-43e6-84b7-3b4bb380f43c').send(postData).type('json').then(ret => {
+request.post('http://127.0.0.1:4001/app/account/assets?token=bdd9efdd-edb1-4951-ba78-e016446d2d22').send(postData).type('json').then(ret => {
   console.log(ret.body)
 })

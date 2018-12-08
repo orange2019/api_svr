@@ -75,9 +75,27 @@ class AccountService {
         owner,
         contract
       } = await tokenService._info()
+
+      let gas = await web3.tokenTransferGas(
+        contract,
+        owner,
+        owner.address,
+        accountAddress,
+        num,
+        true
+      )
+      Log.info(`${ctx.uuid}|assetsOut().gas`, gas)
+      // 确认燃料(gas)是否够
+      let userBalance = await web3.getBalance(owner.address)
+      Log.info(`${ctx.uuid}|assetsOut().userBalance`, userBalance)
+      if (userBalance == 0 || userBalance < gas) {
+        throw new Error('无足够交易手续费GAS')
+      }
+
       let transRet = await web3.tokenTransfer(
         contract,
         owner,
+        owner.address,
         accountAddress,
         num
       )
@@ -153,14 +171,15 @@ class AccountService {
 
       let gas = await web3.tokenTransferGas(
         contract,
-        account,
+        owner,
+        account.address,
         owner.address,
         num,
         true
       )
       Log.info(`${ctx.uuid}|assetsOut().gas`, gas)
       // 确认燃料(gas)是否够
-      let userBalance = await web3.getBalance(accountAddress)
+      let userBalance = await web3.getBalance(owner.address)
       Log.info(`${ctx.uuid}|assetsOut().userBalance`, userBalance)
       if (userBalance == 0 || userBalance < gas) {
         throw new Error('无足够交易手续费GAS')
@@ -169,13 +188,14 @@ class AccountService {
       // 调用web3转账
       let transRet = await web3.tokenTransfer(
         contract,
-        account,
+        owner,
+        account.address,
         owner.address,
         num
       )
       Log.info(`${ctx.uuid}|assetsOut().transRet`, transRet)
       if (!transRet) {
-        throw new Error('转账失败')
+        throw new Error('提币失败')
       }
 
       // 记录转账信息
@@ -261,12 +281,13 @@ class AccountService {
       // } = await tokenService._info()
       // let contract = await web3.getContract(address)
       let {
-        contract
+        contract,
+        owner
       } = await tokenService._info()
 
       //
       // let tokenBalance = await web3.getTokenBalance(address, account.address)
-      let tokenBalance = await tokenBalance._getUserTokenBalance(account.address)
+      let tokenBalance = await tokenService._getUserTokenBalance(account.address)
       // if (tokenBalance < num) {
       //   throw new Error('代币余额不足')
       // }
@@ -276,14 +297,15 @@ class AccountService {
 
       let gas = await web3.tokenTransferGas(
         contract,
-        account,
+        owner,
+        account.address,
         toAddress,
         num,
         true
       )
       Log.info(`${ctx.uuid}|assetsTransfer().gas`, gas)
       // 确认燃料(gas)是否够
-      let userBalance = await web3.getBalance(accountAddress)
+      let userBalance = await web3.getBalance(owner.address)
       Log.info(`${ctx.uuid}|assetsTransfer().userBalance`, userBalance)
       if (userBalance == 0 || userBalance < gas) {
         throw new Error('无足够交易手续费GAS')
@@ -292,7 +314,8 @@ class AccountService {
       // 调用web3转账
       let transRet = await web3.tokenTransfer(
         contract,
-        account,
+        owner,
+        account.address,
         toAddress,
         num
       )

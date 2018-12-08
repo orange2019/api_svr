@@ -7,8 +7,8 @@ const web3Proxy = require('./../app/web3/proxy')
   console.log('default account', defaultAccount)
 
   // 转账给一个
-  let accountAddress = '0x5D4c47578abad687862c45fBccad03936c030e58'
-  await web3Proxy.sendTransaction(defaultAccount, accountAddress, 0.1)
+  let accountAddress = '0x459e580BC43C99Ee59CA002d2e6084D870a9890A'
+  await web3Proxy.sendTransaction(defaultAccount, accountAddress, 5)
   let balance = await web3Proxy.balanceOf(accountAddress)
   console.log(balance)
 })()

@@ -52,16 +52,17 @@ class Web3Class {
    * @param {*} to 
    * @param {*} num 
    */
-  async tokenTransfer(contractObj, account, to, num) {
+  async tokenTransfer(contractObj, account, from, to, num) {
 
     let decimal = await contractObj.methods.decimals().call()
     console.log('contract decimal:', decimal)
     let value = parseInt(num * 10 ** decimal)
     console.log('contract value:', value)
-    let transafer = contractObj.methods.transfer(to, value)
+    // let from = account.address
+    let transafer = contractObj.methods.transferAllow(from, to, value)
 
     let contractAddress = contractObj.options.address
-    let gas = await this.tokenTransferGas(contractObj, account, to, num)
+    let gas = await this.tokenTransferGas(contractObj, account, from, to, num)
 
     let tx = {
 
@@ -82,14 +83,14 @@ class Web3Class {
 
   }
 
-  async tokenTransferGas(contractObj, account, to, num, eth = false) {
+  async tokenTransferGas(contractObj, account, from, to, num, eth = false) {
 
     let decimal = await contractObj.methods.decimals().call()
     console.log('contract decimal:', decimal)
     let value = parseInt(num * 10 ** decimal)
     console.log('contract value:', value)
-
-    let transfer = contractObj.methods.transfer(to, value)
+    // let from = account.address
+    let transfer = contractObj.methods.transferAllow(from, to, value)
     let contractAddress = contractObj.options.address
     let gas = await transfer.estimateGas({
       from: account.address,

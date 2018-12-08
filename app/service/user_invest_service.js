@@ -129,10 +129,25 @@ class UserInvestService {
       }
     })
     let invest = await InvestModel().model().findById(info.invest_id)
+    let sum = await UserModel().investLogsModel().sum('num_self', {
+      where: {
+        user_id: userId,
+        invest_id: info.id
+      }
+    })
+    let count = await UserModel().investLogsModel().count({
+      where: {
+        user_id: userId,
+        invest_id: info.id
+      }
+    })
+
 
     ret.data = {
       info: info,
-      invest: invest
+      invest: invest,
+      sum: sum,
+      count: count
     }
     Log.info(`${ctx.uuid}|getList().ret`, ret)
     ctx.result = ret
