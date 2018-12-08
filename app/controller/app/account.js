@@ -25,10 +25,7 @@ router.post('/inviteList', async (req, res) => {
   return res.json(ret)
 })
 
-router.post('/assets', async (req, res) => {
-  let ret = await accountService.userAssets(req.ctx)
-  return res.json(ret)
-})
+
 
 /**
  * 充值

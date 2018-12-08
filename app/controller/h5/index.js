@@ -3,6 +3,7 @@ const router = express.Router()
 const newsService = require('./../../service/news_service')
 const userInvestService = require('./../../service/user_invest_service')
 const userService = require('./../../service/user_service')
+const accountService = require('./../../service/account_service')
 const Log = require('./../../../lib/log')('h5-control')
 
 router.use(async (req, res, next) => {
@@ -55,6 +56,12 @@ router.use(async (req, res, next) => {
     return res.json(checkToken)
   }
 
+  if (req.ctx.body.user_status != 1) {
+    return res.json({
+      code: -101,
+      message: '用户待审核'
+    })
+  }
   next()
 })
 
@@ -82,6 +89,21 @@ router.post('/investUserList', async (req, res) => {
 
 router.post('/investUserDetail', async (req, res) => {
   await userInvestService.getDetail(req.ctx)
+  return res.return(req.ctx)
+})
+
+router.post('/assets', async (req, res) => {
+  await accountService.userAssets(req.ctx)
+  return res.return(req.ctx)
+})
+
+router.post('/assetsTransaction', async (req, res) => {
+  await accountService.transactions(req.ctx)
+  return res.return(req.ctx)
+})
+
+router.post('/investTeam', async (req, res) => {
+  await accountService.investChild(req.ctx)
   return res.return(req.ctx)
 })
 
