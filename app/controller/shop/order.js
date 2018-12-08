@@ -15,6 +15,8 @@ const orderService = require('./../../service/order_service');
 商城提供部分广告位，根据设计内容，提供爆款链接跳转广告位；
  */
 router.post('/orderList', async (req, res) => {
-    let ret = await userService.changePwd(req.ctx)
-    res.json(ret)
-  })
+  let ret = await userService.changePwd(req.ctx)
+  res.json(ret)
+})
+
+module.exports = router
