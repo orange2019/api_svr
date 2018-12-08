@@ -54,5 +54,23 @@ router.post('/assetsTransfer', async (req, res) => {
   return res.json(ret)
 })
 
+/**
+ * 用户地址信息
+ * @param body user_id
+ */
+router.post('/addressList', async (req, res)=>{
+  let ret = await userService.addressList(req.ctx)
+  return res.json(ret)
+})
+
+/**
+ * 用户更新地址
+ * @param body user_id 
+ * @param body address  字符串过后的array
+ */
+router.post('/addressUpdate', async (req, res)=>{
+  let ret = await userService.addressUpdate(req.ctx)
+  return res.json(ret)
+})
 
 module.exports = router

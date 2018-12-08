@@ -364,6 +364,52 @@ class UserService {
     return ret
   }
 
+  /**
+   * 地址列表
+   * @param {*} ctx 
+   */
+  async addressList(ctx) {
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+    let userId = ctx.body.user_id
+    Log.info(`${ctx.uuid}|addressList() body:`, ctx.body)
+    let userInfo = await UserModel().infoModel()
+        .findOne({
+          where: {
+            user_id: userId
+          }
+        })
+    let addressList = userInfo.address
+    ret.data = addressList
+    Log.info(`${ctx.uuid}|addressList().ret`, ret)
+    ctx.result = ret
+    return ret
+  }
+
+  /**
+   * 更新地址
+   * @param {*} ctx 
+   */
+  async addressUpdate(ctx){
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+    let userId = ctx.body.user_id
+    Log.info(`${ctx.uuid}|addressList() body:`, ctx.body)
+    let userInfo = await UserModel().getUserInfoByUserId(userId)
+
+    userInfo.address = ctx.body.address;
+    let retUpdate = await userInfo.save()
+    if (!retUpdate) {
+      ret.code = errCode.FAIL.code
+      ret.message = '更新失败'
+    }
+    ctx.result = ret
+    return ret
+  }
 }
 
 module.exports = new UserService()
