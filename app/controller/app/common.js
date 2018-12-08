@@ -24,6 +24,7 @@ router.post('/config', async (req, res) => {
     message: '',
     data: {
       version: '0.0.1',
+      assets_url: config.domain.h5 + '/assets',
       index_url: config.domain.h5 + '/invest',
       news_url: config.domain.h5 + '/news'
     }

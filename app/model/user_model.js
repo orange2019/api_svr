@@ -308,6 +308,55 @@ class UserModel extends BaseModel {
     return model
   }
 
+  investChildModel() {
+    let model = this.db().define('user_invest_child', {
+      id: {
+        type: Sequelize.BIGINT,
+        primaryKey: true,
+        autoIncrement: true
+      },
+      user_id: {
+        type: Sequelize.BIGINT,
+        defaultValue: 0
+      },
+      child_id: {
+        type: Sequelize.BIGINT,
+        defaultValue: 0
+      },
+      create_time: {
+        type: Sequelize.BIGINT(11),
+        defaultValue: parseInt(Date.now() / 1000)
+      },
+      update_time: {
+        type: Sequelize.BIGINT(11),
+        defaultValue: parseInt(Date.now() / 1000)
+      },
+      status: {
+        type: Sequelize.TINYINT(2),
+        defaultValue: 1
+      },
+      num: {
+        type: Sequelize.BIGINT,
+        defaultValue: 0,
+        get() {
+          const num = this.getDataValue('num')
+          return num / 100000000
+        },
+        set(val) {
+          this.setDataValue('num', val * 100000000)
+        }
+      }
+    }, {
+      timestamps: true,
+      createdAt: 'create_time',
+      updatedAt: 'update_time',
+      freezeTableName: true,
+      tableName: 't_user_invest_child'
+    })
+
+    return model
+  }
+
   investLogsModel() {
     let model = this.db().define('user_invest_logs', {
       id: {
@@ -496,6 +545,36 @@ class UserModel extends BaseModel {
     } else {
       return arr
     }
+  }
+
+  /**
+   * 记录子级收益加成
+   * @param {*} userId 
+   * @param {*} childId 
+   * @param {*} num 
+   */
+  async recordChildInvest(userId, childId, num) {
+    let item = await this.investChildModel().findOne({
+      where: {
+        user_id: userId,
+        child_id: childId
+      }
+    })
+
+    if (item) {
+      item.num = item.num + num
+      await item.save()
+
+    } else {
+      item = await this.investChildModel().create({
+        user_id: userId,
+        child_id: childId,
+        num: num
+      })
+    }
+
+    return item
+
   }
 
 }

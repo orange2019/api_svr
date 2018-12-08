@@ -7,14 +7,14 @@ const reqUuid = uuid.v4()
 
 let content = {
   body: {
-    invest_id: 2,
+    invest_id: 1,
     password: '123456'
   },
   query: {
-    token: '739e180b-b166-43e6-84b7-3b4bb380f43c'
+    token: 'bdd9efdd-edb1-4951-ba78-e016446d2d22'
   }
 }
-let cryptStr = cryptUtils.hmacMd5(JSON.stringify(content), reqUuid)
+let cryptStr = cryptUtils.hmacMd5((content), reqUuid)
 let sign = cryptUtils.sign(cryptStr, config.private)
 
 let postData = {

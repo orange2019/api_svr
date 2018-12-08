@@ -25,8 +25,9 @@ let config = {
     ASSETS_IN: 1, // 充值
     ASSETS_OUT: 2, // 提现
     TRANSTER: 3, //转账
+    INVEST_OUT: 4, // 投资出
     INVEST_IN: 5, // 投资入
-    INVEST_OUT: 6, // 投资出
+    INVEST_IN_SUB: 6, // 投资子级入
     SCORE_IN: 7, // 积分兑换
     SCORE_OUT: 8, // 积分消费
   },

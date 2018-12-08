@@ -10,6 +10,7 @@ const UuidUtils = require('./../utils/uuid_utils')
 const dateUtils = require('./../utils/date_utils')
 const errCode = require('./../common/err_code')
 const cryptoUtils = require('./../utils/crypto_utils')
+const userTransactionService = require('./user_transaction_service')
 const Op = require('sequelize').Op
 const uuid = require('uuid')
 
@@ -238,6 +239,14 @@ class UserInvestService {
         throw new Error('记录用户数据失败')
       }
 
+      // 交易记录
+      ctx.body.type = 4
+      ctx.body.num = invest.num
+      let userTransRet = await userTransactionService.transafer(ctx, t)
+      if (userTransRet.code != 0) {
+        throw new Error(userTransRet.message)
+      }
+
     } catch (err) {
       // console.error(err.message)
       ret.code = errCode.FAIL.code
@@ -349,12 +358,24 @@ class UserInvestService {
       uuid: UuidUtils.v4(),
       body: {
         user_id: userId,
-        num: numTokenInc,
-        type: 4
+        num: numSelf,
+        type: 5
       }
     }
     let retAssetsIn = await accountService.assetsIn(ctx)
     console.log('retAssetsIn', retAssetsIn)
+    if (numChild) {
+      let ctx = {
+        uuid: UuidUtils.v4(),
+        body: {
+          user_id: userId,
+          num: numSelf,
+          type: 6
+        }
+      }
+      let retAssetsIn = await accountService.assetsIn(ctx)
+      console.log('retAssetsInChild', retAssetsIn)
+    }
 
     userAssets.token_num_frozen = userAssets.token_num_frozen - numFrozen
     let userAssetsRet = await userAssets.save()
@@ -368,10 +389,11 @@ class UserInvestService {
     let rateLevels = await ConfigModel().getRateLevel()
 
     let childs = await UserModel().getAllChilds([pid])
-    let child0 = childs[0] // 子级
+    let child0 = childs[0] || [] // 子级
     let childInvestUserIds = [] // 推荐下级购买的记录ids
-    console.log('child0.len', child0.length)
-    if (child0.length) {
+
+    if (child0 && child0.length) {
+      console.log('child0.len', child0.length)
       let userIds = []
       child0.forEach(child => {
         userIds.push(child.id)
@@ -438,6 +460,9 @@ class UserInvestService {
           let addNum = ((item.num > baseNum) ? baseNum : item.num) * (rateLevels[index] || 0.1) / 100
           numChild += addNum
           console.log('numChild:add:', addNum)
+          UserModel().recordChildInvest(pid, child.id, addNum).then(ret => {
+            console.log('numChild:add:ret', ret.id)
+          })
         })
       }
 
