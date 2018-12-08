@@ -44,9 +44,19 @@ class OrderService
         // orderModel().model().findOne()
     }
 
-    async addOrder(ctx)
+    async orderAdd(ctx)
     {
         
+    }
+
+    async orderCancel()
+    {
+
+    }
+
+    async pay()
+    {
+
     }
 }
 module.exports = new OrderService()

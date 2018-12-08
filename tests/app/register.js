@@ -3,15 +3,15 @@ const cryptUtils = require('../../app/utils/crypt_utils')
 const config = require('../../config').key
 const uuid = require('uuid')
 
-// process.env.NODE_ENV = 'dev'
+// process.env.NODE_ENV = 'test'
 
 const reqUuid = uuid.v4()
 
 let content = {
-  mobile: '18676669411',
+  mobile: '17666136141',
   password: '123456',
   verify_code: '',
-  invite_code: 'd84z1ih5'
+  invite_code: ''
 }
 let cryptStr = cryptUtils.hmacMd5(content, reqUuid)
 let sign = cryptUtils.sign(cryptStr, config.private)
@@ -22,6 +22,6 @@ let postData = {
   sign: sign
 }
 
-request.post('http://127.0.0.1:4001/app/auth/register').send(postData).type('json').then(ret => {
+request.post('http://api.kxm.cc512.com/app/auth/register').send(postData).type('json').then(ret => {
   console.log(ret.body)
 })
