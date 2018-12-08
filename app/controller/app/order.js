@@ -2,9 +2,9 @@
  * @file 商城订单接口
  */
 'use strict';
-const express = require('express');
-const router = express.Router();
-const orderService = require('./../../service/order_service');
+const express = require('express')
+const router = express.Router()
+const orderService = require('../../service/order_service')
 
 /**
  * 积分商城（数字货币兑换积分---积分全额购物）
@@ -15,8 +15,8 @@ const orderService = require('./../../service/order_service');
 商城提供部分广告位，根据设计内容，提供爆款链接跳转广告位；
  */
 router.post('/orderList', async (req, res) => {
-  let ret = await orderService.orderList(req.ctx)
-  res.json(ret)
-})
+    let ret = await orderService.orderList(req.ctx)
+    res.json(ret)
+  })
 
-module.exports = router;
+module.exports = router

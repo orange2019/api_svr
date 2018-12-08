@@ -20,6 +20,8 @@ router.use(async (req, res, next) => {
 
 router.use('/common', require('./common'))
 router.use('/auth', require('./auth'))
+router.use('/ad', require('./ad'))
+router.use('/order', require('./order'))
 
 // 鉴权
 router.use(async (req, res, next) => {
