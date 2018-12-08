@@ -8,10 +8,10 @@ const uuid = require('uuid')
 const reqUuid = uuid.v4()
 
 let content = {
-  mobile: '18676669412',
+  mobile: '18676669411',
   password: '123456',
   verify_code: '',
-  invite_code: '8uhmr9x4'
+  invite_code: 'd84z1ih5'
 }
 let cryptStr = cryptUtils.hmacMd5(content, reqUuid)
 let sign = cryptUtils.sign(cryptStr, config.private)
