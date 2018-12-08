@@ -547,6 +547,7 @@ class UserModel extends BaseModel {
     }
   }
 
+
   /**
    * 记录子级收益加成
    * @param {*} userId 
@@ -574,7 +575,20 @@ class UserModel extends BaseModel {
     }
 
     return item
+  }
 
+  async getUserInfoByUserId(userId){
+    let ret = await this.infoModel().findOne({
+      where: {
+        user_id: userId
+      }
+    })
+    if (!ret) {
+      ret = await this.infoModel().create({
+        user_id: userId
+      })
+    }
+    return ret
   }
 
 }
