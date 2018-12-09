@@ -5,6 +5,7 @@ const errCode = require('./../common/err_code')
 const Op = require('sequelize').Op
 const cryptoUtils = require('./../utils/crypto_utils')
 const web3 = require('./../web3')
+const config = require('./../../config/index')
 
 class UserService {
 
@@ -194,7 +195,9 @@ class UserService {
     }
 
     ret.data = {
-      user: user
+      user: user,
+      invite_url: config.domain.h5 + '/invite?uuid=' + user.uuid,
+      invite_list_url: config.domain.h5 + '/invite/list?token=' + user.token
     }
 
     ctx.result = ret
@@ -291,6 +294,32 @@ class UserService {
     return ret
   }
 
+  async inviteInfo(ctx) {
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+
+    Log.info(ctx.uuid, 'inviteInfo().body', ctx.body)
+
+    let userUuid = ctx.body.uuid
+
+    let user = await UserModel().model().findOne({
+      where: {
+        uuid: userUuid
+      }
+    })
+    let userInfo = await UserModel().getUserInfoByUserId(user.id)
+
+    ret.data = {}
+    ret.data.invite_code = user.invite_code
+    ret.data.user_name = userInfo.realname
+    ret.data.down_url = config.domain.img1 + '/uploads/download/wallet-app-release.apk'
+
+    ctx.result = ret
+    return ret
+  }
+
   /**
    * 邀请列表
    */
@@ -320,12 +349,13 @@ class UserService {
     let data = await userModel.findAndCountAll({
       where: map,
       include: [{
-        model: userInfoModel
+        model: userInfoModel,
+        attributes: ['realname']
       }],
       order: [
         ['create_time', 'DESC']
       ],
-      attributes: ['id', 'uuid', 'mobile', 'status']
+      attributes: ['id', 'uuid', 'mobile', 'status', 'create_time']
     })
 
     ret.data = data

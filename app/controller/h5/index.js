@@ -45,6 +45,10 @@ router.post('/newsDetail', async (req, res) => {
   return res.return(req.ctx)
 })
 
+router.post('/invite', async (req, res) => {
+  await userService.inviteInfo(req.ctx)
+  return res.return(req.ctx)
+})
 
 // 需要鉴权
 // 鉴权
@@ -53,7 +57,11 @@ router.use(async (req, res, next) => {
   let checkToken = await userService.getByToken(req.ctx)
   Log.info(req.ctx.uuid, 'checkToken', checkToken)
   if (checkToken.code !== 0) {
-    req.ctx.result = checkToken
+    // req.ctx.result = checkToken
+    req.ctx.result = {
+      code: -100,
+      message: '请重新登录'
+    }
     return res.return(req.ctx)
   }
 
@@ -108,5 +116,12 @@ router.post('/investTeam', async (req, res) => {
   await accountService.investChild(req.ctx)
   return res.return(req.ctx)
 })
+
+router.post('/inviteList', async (req, res) => {
+  await userService.inviteList(req.ctx)
+  return res.return(req.ctx)
+})
+
+
 
 module.exports = router
