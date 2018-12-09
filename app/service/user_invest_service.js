@@ -133,23 +133,28 @@ class UserInvestService {
     let sum = await UserModel().investLogsModel().sum('num_self', {
       where: {
         user_id: userId,
-        invest_id: info.id
+        user_invest_id: info.id
       }
     })
     let count = await UserModel().investLogsModel().count({
       where: {
         user_id: userId,
-        invest_id: info.id
+        user_invest_id: info.id
       }
     })
 
+    let investTotal = parseInt(invest.num * invest.days / invest.rate / 100 * 100000000) / 100000000
+    let investTotalLeave = investTotal - (sum / 100000000)
 
     ret.data = {
       info: info,
       invest: invest,
-      sum: sum,
-      count: count
+      sum: (sum / 100000000) || 0,
+      count: count || 0,
+      investTotal: investTotal || 0,
+      investTotalLeave: investTotalLeave || investTotal
     }
+
     Log.info(`${ctx.uuid}|getList().ret`, ret)
     ctx.result = ret
     return ret
@@ -253,7 +258,8 @@ class UserInvestService {
       ret.message = err.message || 'err'
 
       t.rollback()
-
+      ctx.result = ret
+      return ret
     }
 
     Log.info(`${ctx.uuid}|investApply().ret`, ret)
@@ -742,6 +748,7 @@ class UserInvestService {
 
       t.rollback()
       ctx.result = ret
+      return ret
     }
 
     t.commit()

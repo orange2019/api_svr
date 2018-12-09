@@ -555,29 +555,34 @@ class UserModel extends BaseModel {
    * @param {*} num 
    */
   async recordChildInvest(userId, childId, num) {
-    let item = await this.investChildModel().findOne({
-      where: {
-        user_id: userId,
-        child_id: childId
-      }
+    // let item = await this.investChildModel().findOne({
+    //   where: {
+    //     user_id: userId,
+    //     child_id: childId
+    //   }
+    // })
+
+    // if (item) {
+    //   item.num = item.num + num
+    //   await item.save()
+
+    // } else {
+    //   item = await this.investChildModel().create({
+    //     user_id: userId,
+    //     child_id: childId,
+    //     num: num
+    //   })
+    // }
+    let item = await this.investChildModel().create({
+      user_id: userId,
+      child_id: childId,
+      num: num
     })
-
-    if (item) {
-      item.num = item.num + num
-      await item.save()
-
-    } else {
-      item = await this.investChildModel().create({
-        user_id: userId,
-        child_id: childId,
-        num: num
-      })
-    }
 
     return item
   }
 
-  async getUserInfoByUserId(userId){
+  async getUserInfoByUserId(userId) {
     let ret = await this.infoModel().findOne({
       where: {
         user_id: userId
