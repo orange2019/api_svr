@@ -42,7 +42,13 @@ module.exports = {
       code    : 40003,
       message : '登陆失败'
     }
+  },
 
+  ORDER: {
+    amountNotEnough : {
+      code : 4000,
+      message : '总积分不足'
+    }
   }
 
 }

@@ -1,5 +1,7 @@
 const Log = require('./../../lib/log')('order_service')
 const orderModel = require('./../model/mall_order_model')
+const userAssetsModel = require('./../model/user_assets_model')
+const errCode = require('./../common/err_code')
 
 class OrderService 
 {
@@ -41,6 +43,10 @@ class OrderService
         return ret
     }
 
+    /**
+     * 订单细节
+     * @param {*} ctx 
+     */
     async orderDetail(ctx)
     {
         let ret = {
@@ -66,7 +72,7 @@ class OrderService
             code: errCode.SUCCESS.code,
             message: errCode.SUCCESS.message
         }
-        Log.info(ctx.uuid, 'modifyAdd().body', ctx.body)
+        Log.info(ctx.uuid, 'orderCancel().body', ctx.body)
 
         let orderInfo = await orderModel().model().findById(ctx.body.order_id);
         if (!orderInfo) {
@@ -77,11 +83,69 @@ class OrderService
 
         orderInfo.status = -1;
         await orderInfo.save();
+        ctx.result = ret
         return ret;
     }
 
-    async pay()
+    /**
+     * 支付订单
+     * @param {*} ctx 
+     */
+    async pay(ctx)
     {
+        let ret = {
+            code: errCode.SUCCESS.code,
+            message: errCode.SUCCESS.message
+        }
+        Log.info(ctx.uuid, 'pay().body', ctx.body)
+        //开启事物
+        let t = orderModel.getTrans();
+        try{
+            let orderInfo = await orderModel().model().findById(ctx.body.order_id)
+            let orderAmount = orderInfo.amount
+            let user = await userAssetsModel().model().findOne({
+                where: {
+                    user_id: ctx.body.user_id
+                }
+            })
+            let userAmount = user.amount
+            //积分不足
+            if( userAmount < orderAmount ){
+                ret.code = errCode.ORDER.amountNotEnough.code
+                ret.message = errCode.ORDER.amountNotEnough.message
+                t.rollback()
+                ctx.result = ret
+                return ret
+            }
+            //扣除积分
+            let assetsUpdate = await user.update(
+                { amount: userAmount- orderAmount }, 
+                { transaction: t}
+            );
+            //更改订单状态
+            let orderUpdate = await orderInfo.update(
+                { status: 2 }, 
+                { transaction: t}
+            )
+            Log.info(ctx.uuid, 'assetsUpdate', assetsUpdate,'orderUpdate',orderUpdate)
+            if ( !userAssetUpdate || !orderUpdate ) {
+                ret.code = errCode.FAIL.code
+                ret.message = '付款失败'
+                t.rollback()
+                ctx.result = ret
+                return ret
+            }
+        }catch{
+            //错误即回滚
+            ret.code = errCode.FAIL.code
+            ret.message = err.message || 'err'
+            t.rollback()
+            ctx.result = ret
+            return ret
+        }
+        t.commit()
+        ctx.result = ret
+        return ret
 
     }
 }
