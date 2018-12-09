@@ -41,6 +41,8 @@ class NewsService {
       item.dataValues.cover = domain.img1 + item.dataValues.cover
     })
     ret.data = queryRet
+
+    Log.info(`${ctx.uuid}|list().ret`, ret)
     ctx.result = ret
     return ret
   }
