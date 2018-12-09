@@ -53,14 +53,16 @@ router.use(async (req, res, next) => {
   let checkToken = await userService.getByToken(req.ctx)
   Log.info(req.ctx.uuid, 'checkToken', checkToken)
   if (checkToken.code !== 0) {
-    return res.json(checkToken)
+    req.ctx.result = checkToken
+    return res.return(req.ctx)
   }
 
   if (req.ctx.body.user_status != 1) {
-    return res.json({
+    req.ctx.result = {
       code: -101,
       message: '用户待审核'
-    })
+    }
+    return res.return(req.ctx)
   }
   next()
 })
