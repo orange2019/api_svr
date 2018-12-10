@@ -93,7 +93,11 @@ class AuthService {
     if (invite_code) {
       let inviteUser = await UserModel().model().findOne({
         where: {
-          invite_code: invite_code
+          [Op.or]: {
+            invite_code: invite_code,
+            mobile: invite_code
+          }
+
         }
       })
       if (!inviteUser) {
