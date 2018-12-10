@@ -49,6 +49,17 @@ module.exports = {
       code : 4000,
       message : '总积分不足'
     }
+  },
+
+  SMS: {
+    codeError: {
+      code: 4000,
+      message: '验证码错误'
+    },
+    codeExpired: {
+      code: 4003,
+      message: '验证码过期'
+    },
   }
 
 }
