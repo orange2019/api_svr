@@ -160,12 +160,3 @@ class SmsUtils
 
 
 module.exports = new SmsUtils()
-
-// let smsUtils = new SmsUtils();
-
-// smsUtils.sendSmsCode('13433856321').then(data=>{
-//     console.log(data)
-// })
-// smsUtils.validateCode('13433856321','5034').then(data=>{
-//     console.log(data)
-// })
