@@ -119,6 +119,10 @@ class UserModel extends BaseModel {
         type: Sequelize.STRING(255),
         defaultValue: ''
       },
+      avatar: {
+        type: Sequelize.STRING(255),
+        defaultValue: ''
+      },
       address: {
         type: Sequelize.TEXT,
         defaultValue: '',

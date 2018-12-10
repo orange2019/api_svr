@@ -260,6 +260,7 @@ class UserService {
     if (!userInfo) {
       let userData = {
         realname: body.realname,
+        sex: body.sex,
         idcard_no: body.idcard_no,
         idcard_positive: body.idcard_positive,
         idcard_reverse: body.idcard_positive,
@@ -277,9 +278,58 @@ class UserService {
       }
     } else {
       userInfo.realname = body.realname
+      userInfo.sex = body.sex
       userInfo.idcard_no = body.idcard_no
       userInfo.idcard_positive = body.idcard_positive
       userInfo.idcard_reverse = body.idcard_positive
+
+      let retUpdate = await userInfo.save()
+      if (!retUpdate) {
+        ret.code = errCode.FAIL.code
+        ret.message = '更新失败'
+
+        ctx.result = ret
+        return ret
+      }
+    }
+
+    return ret
+  }
+
+  async infoUpdateAvatar(ctx) {
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+
+    let body = ctx.body
+    Log.info(`${ctx.uuid}|infoUpdate().body`, ctx.body)
+    let userId = ctx.body.user_id || 0
+
+    let userInfo = await UserModel().infoModel().findOne({
+      where: {
+        user_id: userId
+      }
+    })
+
+    Log.info(`${ctx.uuid}|infoUpdate().userInfo`, ctx.userInfo)
+    if (!userInfo) {
+      let userData = {
+        avatar: body.avatar,
+        user_id: userId
+      }
+
+      let retUpdate = await UserModel().infoModel().create(userData)
+
+      if (!retUpdate) {
+        ret.code = errCode.FAIL.code
+        ret.message = '更新失败'
+
+        ctx.result = ret
+        return ret
+      }
+    } else {
+      userInfo.avatar = body.avatar
 
       let retUpdate = await userInfo.save()
       if (!retUpdate) {

@@ -153,7 +153,9 @@ body 无
   code: 0,
   message: '',
   data: {
-
+    user: {},
+    invite_url: '', //邀请链接
+    invite_list_url: '' // 邀请好友h5页面
   }
 }
 ```
@@ -186,9 +188,22 @@ body
 ```js
 {
   realname : '', // 真实姓名
+  sex: 1|2, // 性别
   idcard_no : '', // 身份整号码
   idcard_positive :'', // 身份证正面
   idcard_reverse : '' // 身份证反面
+}
+```
+
+### 6.1 修改头像
+
+`/account/infoUpdate?token={}`
+
+body
+
+```js
+{
+  avatar : '', // 头像
 }
 ```
 
