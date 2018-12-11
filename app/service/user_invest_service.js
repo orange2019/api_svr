@@ -68,7 +68,8 @@ class UserInvestService {
     ret.data = {
       invest: invest,
       canUseNum: canUseNum,
-      tokenBalance: tokenBalance
+      tokenBalance: tokenBalance,
+      isSetTradePwd: user.password_trade ? 1 : 0
     }
 
     Log.info(`${ctx.uuid}|info().ret`, ret)
