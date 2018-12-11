@@ -4,6 +4,10 @@ const Log = require('./../../lib/log')('crypt_mid')
 
 module.exports = async (req, res, next) => {
 
+  if (req.originalUrl == '/upload') {
+    next()
+    return
+  }
   let method = req.method
   if (method.toUpperCase() === 'POST') {
     let {
