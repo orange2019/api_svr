@@ -5,18 +5,17 @@ const errCode = require('./../../common/err_code')
 const smsUtils = require('./../../utils/sms_utils')
 router.post('/verifyCode', async (req, res) => {
   let ret = {
-    code : errCode.SUCCESS.code,
-    message : errCode.SUCCESS.message
+    code: errCode.SUCCESS.code,
+    message: errCode.SUCCESS.message
   }
-  let mobile = req.body.mobile
-  if(!mobile){
+  let mobile = req.body.content.mobile
+  if (!mobile) {
     ret.code = errCode.SMS.mobileNotFound.code
     ret.message = errCode.SMS.mobileNotFound.message
     return res.json(ret)
   }
   let sendStatus = await smsUtils.sendSmsCode(mobile)
-  if(sendStatus === false)
-  {
+  if (sendStatus === false) {
     ret.code = errCode.SMS.sendError.code
     ret.message = errCode.SMS.sendError.message
   }
