@@ -1,10 +1,6 @@
 const Sequelize = require('sequelize')
 const BaseModel = require('./base_model')
-// const UuidUtils = require('./../utils/uuid_utils')
-// const dateUtils = require('./../utils/date_utils')
-// const uuidUtils = require('./../utils/uuid_utils')
-// const errCode = require('./../common/err_code')
-// const Op = Sequelize.Op
+
 class mallGoodsModel extends BaseModel {
   constructor() {
     super()
