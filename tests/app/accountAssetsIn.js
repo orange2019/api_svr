@@ -6,7 +6,7 @@ const uuid = require('uuid')
 const reqUuid = uuid.v4()
 
 let content = {
-  'num': 100000.12345678,
+  'num': 100000,
   // 'to_address': '0xD34f565DbA3a3afB197556E7901657E232b1B091',
   'password': '123456'
 }
