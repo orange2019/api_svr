@@ -4,6 +4,7 @@ const errCode = require('./../common/err_code')
 const uuid = require('uuid')
 const Op = require('sequelize').Op
 const cryptoUtils = require('./../utils/crypto_utils')
+const smsUtils = require('./../utils/sms_utils')
 const Web3 = require('./../web3/index')
 
 class AuthService {
@@ -73,8 +74,14 @@ class AuthService {
     } = ctx.body
     Log.info(`${ctx.uuid}|register().body`, ctx.body)
 
-    // TODO 验证手机号码
-
+    // 验证手机号码
+    let checkCodeRst = smsUtils.validateCode(mobile,verify_code)
+    if(checkCodeRst.code !== 0){
+      ret.code = checkCodeRst.code
+      ret.message = checkCodeRst.message
+      return ret
+    }
+    
     let user = await UserModel().model().findOne({
       where: {
         mobile: mobile
@@ -149,7 +156,13 @@ class AuthService {
       verify_code
     } = ctx.body
 
-    // 验证手机短信 TODO
+    // 验证手机短信
+    let checkCodeRst = smsUtils.validateCode(mobile,verify_code)
+    if(checkCodeRst.code !== 0){
+      ret.code = checkCodeRst.code
+      ret.message = checkCodeRst.message
+      return ret
+    }
 
     let user = await UserModel().model().findOne({
       where: {
@@ -173,6 +186,7 @@ class AuthService {
 
     return ret
   }
+
 }
 
 module.exports = new AuthService()

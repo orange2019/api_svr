@@ -79,6 +79,10 @@ class SmsUtils
     async sendSmsCode(mobile)
     {   
         let code = await this._generateValidateCode(mobile)
+        if(code === false)
+        {
+            return false
+        }
         let msgTpl = `【卡西慕】验证码:${code} (十分钟内有效)`
         return await this.sendSms(mobile,msgTpl)
         
