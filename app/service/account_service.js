@@ -47,9 +47,11 @@ class AccountService {
     data.balance = userBalance
     data.token_balance = userTokenBalance / 10 ** 8
     data.address = accountAddress
+    data.isSetTradePwd = user.password_trade ? 1 : 0
 
-    let userAssets = await UserModel().getAssetsByUserId(userId)
-    data.frozen_num = userAssets.token_num_frozen
+    // let userAssets = await UserModel().getAssetsByUserId(userId)
+    // data.frozen_num = userAssets.token_num_frozen
+    data.frozen_num = 0
 
     let userInvest = await UserModel().investLogsModel().sum('num_self', {
       user_id: userId
@@ -136,7 +138,7 @@ class AccountService {
     return ret
   }
 
-  async assetsOut(ctx) {
+  async assetsOut(ctx, t = null) {
     let ret = {
       code: errCode.SUCCESS.code,
       message: errCode.SUCCESS.message
@@ -151,7 +153,7 @@ class AccountService {
       let user = await UserModel()
         .model()
         .findById(userId)
-      let accountAddress = user.wallet_address
+      // let accountAddress = user.wallet_address
       if (user.password != cryptoUtils.md5(password)) {
         throw new Error('密码错误')
       }
@@ -159,17 +161,17 @@ class AccountService {
       let account = await web3.getAccountFromPk(privateKey)
 
       // 用户可提取额数目
-      let userAssets = await UserModel().assetsModel().findOne({
-        where: {
-          user_id: userId
-        }
-      })
+      // let userAssets = await UserModel().assetsModel().findOne({
+      //   where: {
+      //     user_id: userId
+      //   }
+      // })
       let forzenNum = 0
-      if (userAssets) {
-        Log.info(`${ctx.uuid}|assetsOut().userAssets`, userAssets)
-        forzenNum = userAssets.token_num_frozen
-        Log.info(`${ctx.uuid}|assetsOut().forzenNum`, forzenNum)
-      }
+      // if (userAssets) {
+      //   Log.info(`${ctx.uuid}|assetsOut().userAssets`, userAssets)
+      //   forzenNum = userAssets.token_num_frozen
+      //   Log.info(`${ctx.uuid}|assetsOut().forzenNum`, forzenNum)
+      // }
 
       let {
         contract,
@@ -212,10 +214,10 @@ class AccountService {
       }
 
       // 记录转账信息
-      ctx.body.type = 2 // 交易类型:提现
+      ctx.body.type = ctx.body.type || 2 // 交易类型:提现
       ctx.body.hash = transRet.transactionHash
       ctx.body.gas = transRet.cumulativeGasUsed
-      let userTransRet = await userTransationService.transafer(ctx)
+      let userTransRet = await userTransationService.transafer(ctx, t)
       Log.info(`${ctx.uuid}|assetsOut().userTransRet`, userTransRet)
       if (userTransRet.code !== 0) {
         throw new Error(transRet.message)
@@ -444,6 +446,34 @@ class AccountService {
     return ret
   }
 
+  /**
+   * 设置交易密码
+   * @param {*} ctx 
+   */
+  async setTradePwd(ctx) {
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+
+    Log.info(`${ctx.uuid}|investChild().body`, ctx.body)
+    let userId = ctx.body.user_id // 鉴权通过了，不可能是0
+    let password = ctx.body.password
+
+    let user = await UserModel().model().findById(userId)
+    user.password_trade = cryptoUtils.md5(password)
+    let retSet = await user.save()
+
+    if (!retSet) {
+      ret.code = errCode.FAIL.code
+      ret.message = '设置交易密码失败'
+    }
+
+    ret.message = '设置成功'
+
+    ctx.result = ret
+    return ret
+  }
 
 }
 

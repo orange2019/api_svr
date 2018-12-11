@@ -61,7 +61,8 @@ class UserInvestService {
     let tokenBalance = await tokenService._getUserTokenBalance(user.wallet_address)
     Log.info(ctx.uuid, 'info().tokenBalance', tokenBalance)
 
-    let canUseNum = tokenBalance - userAssets.token_num_frozen
+    // let canUseNum = tokenBalance - userAssets.token_num_frozen
+    let canUseNum = tokenBalance
     Log.info(ctx.uuid, 'info().canUseNum', canUseNum)
 
     ret.data = {
@@ -247,10 +248,15 @@ class UserInvestService {
       // 交易记录
       ctx.body.type = 4
       ctx.body.num = invest.num
-      let userTransRet = await userTransactionService.transafer(ctx, t)
-      if (userTransRet.code != 0) {
-        throw new Error(userTransRet.message)
+      let userAssetsOutRet = await accountService.assetsOut(ctx, t)
+      if (userAssetsOutRet.code != 0) {
+        throw new Error(userAssetsOutRet.message)
       }
+      // let userTransRet = await userTransactionService.transafer(ctx, t)
+      // if (userTransRet.code != 0) {
+      //   throw new Error(userTransRet.message)
+      // }
+
 
     } catch (err) {
       // console.error(err.message)
@@ -358,13 +364,13 @@ class UserInvestService {
     console.log('logRet', logRet)
 
 
-    let numTokenInc = numSelf + numChild
+    let numTokenInc = numSelf + numChild + numFrozen
     console.log('numTokenInc', numTokenInc)
     let ctx = {
       uuid: UuidUtils.v4(),
       body: {
         user_id: userId,
-        num: numSelf,
+        num: numSelf + numFrozen,
         type: 5
       }
     }

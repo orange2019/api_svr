@@ -13,7 +13,7 @@ router.post('/register', async (req, res) => {
   return res.json(ret)
 })
 
-router.post('/forgetPassword' , async(req, res) => {
+router.post('/forgetPassword', async (req, res) => {
   let ret = await authService.forgetPassword(req.ctx)
   return res.json(ret)
 })

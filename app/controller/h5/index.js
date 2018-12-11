@@ -75,6 +75,11 @@ router.use(async (req, res, next) => {
   next()
 })
 
+router.post('/setTradePwd', async (req, res) => {
+  await accountService.setTradePwd(req.ctx)
+  return res.return(req.ctx)
+})
+
 router.post('/investList', async (req, res) => {
   await userInvestService.list(req.ctx)
   return res.return(req.ctx)
