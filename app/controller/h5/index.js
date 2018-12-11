@@ -117,6 +117,11 @@ router.post('/assetsTransaction', async (req, res) => {
   return res.return(req.ctx)
 })
 
+router.post('/assetsTransfer', async (req, res) => {
+  await accountService.assetsTransfer(req.ctx)
+  return res.return(req.ctx)
+})
+
 router.post('/investTeam', async (req, res) => {
   await accountService.investChild(req.ctx)
   return res.return(req.ctx)

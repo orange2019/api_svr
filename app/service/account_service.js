@@ -255,9 +255,12 @@ class AccountService {
       let user = await UserModel()
         .model()
         .findById(userId)
-      let accountAddress = user.wallet_address
-      if (user.password != cryptoUtils.md5(password)) {
-        throw new Error('密码错误')
+      // let accountAddress = user.wallet_address
+      if (user.password_trade != cryptoUtils.md5(password)) {
+        if (user.password != cryptoUtils.md5(password)) {
+          throw new Error('密码验证错误')
+        }
+
       }
 
       let toUser = await UserModel()

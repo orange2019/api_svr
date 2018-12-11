@@ -56,6 +56,10 @@ module.exports = {
       code: 4000,
       message: '验证码错误'
     },
+    sendError: {
+      code: 4001,
+      message: '验证码发送错误,请重试'
+    },
     codeExpired: {
       code: 4003,
       message: '验证码过期'
