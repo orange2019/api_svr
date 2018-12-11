@@ -72,7 +72,11 @@ class AuthService {
       invite_code
     } = ctx.body
     Log.info(`${ctx.uuid}|register().body`, ctx.body)
-
+    if (!mobile || !password || mobile.length != 11) {
+      ret.code = errCode.FAIL.code
+      ret.message = '注册失败，提交数据有误'
+      return ret
+    }
     // TODO 验证手机号码
 
     let user = await UserModel().model().findOne({
