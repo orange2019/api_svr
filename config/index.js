@@ -12,6 +12,15 @@ let config = {
     maxLimit: 1000,
   },
 
+  // db: {
+  //   host: 'orange-kxm.cii9wqqakbrj.us-east-2.rds.amazonaws.com',
+  //   port: 3306,
+  //   dbname: 'orange_kxm',
+  //   username: 'kxm_2018',
+  //   password: 'kxm-2018',
+  //   maxLimit: 1000,
+  // },
+
   port: {
     api_svr: 4001,
     file_svr: 4002
