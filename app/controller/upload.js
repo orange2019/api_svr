@@ -6,7 +6,7 @@ const fs = require('fs')
 const dateUtils = require('./../utils/date_utils')
 const uuidUtils = require('./../utils/uuid_utils')
 const config = require('./../../config')
-const OSS = require('ali-oss');
+const aliOssUtils = require('./../utils/ali_oss_utils');
 const Log = require('./../../lib/log')('upload')
 
 var storage = multer.diskStorage({
@@ -25,32 +25,47 @@ var storage = multer.diskStorage({
   }
 })
 
-let upload = multer({
-  // dest: path.join(__dirname, './../../uploads/images'),
-  storage: storage
-}).any()
+// let upload = multer({
+//   // dest: path.join(__dirname, './../../uploads/images'),
+//   storage: storage
+// }).any()
 
 router.post('/', async (req, res) => {
+  
+  Log.info(req.files)
+  let uploadResult = await aliOssUtils.upload(req.files[0].filename);
+  Log.info(uploadResult)
+  if(uploadResult.res.status != 200){
+    return res.json({code:1, message: '上传失败'})
+  }
 
-  upload(req, res, (err) => {
-    if(err){
-      Log.error(err)
-      return res.json({code:1, message: '上传失败'})
+  return res.json({
+    code: 0 ,
+    message: '上传成功',
+    data : {
+      url : uploadResult.url
     }
-
-    Log.info(req.files)
-    let filePath = path.join('/uploads/images/' , dateUtils.dateFormat(null, 'YYYYMMDD/') , req.files[0].filename)
-    let url = config.domain.img2 + filePath
-    Log.info(url)
-    return res.json({
-      code: 0 ,
-      message: '上传成功',
-      data : {
-        url : url
-      }
-    })
-    // 
   })
+  // upload(req, res, (err) => {
+  //   if(err){
+  //     Log.error(err)
+  //     return res.json({code:1, message: '上传失败'})
+  //   }
+
+    
+  //   Log.info(req.files)
+  //   let filePath = path.join('/uploads/images/' , dateUtils.dateFormat(null, 'YYYYMMDD/') , req.files[0].filename)
+  //   let url = config.domain.img2 + filePath
+  //   Log.info(url)
+  //   return res.json({
+  //     code: 0 ,
+  //     message: '上传成功',
+  //     data : {
+  //       url : url
+  //     }
+  //   })
+  //   // 
+  // })
 
   // res.send('success')
 
