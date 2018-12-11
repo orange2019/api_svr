@@ -117,11 +117,11 @@ class SmsUtils
     async validateCode(mobile,code)
     {
         Log.info('validateCode mobile:',mobile,'code:',code)
-            let requestTime = parseInt(Date.now() / 1000)
-            let ret = {
-                code: errCode.SUCCESS.code,
-                message: errCode.SUCCESS.message
-            }
+        let requestTime = parseInt(Date.now() / 1000)
+        let ret = {
+            code: errCode.SUCCESS.code,
+            message: errCode.SUCCESS.message
+        }
         try{
             let codeInfo = await MobileCodeModel().model().findOne({
                 where:{
@@ -129,7 +129,7 @@ class SmsUtils
                     code:code
                 }
             });
-
+            Log.info('validateCode codeInfo:',codeInfo)
             //无记录则视为错误
             if( !codeInfo )
             {

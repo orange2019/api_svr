@@ -9,7 +9,12 @@ router.post('/verifyCode', async (req, res) => {
     message : errCode.SUCCESS.message
   }
   let mobile = req.body.mobile
-  let sendStatus = smsUtils.sendSmsCode(mobile)
+  if(!mobile){
+    ret.code = errCode.SMS.mobileNotFound.code
+    ret.message = errCode.SMS.mobileNotFound.message
+    return res.json(ret)
+  }
+  let sendStatus = await smsUtils.sendSmsCode(mobile)
   if(sendStatus === false)
   {
     ret.code = errCode.SMS.sendError.code

@@ -64,6 +64,10 @@ module.exports = {
       code: 4003,
       message: '验证码过期'
     },
+    mobileNotFound: {
+      code: 4004,
+      message: '请输入手机号'
+    }
   }
 
 }

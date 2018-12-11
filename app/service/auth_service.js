@@ -75,7 +75,8 @@ class AuthService {
     Log.info(`${ctx.uuid}|register().body`, ctx.body)
 
     // 验证手机号码
-    let checkCodeRst = smsUtils.validateCode(mobile,verify_code)
+    let checkCodeRst = await smsUtils.validateCode(mobile,verify_code)
+    Log.info(`${ctx.uuid}|register().checkCodeRst`, checkCodeRst)
     if(checkCodeRst.code !== 0){
       ret.code = checkCodeRst.code
       ret.message = checkCodeRst.message

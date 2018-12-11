@@ -8,8 +8,8 @@ const uuid = require('uuid')
 const reqUuid = uuid.v4()
 
 let content = {
-  mobile: '17666136141',
-  password: '123456',
+  mobile: '',
+  password: '',
   verify_code: '',
   invite_code: ''
 }
@@ -22,6 +22,6 @@ let postData = {
   sign: sign
 }
 
-request.post('http://api.kxm.cc512.com/app/auth/register').send(postData).type('json').then(ret => {
+request.post('http://127.0.0.1:4001/app/auth/register').send(postData).type('json').then(ret => {
   console.log(ret.body)
 })
