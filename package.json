@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/cc512/find_focus_api#readme",
   "dependencies": {
+    "ali-oss": "^6.0.2",
     "babel-polyfill": "^6.26.0",
     "big-number": "^1.0.0",
     "body-parser": "^1.17.2",
