@@ -8,7 +8,7 @@ process.env.NODE_ENV = 'test'
   let contract = await web3Proxy.contract('0x556304e6D1559b77bE5cf4EEB6B7352f279f8BD9')
 
   let from = account.address
-  let to = '0x28Afc5A1e5CE1A78b20EfB072415b8Ed17A2A387'
+  let to = '0x5912eA0d194C7DA4c9c62e2aa6ABE68A65664e20'
   let num = 100000
 
   // let gas = await web3.tokenTransferGas(contract, account, to, num)
