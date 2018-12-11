@@ -73,6 +73,11 @@ class AuthService {
       invite_code
     } = ctx.body
     Log.info(`${ctx.uuid}|register().body`, ctx.body)
+    if (!mobile || !password || mobile.length != 11) {
+      ret.code = errCode.FAIL.code
+      ret.message = '注册失败，提交数据有误'
+      return ret
+    }
 
     // 验证手机号码
     let checkCodeRst = await smsUtils.validateCode(mobile,verify_code)
@@ -82,7 +87,7 @@ class AuthService {
       ret.message = checkCodeRst.message
       return ret
     }
-    
+
     let user = await UserModel().model().findOne({
       where: {
         mobile: mobile
@@ -158,8 +163,8 @@ class AuthService {
     } = ctx.body
 
     // 验证手机短信
-    let checkCodeRst = smsUtils.validateCode(mobile,verify_code)
-    if(checkCodeRst.code !== 0){
+    let checkCodeRst = smsUtils.validateCode(mobile, verify_code)
+    if (checkCodeRst.code !== 0) {
       ret.code = checkCodeRst.code
       ret.message = checkCodeRst.message
       return ret
