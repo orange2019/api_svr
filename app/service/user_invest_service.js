@@ -193,8 +193,11 @@ class UserInvestService {
       }
 
       // 判断密码
-      if (user.password != cryptoUtils.md5(password)) {
-        throw new Error('密码错误')
+      if (user.password_trade != cryptoUtils.md5(password)) {
+        if (user.password != cryptoUtils.md5(password)) {
+          throw new Error('密码错误')
+        }
+
       }
 
       // 判断资产是否足够
@@ -206,7 +209,8 @@ class UserInvestService {
       let tokenBalance = await tokenService._getUserTokenBalance(user.wallet_address)
       Log.info(ctx.uuid, 'investApply().tokenBalance', tokenBalance)
 
-      let canUseNum = tokenBalance - userAssets.token_num_frozen
+      // let canUseNum = tokenBalance - userAssets.token_num_frozen
+      let canUseNum = tokenBalance
       Log.info(ctx.uuid, 'investApply().canUseNum', canUseNum)
 
       if (canUseNum <= 0 || canUseNum < tokenNum) {

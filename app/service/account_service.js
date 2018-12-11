@@ -99,10 +99,10 @@ class AccountService {
         num,
         true
       )
-      Log.info(`${ctx.uuid}|assetsOut().gas`, gas)
+      Log.info(`${ctx.uuid}|assetsIn().gas`, gas)
       // 确认燃料(gas)是否够
       let userBalance = await web3.getBalance(owner.address)
-      Log.info(`${ctx.uuid}|assetsOut().userBalance`, userBalance)
+      Log.info(`${ctx.uuid}|assetsIn().userBalance`, userBalance)
       if (userBalance == 0 || userBalance < gas) {
         throw new Error('无足够交易手续费GAS')
       }
@@ -155,7 +155,10 @@ class AccountService {
         .findById(userId)
       // let accountAddress = user.wallet_address
       if (user.password != cryptoUtils.md5(password)) {
-        throw new Error('密码错误')
+        if (user.password_trade != cryptoUtils.md5(password)) {
+          throw new Error('密码错误')
+        }
+
       }
       let privateKey = user.private_key
       let account = await web3.getAccountFromPk(privateKey)
@@ -283,17 +286,17 @@ class AccountService {
       // }
 
       // 确认是否足够代币
-      let userAssets = await UserModel().assetsModel().findOne({
-        where: {
-          user_id: userId
-        }
-      })
+      // let userAssets = await UserModel().assetsModel().findOne({
+      //   where: {
+      //     user_id: userId
+      //   }
+      // })
       let forzenNum = 0
-      if (userAssets) {
-        Log.info(`${ctx.uuid}|assetsOut().userAssets`, userAssets)
-        forzenNum = userAssets.token_num_frozen
-        Log.info(`${ctx.uuid}|assetsOut().forzenNum`, forzenNum)
-      }
+      // if (userAssets) {
+      //   Log.info(`${ctx.uuid}|assetsOut().userAssets`, userAssets)
+      //   forzenNum = userAssets.token_num_frozen
+      //   Log.info(`${ctx.uuid}|assetsOut().forzenNum`, forzenNum)
+      // }
       // let {
       //   address
       // } = await tokenService._info()
