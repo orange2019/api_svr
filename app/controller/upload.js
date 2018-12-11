@@ -6,6 +6,7 @@ const fs = require('fs')
 const dateUtils = require('./../utils/date_utils')
 const uuidUtils = require('./../utils/uuid_utils')
 const config = require('./../../config')
+const OSS = require('ali-oss');
 const Log = require('./../../lib/log')('upload')
 
 var storage = multer.diskStorage({
