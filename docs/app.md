@@ -156,15 +156,14 @@ body 无
   message: '',
   data: {
     user: {},
-    invite_url: '', //邀请链接
-    invite_list_url: '' // 邀请好友h5页面
+    invite_url: '', //邀请链接h5
   }
 }
 ```
 
-### 5.好友列表(邀请的人)
+### 5.退出登录
 
-`/account/inviteList?token={}`
+`/account/logout?token={}`
 
 body 无
 
@@ -173,11 +172,7 @@ body 无
 ```js
 {
   code: 0,
-  message: '',
-  data : {
-    rows: [],
-    count: 0 // 数量
-  }
+  message: ''
 }
 ```
 
