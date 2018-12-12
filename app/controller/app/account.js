@@ -3,6 +3,10 @@ const router = express.Router()
 const userService = require('./../../service/user_service')
 const accountService = require('./../../service/account_service')
 
+router.post('/logout', async (req, res) => {
+  let ret = await userService.logout(req.ctx)
+  res.json(ret)
+})
 
 router.post('/info', async (req, res) => {
   let ret = await userService.info(req.ctx)

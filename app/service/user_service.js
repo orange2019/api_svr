@@ -155,6 +155,30 @@ class UserService {
 
   }
 
+  async logout(ctx) {
+
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+
+    Log.info(`${ctx.uuid}|logout().body`, ctx.body)
+    let userId = ctx.body.user_id
+    let type = ctx.body.type || 1
+
+    let user = await UserModel().model().findById(userId)
+    if (type == 1) {
+      user.auth_token_1 = ''
+    } else if (type == 2) {
+      user.auth_token_2 = ''
+    }
+
+    let retSave = await user.save()
+    Log.info(`${ctx.uuid}|logout().retSave`, retSave)
+
+    ctx.result = ret
+    return ret
+  }
   /**
    * 用户信息
    * @param {*} ctx 
@@ -181,7 +205,7 @@ class UserService {
       },
       include: [{
           model: userInfoModel
-        },
+        }
 
       ],
       attributes: ['id', 'uuid', 'mobile', 'wallet_address', 'status']
@@ -196,8 +220,7 @@ class UserService {
 
     ret.data = {
       user: user,
-      invite_url: config.domain.h5 + '/invite?uuid=' + user.uuid,
-      invite_list_url: config.domain.h5 + '/invite/list?token=' + user.token
+      invite_url: config.domain.h5 + '/invite?token=' + user.token
     }
 
     ctx.result = ret
@@ -356,19 +379,18 @@ class UserService {
 
     Log.info(ctx.uuid, 'inviteInfo().body', ctx.body)
 
-    let userUuid = ctx.body.uuid
+    let userId = ctx.body.user_id
 
-    let user = await UserModel().model().findOne({
-      where: {
-        uuid: userUuid
-      }
-    })
-    let userInfo = await UserModel().getUserInfoByUserId(user.id)
+    // let user = await UserModel().model().findById(userId)
+    let userInfo = await UserModel().getUserInfoByUserId(userId)
 
     ret.data = {}
-    ret.data.invite_code = user.invite_code
+    // ret.data.invite_code = user.invite_code
     ret.data.user_name = userInfo.realname
-    ret.data.down_url = config.domain.oss + '/uploads/download/wallet-app-release.apk'
+    ret.data.qrcode_url = config.domain.h5 + '/invite/download'
+    ret.data.avatar = userInfo.avatar
+    // ret.data.avatar = 'http://i10.hoopchina.com.cn/hupuapp/bbs/966/16313966/thread_16313966_20180726164538_s_65949_o_w1024_h1024_62044.jpg?x-oss-process=image/resize,w_800/format,jpg'
+    // ret.data.down_url = config.domain.oss + '/uploads/download/wallet-app-release.apk'
 
     ctx.result = ret
     return ret
