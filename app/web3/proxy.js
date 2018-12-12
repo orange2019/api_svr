@@ -1,5 +1,6 @@
 const Web3 = require('web3')
 const erc20Json = require('./KxmCoin.json')
+const config = require('./../../config')
 // var Tx = require('ethereumjs-tx')
 // var BigNumber = require('big-number')
 // var TestRPC = require("ethereumjs-testrpc")
@@ -13,7 +14,7 @@ class Web3Proxy {
     } else {
       // set the provider you want from Web3.providers
       // console.log('get web3')
-      this.web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"))
+      this.web3 = new Web3(new Web3.providers.HttpProvider(config.blockchain_port))
       // this.web3.setProvider(TestRPC.provider())
       // web3.setProvider(ganache.provider())
     }

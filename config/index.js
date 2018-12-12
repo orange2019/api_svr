@@ -69,8 +69,9 @@ vZxq5+sTEOH9XTvgelNqN025jVpeNPeeUQcFDY5jWg==
     img1: 'http://127.0.0.1:4004',
     img2: 'http://127.0.0.1:4002',
     h5: 'http://127.0.0.1:4003',
-    blockchain: 'http://localhost:8545'
-  }
+  },
+
+  blockchain_port: 'http://18.188.112.81:8545'
 
 }
 
