@@ -2,6 +2,8 @@
 
 所有都用 post
 
+domain ：`ec2-18-188-112-81.us-east-2.compute.amazonaws.com:4001`
+
 传参 url
 
 ```js

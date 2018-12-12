@@ -7,17 +7,15 @@ const path = require('path');
 const Log = require('./../../lib/log')('ali_oss_utils')
 const dateUtils = require('./date_utils')
 
-class AliOssUtils 
-{
-    constructor()
-    {
+class AliOssUtils {
+    constructor() {
         //配置信息
         this.config = {
             region: 'oss-cn-shenzhen',
             accessKeyId: 'H7tlMQ8JJIiqGLYR',
             accessKeySecret: 'cfk8GkR2VSrLkDYE7mgiHijkpoPSv8',
             bucket: 'cc-img',
-            allowedExtname: ['jpg','jpeg']
+            allowedExtname: ['jpg', 'jpeg']
         }
         this.client = new OSS(this.config);
     }
@@ -26,19 +24,18 @@ class AliOssUtils
      * 上传文件
      * @param {string} file 
      */
-    async upload(file)
-    {
+    async upload(file) {
         try {
             // let extname = path.extname(file);
-            let uploadPath = 'uploads/images/'+dateUtils.dateFormat(null, 'YYYYMMDD/')
+            let uploadPath = 'uploads/images/' + dateUtils.dateFormat(null, 'YYYYMMDD/')
             let localFilename = path.basename(file)
-            let uploadFileName = Date.now()+localFilename;
-            Log.info('upload uploadFileName:',uploadFileName)
-            let result = await this.client.put(uploadPath+uploadFileName, file);
-            Log.info('upload result:',uploadFileName)
+            let uploadFileName = localFilename;
+            Log.info('upload uploadFileName:', uploadFileName)
+            let result = await this.client.put(uploadPath + uploadFileName, file);
+            Log.info('upload result:', uploadFileName)
             return result
         } catch (err) {
-            Log.error('upload err:',err)
+            Log.error('upload err:', err)
             return false
         }
     }
@@ -51,11 +48,11 @@ class AliOssUtils
     //       consol.log (err);
     //     }
     // }
-      
-    async listBuckets () {
+
+    async listBuckets() {
         try {
-          return await this.client.listBuckets();
-        } catch(err) {
+            return await this.client.listBuckets();
+        } catch (err) {
             return err.message;
         }
     }

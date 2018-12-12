@@ -341,6 +341,10 @@ class UserService {
       }
     }
 
+    ret.data = {
+      avatar: body.avatar
+    }
+    ctx.result = ret
     return ret
   }
 

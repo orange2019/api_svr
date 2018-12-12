@@ -12,14 +12,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/cc512/find_focus_api.git"
+    "url": "git+https://github.com/orange2019/api_svr.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/cc512/find_focus_api/issues"
+    "url": "https://github.com/orange2019/api_svr/issues"
   },
-  "homepage": "https://github.com/cc512/find_focus_api#readme",
+  "homepage": "https://github.com/orange2019/api_svr#readme",
   "dependencies": {
     "ali-oss": "^6.0.2",
     "babel-polyfill": "^6.26.0",
