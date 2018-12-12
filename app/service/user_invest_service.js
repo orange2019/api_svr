@@ -905,35 +905,29 @@ class UserInvestService {
       message: errCode.SUCCESS.message
     }
 
-    Log.info(`${ctx.uuid}|status().body`, ctx.query)
+    Log.info(`${ctx.uuid}|investInfoAndLogs().body`, ctx.query)
     let userId = ctx.query.user_id || 0
+    let investModel = InvestModel().model()
+    let userInvestModel = UserModel().investModel()
 
-    let investInfo = UserModel().formulaModel().findOne({
-      where: {
-        user_id: userId
-      }
+    userInvestModel.belongsTo(investModel, {
+      targetKey: 'id',
+      foreignKey: 'invest_id'
     })
-    let investLog = UserModel().investLogsModel().findAll({
+    let list = await userInvestModel.findAll({
       where: {
-        user_id: userId
+        user_id: userId,
       },
-      order: [
-        ['log_date', 'DESC']
-      ]
+      include: [{
+        model: investModel,
+        attributes: ['name']
+      }],
     })
 
-    let queryRet = await Promise.all([investInfo, investLog])
-    Log.info(`${ctx.uuid}|status().queryRet`, queryRet)
-
-    let investInfoData = queryRet[0].invest_formula
-    console.log(investInfoData)
-    console.log(investInfoData['lv_0'])
-    let investInfoRet = investInfoData['lv_0'] ? (investInfoData['lv_0']['u_' + userId] || null) : null
+    Log.info(`${ctx.uuid}|investInfoAndLogs().list`, list)
     ret.data = {
-      info: investInfoRet,
-      logs: queryRet[1]
+      list: list
     }
-
     ctx.result = ret
 
     return ret
