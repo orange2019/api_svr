@@ -1,9 +1,11 @@
 /**
- * @file 阿里OSS服务上传
+ * @file 阿里OSS服务上传工具
  */
+'use strict'
 const OSS = require('ali-oss');
 const path = require('path');
 const Log = require('./../../lib/log')('ali_oss_utils')
+const dateUtils = require('./date_utils')
 
 class AliOssUtils 
 {
@@ -28,10 +30,11 @@ class AliOssUtils
     {
         try {
             // let extname = path.extname(file);
+            let uploadPath = 'uploads/images/'+dateUtils.dateFormat(null, 'YYYYMMDD/')
             let localFilename = path.basename(file)
             let uploadFileName = Date.now()+localFilename;
             Log.info('upload uploadFileName:',uploadFileName)
-            let result = await this.client.put(uploadFileName, file);
+            let result = await this.client.put(uploadPath+uploadFileName, file);
             Log.info('upload result:',uploadFileName)
             return result
         } catch (err) {
@@ -55,14 +58,15 @@ class AliOssUtils
         } catch(err) {
             return err.message;
         }
-      }
+    }
 }
 
 module.exports = new AliOssUtils();
 
 // let demo  = new AliOssUtils();
 // demo.upload(__dirname+'/pinyin.js').then(data=>{
-//     console.log(data)
+//     if(data.res.status != 200){console.log(1)}
+//     console.log(data.url)
 // })
 /**
  * 返回对象example
