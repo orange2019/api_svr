@@ -83,6 +83,27 @@ class TokenService {
     return ctx
   }
 
+  async getUserInfo(ctx) {
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+    // Log.info(`${ctx.uuid}|getInfo().query`, ctx.query)
+    let address = ctx.body.address
+
+    let contractToken = await ContractTokenModel().getData()
+    let contractAddress = contractToken.contract_address
+
+    let contract = await web3Proxy.contract(contractAddress)
+    let tokenBalance = await web3Proxy.getTokenBalance(contract, address)
+
+    ret.data = {
+      tokenBalance: tokenBalance / 100000000
+    }
+
+    ctx.result = ret
+    return ctx
+  }
 
 }
 

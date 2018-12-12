@@ -155,7 +155,20 @@ body 无
   code: 0,
   message: '',
   data: {
-    user: {},
+    user: {
+      mobile:'',
+      wallet_address: '',
+      user_info: {
+        `sex` :'性别',
+        `birth` : '',
+        `realname` :'真实姓名',
+        `idcard_no`:  '身份证号码',
+        `idcard_positive`: '身份证正面',
+        `idcard_reverse`: '身份证反面',
+        `intro`: '个性签名？',
+        `avatar`: '头像',
+      }
+    },
     invite_url: '', //邀请链接h5
   }
 }
