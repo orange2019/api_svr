@@ -5,7 +5,7 @@ const errCode = require('./../common/err_code')
 const userTransationService = require('./user_transaction_service')
 const tokenService = require('./token_service')
 const cryptoUtils = require('./../utils/crypto_utils')
-// const Op = require('sequelize').Op
+const Op = require('sequelize').Op
 const web3 = require('./../web3')
 
 class AccountService {
@@ -462,7 +462,7 @@ class AccountService {
       message: errCode.SUCCESS.message
     }
 
-    Log.info(`${ctx.uuid}|investChild().body`, ctx.body)
+    Log.info(`${ctx.uuid}|setTradePwd().body`, ctx.body)
     let userId = ctx.body.user_id // 鉴权通过了，不可能是0
     let password = ctx.body.password
 
@@ -477,6 +477,51 @@ class AccountService {
 
     ret.message = '设置成功'
 
+    ctx.result = ret
+    return ret
+  }
+
+  async searchUserByMobile(ctx) {
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+
+    Log.info(`${ctx.uuid}|searchUserByMobile().body`, ctx.body)
+    let userId = ctx.body.user_id // 鉴权通过了，不可能是0
+    let mobile = ctx.body.mobile
+
+    let userModel = UserModel().model()
+    let userInfoModel = UserModel().infoModel()
+
+    userModel.hasOne(userInfoModel, {
+      foreignKey: 'user_id'
+    })
+
+    let list = await userModel.findAll({
+      where: {
+        mobile: {
+          [Op.like]: '%' + mobile
+        },
+        id: {
+          [Op.ne]: userId
+        },
+        status: 1
+      },
+      include: [{
+        model: userInfoModel,
+        attributes: ['realname', 'avatar']
+      }],
+      order: [
+        ['create_time', 'DESC']
+      ],
+      attributes: ['id', 'uuid', 'mobile', 'wallet_address', 'status', 'create_time']
+    })
+
+    ret.data = {
+      list: list || []
+    }
+    Log.info(`${ctx.uuid}|searchUserByMobile().ret`, ret)
     ctx.result = ret
     return ret
   }

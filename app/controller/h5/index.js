@@ -75,6 +75,11 @@ router.use(async (req, res, next) => {
   next()
 })
 
+router.post('/searchUserByMobile', async (req, res) => {
+  await accountService.searchUserByMobile(req.ctx)
+  return res.return(req.ctx)
+})
+
 router.post('/setTradePwd', async (req, res) => {
   await accountService.setTradePwd(req.ctx)
   return res.return(req.ctx)

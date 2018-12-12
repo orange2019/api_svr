@@ -426,7 +426,7 @@ class UserService {
       where: map,
       include: [{
         model: userInfoModel,
-        attributes: ['realname']
+        attributes: ['realname', 'avatar']
       }],
       order: [
         ['create_time', 'DESC']
