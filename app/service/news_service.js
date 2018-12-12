@@ -37,9 +37,9 @@ class NewsService {
       ]
     })
 
-    queryRet.rows.forEach(item => {
-      item.dataValues.cover = domain.img1 + item.dataValues.cover
-    })
+    // queryRet.rows.forEach(item => {
+    //   item.dataValues.cover = domain.img1 + item.dataValues.cover
+    // })
     ret.data = queryRet
 
     Log.info(`${ctx.uuid}|list().ret`, ret)

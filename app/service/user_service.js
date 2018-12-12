@@ -364,7 +364,7 @@ class UserService {
     ret.data = {}
     ret.data.invite_code = user.invite_code
     ret.data.user_name = userInfo.realname
-    ret.data.down_url = config.domain.img1 + '/uploads/download/wallet-app-release.apk'
+    ret.data.down_url = config.domain.oss + '/uploads/download/wallet-app-release.apk'
 
     ctx.result = ret
     return ret

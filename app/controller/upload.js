@@ -11,11 +11,11 @@ const Log = require('./../../lib/log')('upload')
 
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    let dest = path.join(__dirname, './../../uploads/images/' , dateUtils.dateFormat(null, 'YYYYMMDD/'))
-    if(!fs.existsSync(dest)){
+    let dest = path.join(__dirname, './../../uploads/images/', dateUtils.dateFormat(null, 'YYYYMMDD/'))
+    if (!fs.existsSync(dest)) {
       fs.mkdirSync(dest)
     }
-    cb(null,  dest)
+    cb(null, dest)
   },
   filename: function (req, file, cb) {
     let originalname = file.originalname.split('.')
@@ -31,19 +31,22 @@ var storage = multer.diskStorage({
 // }).any()
 
 router.post('/', async (req, res) => {
-  
+
   Log.info(req.files)
   let uploadResult = await aliOssUtils.upload(req.files[0].filename);
   Log.info(uploadResult)
-  if(uploadResult.res.status != 200){
-    return res.json({code:1, message: '上传失败'})
+  if (uploadResult.res.status != 200) {
+    return res.json({
+      code: 1,
+      message: '上传失败'
+    })
   }
 
   return res.json({
-    code: 0 ,
+    code: 0,
     message: '上传成功',
-    data : {
-      url : uploadResult.url
+    data: {
+      url: uploadResult.url
     }
   })
   // upload(req, res, (err) => {
@@ -52,7 +55,7 @@ router.post('/', async (req, res) => {
   //     return res.json({code:1, message: '上传失败'})
   //   }
 
-    
+
   //   Log.info(req.files)
   //   let filePath = path.join('/uploads/images/' , dateUtils.dateFormat(null, 'YYYYMMDD/') , req.files[0].filename)
   //   let url = config.domain.img2 + filePath
