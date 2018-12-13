@@ -454,7 +454,7 @@ class AccountService {
       ],
       include: [{
         model: userInfoModel,
-        attributes: ['realname']
+        attributes: ['realname', 'avatar']
       }],
       offset: offset,
       limit: limit

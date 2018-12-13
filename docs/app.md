@@ -207,7 +207,7 @@ body
 
 ### 6.1 修改头像
 
-`/account/infoUpdate?token={}`
+`/account/avatarUpdate?token={}`
 
 body
 
