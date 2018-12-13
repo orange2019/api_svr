@@ -282,11 +282,11 @@ class UserService {
     Log.info(`${ctx.uuid}|infoUpdate().userInfo`, ctx.userInfo)
     if (!userInfo) {
       let userData = {
-        realname: body.realname,
-        sex: body.sex,
-        idcard_no: body.idcard_no,
-        idcard_positive: body.idcard_positive,
-        idcard_reverse: body.idcard_positive,
+        realname: body.realname || '',
+        sex: body.sex || 0,
+        idcard_no: body.idcard_no || '',
+        idcard_positive: body.idcard_positive || '',
+        idcard_reverse: body.idcard_positive || '',
         user_id: userId
       }
 
@@ -300,11 +300,11 @@ class UserService {
         return ret
       }
     } else {
-      userInfo.realname = body.realname
-      userInfo.sex = body.sex
-      userInfo.idcard_no = body.idcard_no
-      userInfo.idcard_positive = body.idcard_positive
-      userInfo.idcard_reverse = body.idcard_positive
+      userInfo.realname = body.realname || ''
+      userInfo.sex = body.sex || 0
+      userInfo.idcard_no = body.idcard_no || ''
+      userInfo.idcard_positive = body.idcard_positive || ''
+      userInfo.idcard_reverse = body.idcard_positive || ''
 
       let retUpdate = await userInfo.save()
       if (!retUpdate) {
