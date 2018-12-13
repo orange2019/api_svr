@@ -69,6 +69,35 @@ class AccountService {
     return ret
   }
 
+  async assetsInByAddress(ctx) {
+
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+
+    let address = ctx.body.address
+    let user = await UserModel().model().findOne({
+      where: {
+        wallet_address: address
+      }
+    })
+
+    if (!user) {
+      ret.code = errCode.FAIL.code
+      ret.message = '地址错误'
+
+      ctx.result = ret
+      return ret
+    } else {
+      ctx.body.user_id = user.id
+    }
+
+    await this.assetsIn(ctx)
+
+    return ret
+  }
+
   async assetsIn(ctx) {
     let ret = {
       code: errCode.SUCCESS.code,
