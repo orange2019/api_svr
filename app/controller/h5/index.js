@@ -137,6 +137,10 @@ router.post('/inviteList', async (req, res) => {
   return res.return(req.ctx)
 })
 
+router.post('/resetPwd', async (req, res) => {
+  await userService.changePwd(req.ctx)
+  return res.return(req.ctx)
+})
 
 
 module.exports = router
