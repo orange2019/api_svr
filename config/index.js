@@ -3,23 +3,31 @@ const path = require('path')
 
 let config = {
 
-  db: {
-    host: '59939c0a9a983.gz.cdb.myqcloud.com',
-    port: 5579,
-    dbname: '2018_kxm_dev',
-    username: 'kaximu',
-    password: 'kaximu2018',
-    maxLimit: 1000,
-  },
-
   // db: {
-  //   host: 'orange-kxm.cii9wqqakbrj.us-east-2.rds.amazonaws.com',
-  //   port: 3306,
-  //   dbname: 'orange_kxm',
-  //   username: 'kxm_2018',
-  //   password: 'kxm-2018',
+  //   host: '59939c0a9a983.gz.cdb.myqcloud.com',
+  //   port: 5579,
+  //   dbname: '2018_kxm_dev',
+  //   username: 'kaximu',
+  //   password: 'kaximu2018',
   //   maxLimit: 1000,
   // },
+
+  // aliyun
+  db: {
+    host: 'rm-wz9077258c2ibppy7ro.mysql.rds.aliyuncs.com',
+    port: 3306,
+    dbname: 'kxm2018',
+    username: 'kxm_2018',
+    password: 'kxm-2018',
+    maxLimit: 600,
+  },
+
+  oss: {
+    region: 'oss-cn-shenzhen',
+    accessKeyId: 'LTAIuZAB2acD7SpJ',
+    accessKeySecret: 'FMpk7JlIIGbhSCS5q0A5VZOSk5uthV',
+    bucket: 'kxm-img',
+  },
 
   port: {
     api_svr: 4001,

@@ -1,21 +1,22 @@
 /**
  * @file 阿里OSS服务上传工具
  */
-'use strict'
+
 const OSS = require('ali-oss');
 const path = require('path');
-const Log = require('./../../lib/log')('ali_oss_utils')
+const Log = require('./../../lib/log')('ali_utils')
 const dateUtils = require('./date_utils')
+const ossConfig = require('./../../config').oss
 
 class AliOssUtils {
     constructor() {
         //配置信息
         this.config = {
-            region: 'oss-cn-shenzhen',
-            accessKeyId: 'H7tlMQ8JJIiqGLYR',
-            accessKeySecret: 'cfk8GkR2VSrLkDYE7mgiHijkpoPSv8',
-            bucket: 'cc-img',
-            allowedExtname: ['jpg', 'jpeg']
+            region: ossConfig.region,
+            accessKeyId: ossConfig.accessKeyId,
+            accessKeySecret: ossConfig.accessKeySecret,
+            bucket: ossConfig.bucket,
+            allowedExtname: ['jpg', 'jpeg', 'gif', 'bmp']
         }
         this.client = new OSS(this.config);
     }
