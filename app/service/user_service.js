@@ -220,7 +220,7 @@ class UserService {
 
     ret.data = {
       user: user,
-      invite_url: config.domain.h5 + '/invite?token=' + user.auth_token_1
+      invite_url: config.domain.h5 + '/invite'
     }
 
     ctx.result = ret
