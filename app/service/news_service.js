@@ -3,9 +3,6 @@ const newsModel = require('./../model/news_model')
 const errCode = require('./../common/err_code')
 const dateUtils = require('./../utils/date_utils')
 const Op = require('sequelize').Op
-const {
-  domain
-} = require('./../../config')
 
 class NewsService {
 
@@ -37,9 +34,6 @@ class NewsService {
       ]
     })
 
-    // queryRet.rows.forEach(item => {
-    //   item.dataValues.cover = domain.img1 + item.dataValues.cover
-    // })
     ret.data = queryRet
 
     Log.info(`${ctx.uuid}|list().ret`, ret)

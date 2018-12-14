@@ -72,13 +72,11 @@ vZxq5+sTEOH9XTvgelNqN025jVpeNPeeUQcFDY5jWg==
   },
 
   domain: {
-    img1: 'http://127.0.0.1:4004',
-    img2: 'http://127.0.0.1:4002',
-    h5: 'http://127.0.0.1:4003',
+    h5: 'http://www.kaximumck.com:4003',
     oss: ''
   },
 
-  blockchain_port: 'http://18.188.112.81:8545'
+  blockchain_port: 'http://ec2-54-169-177-12.ap-southeast-1.compute.amazonaws.com:8545'
 
 }
 

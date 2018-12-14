@@ -4,7 +4,6 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "cross-env NODE_ENV=test forever start app.js",
     "dev": "NODE_ENV=dev nodemon app.js",
     "start": "cross-env NODE_ENV=production forever start app.js",
     "stop": "forever stop app.js",

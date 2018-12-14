@@ -38,7 +38,7 @@ class Web3Proxy {
     let contract = new this.web3.eth.Contract(abi)
     let deploy = contract.deploy({
       data: erc20Json.bytecode,
-      arguments: ['MakeCellsKind', 'MCK', 49800000000000000]
+      arguments: ['MakeCellsKind', 'MCK', 498000000]
     })
 
     // console.log(deploy.encodeABI())
