@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize')
 const BaseModel = require('./base_model')
+const defaultContractId = require('./../../config').default_contract_id
 
 class TestModel extends BaseModel {
 
@@ -37,13 +38,14 @@ class TestModel extends BaseModel {
     return this
   }
 
-  async getData(){
-    return await this.model().findById(1)
+  async getData(id) {
+    id = id || defaultContractId
+    return await this.model().findById(id)
   }
 
-  async update(params){
-    let data = await this.getData()
-    if(!data){
+  async update(params, id = 1) {
+    let data = await this.getData(id)
+    if (!data) {
       data = await this.model().create(params)
       return data
     }

@@ -1,5 +1,6 @@
 const Web3 = require('web3')
 const erc20Json = require('./KxmCoin.json')
+// const erc20Json = require('./NiuBi.json')
 const config = require('./../../config')
 // var Tx = require('ethereumjs-tx')
 // var BigNumber = require('big-number')
@@ -15,6 +16,7 @@ class Web3Proxy {
       // set the provider you want from Web3.providers
       // console.log('get web3')
       this.web3 = new Web3(new Web3.providers.HttpProvider(config.blockchain_port))
+      // this.web3 = new Web3(config.blockchain_port)
       // this.web3.setProvider(TestRPC.provider())
       // web3.setProvider(ganache.provider())
     }
@@ -36,25 +38,39 @@ class Web3Proxy {
   async deployContract(account) {
     let abi = erc20Json.abi
     let contract = new this.web3.eth.Contract(abi)
+    console.log(account.address)
+
     let deploy = contract.deploy({
       data: erc20Json.bytecode,
       arguments: ['MakeCellsKind', 'MCK', 498000000]
     })
 
     // console.log(deploy.encodeABI())
+
+    let gasPrice = await this.web3.eth.getGasPrice()
+    console.log(gasPrice)
+
+    // let chainId = await this.web3.eth.net.getId()
+    // console.log(chainId)
+
+    // return
     let tx = {
       from: account.address,
-      gas: 2000000,
-      data: deploy.encodeABI()
+      gas: '2000000',
+      gasPrice: gasPrice,
+      data: deploy.encodeABI(),
+      chainId: config.chainId
     }
     let signed = await this.web3.eth.accounts.signTransaction(tx, account.privateKey)
-    console.log(signed.rawTransaction)
+    // console.log(signed.rawTransaction)
 
     let tran = this.web3.eth.sendSignedTransaction(signed.rawTransaction)
     let getTranRet = (tran) => {
       return new Promise((r, j) => {
         tran.on('confirmation', (confirmationNumber, receipt) => {
           console.log('confirmation: ' + confirmationNumber)
+          console.log('confirmation:receipt ')
+          console.log(receipt)
         })
 
         tran.on('transactionHash', hash => {
@@ -69,6 +85,7 @@ class Web3Proxy {
         })
 
         tran.on('error', err => {
+          console.error('error')
           console.error(err)
           j(err)
         })
@@ -185,6 +202,7 @@ class Web3Proxy {
 
   contract(contractAddress) {
     let abi = erc20Json.abi
+    // let abi = require('./test.json')
     let contract = new this.web3.eth.Contract(abi, contractAddress)
     return contract
   }
@@ -195,7 +213,6 @@ class Web3Proxy {
    * @param {*} address 
    */
   async getTokenBalance(contract, address) {
-
     let result = await contract.methods.balanceOf(address).call()
     return result
   }

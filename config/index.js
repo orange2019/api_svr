@@ -76,8 +76,11 @@ vZxq5+sTEOH9XTvgelNqN025jVpeNPeeUQcFDY5jWg==
     oss: ''
   },
 
-  blockchain_port: 'http://ec2-54-169-177-12.ap-southeast-1.compute.amazonaws.com:8545'
-
+  // blockchain_port: 'http://ec2-54-169-177-12.ap-southeast-1.compute.amazonaws.com:8545',
+  // default_contract_id: 1,
+  blockchain_port: 'http://47.75.155.158:8545',
+  default_contract_id: 1,
+  chainId: '666'
 }
 
 let env = process.env.NODE_ENV ? process.env.NODE_ENV : ''

@@ -505,6 +505,7 @@ class UserModel extends BaseModel {
    * @param {*} userId 
    */
   async getAssetsByUserId(userId) {
+    if (!userId) return null
     let ret = await this.assetsModel().findOne({
       where: {
         user_id: userId
@@ -559,24 +560,7 @@ class UserModel extends BaseModel {
    * @param {*} num 
    */
   async recordChildInvest(userId, childId, num) {
-    // let item = await this.investChildModel().findOne({
-    //   where: {
-    //     user_id: userId,
-    //     child_id: childId
-    //   }
-    // })
 
-    // if (item) {
-    //   item.num = item.num + num
-    //   await item.save()
-
-    // } else {
-    //   item = await this.investChildModel().create({
-    //     user_id: userId,
-    //     child_id: childId,
-    //     num: num
-    //   })
-    // }
     let item = await this.investChildModel().create({
       user_id: userId,
       child_id: childId,
@@ -587,6 +571,7 @@ class UserModel extends BaseModel {
   }
 
   async getUserInfoByUserId(userId) {
+    if (!userId) return null
     let ret = await this.infoModel().findOne({
       where: {
         user_id: userId

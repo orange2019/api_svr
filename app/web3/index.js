@@ -1,6 +1,6 @@
 const web3Proxy = require('./proxy')
 const Web3 = require('web3')
-
+const chainId = require('./../../config').chainId
 class Web3Class {
 
   /**
@@ -65,18 +65,17 @@ class Web3Class {
     let gas = await this.tokenTransferGas(contractObj, account, from, to, num)
 
     let tx = {
-
       gas: gas,
       from: account.address,
       to: contractAddress,
-      data: transafer.encodeABI()
+      data: transafer.encodeABI(),
+      chainId: chainId
     }
     // console.log(tx)
 
     let signed = await web3Proxy._web3().eth.accounts.signTransaction(tx, account.privateKey)
     console.log(signed)
     let receipt = await web3Proxy._web3().eth.sendSignedTransaction(signed.rawTransaction)
-
 
     // console.log(signed)
     return receipt

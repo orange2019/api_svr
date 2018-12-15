@@ -4,33 +4,34 @@ const ContractTokenModel = require('./../model/contract_token_model')
 ;
 (async () => {
 
-  let accounts = await web3Proxy.getAccounts()
-  let defaultAccount = accounts[0]
-  console.log('default account', defaultAccount)
+  // 自家链上
+  // let accounts = await web3Proxy.getAccounts()
+  // let defaultAccount = accounts[0]
+  // console.log('default account', defaultAccount)
+  // let account = await web3Proxy.accountCreate()
+
+  // 提供主账户秘钥
+  let primaryKey = '0x53946c6d184c555d528a5cc27d0c54def09cdd59f26b788c97aeac5a9551d8a9'
+  let account = await web3Proxy.accountFromPK(primaryKey)
 
   let saveData = {}
 
-  // let primaryKey = '63e4c86ece1bfb476c93b963c8aeb1dc93a692b87a2822a25f1dec343c29f416'
-  // let account = await web3Proxy.accountFromPK(primaryKey)
-  let account = await web3Proxy.accountCreate()
   saveData.address = account.address
   saveData.private_key = account.privateKey
 
-  console.log(account)
+  // console.log(account)
 
-  // let balance = await web3Proxy.balanceOf(account.address)
-
-  // let contract = await web3Proxy.contract('0xB2E032B2D7D3AAAD436c72525b7E007fd54dF460')
-  // let tokenBalance = await web3Proxy.getTokenBalance(contract , account.address)
-  // console.log(tokenBalance)
   let accountAddress = account.address
   let balance = await web3Proxy.balanceOf(accountAddress)
-  console.log(balance)
-  if (balance == 0) {
+  // console.log(balance)
+  if (balance <= 0) {
     console.log('无资产')
-    await web3Proxy.sendTransaction(defaultAccount, accountAddress, 5)
-    balance = await web3Proxy.balanceOf(accountAddress)
-    console.log(balance)
+    // await web3Proxy.sendTransaction(defaultAccount, accountAddress, 5)
+    // balance = await web3Proxy.balanceOf(accountAddress)
+    // console.log(balance)
+
+  } else {
+    console.log('资产:', balance)
   }
 
   let ret = await web3Proxy.deployContract(account)
@@ -39,10 +40,14 @@ const ContractTokenModel = require('./../model/contract_token_model')
 
   saveData.contract_address = contractAddress
   console.log('saveData', saveData)
-  let save = await ContractTokenModel().update(saveData)
+  let save = await ContractTokenModel().update(saveData, 1)
   console.log('save ', save.id)
 
+  // let contractAddress = '0xD5be76e82A0796AB62603e4236A544cEb9406492'
+  // let contractAddress = '0x6cd9a9ed81e549d7d0f7d8f43187778b61d1654b'
+  // let accountAddress = '0x9716b821d7828b1e5b5362fdc0d2574d7dbc97df'
   let contract = await web3Proxy.contract(contractAddress)
-  let tokenBalance = await web3Proxy.getTokenBalance(contract, account.address)
+  console.log('contract', contract)
+  let tokenBalance = await web3Proxy.getTokenBalance(contract, accountAddress)
   console.log('tokenBalance', tokenBalance)
 })()

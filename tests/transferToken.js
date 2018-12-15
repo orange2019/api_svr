@@ -4,12 +4,12 @@ const web3Proxy = require('../app/web3/proxy')
 
 ;
 (async () => {
-  let account = await web3Proxy.accountFromPK('0x92be80466927b905499ba9781d8b5591a47d7b19be64ceda0d7accfa66dabf49')
-  let contract = await web3Proxy.contract('0x85b649B123e7c54E798faF40536110e1804c74c8')
+  let account = await web3Proxy.accountFromPK('0x53946c6d184c555d528a5cc27d0c54def09cdd59f26b788c97aeac5a9551d8a9')
+  let contract = await web3Proxy.contract('0xbc53e39E315dFE354105a77c5c713B9719888A86')
 
   let from = account.address
-  let to = '0x2Eb66345968B362D1D3BBed35BC0985A0870565F'
-  let num = 100000
+  let to = '0xa8C4b953653cE7046b85bd754359d1e723cB5bdC'
+  let num = 100
 
   let gas = await web3.tokenTransferGas(contract, account, from, to, num)
 
