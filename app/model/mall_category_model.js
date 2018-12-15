@@ -45,5 +45,5 @@ class mallCategoryModel extends BaseModel {
 }
 
 module.exports = function () {
-  return new mallGoodsModel()
+  return new mallCategoryModel()
 }

@@ -48,6 +48,14 @@ module.exports = {
     amountNotEnough : {
       code : 4000,
       message : '总积分不足'
+    },
+    orderPayDone : {
+      code : 40001,
+      message : '已付款订单不可取消'
+    },
+    orderNotFound : {
+      code : 4004,
+      message : '订单不存在'
     }
   },
 
@@ -68,6 +76,18 @@ module.exports = {
       code: 4004,
       message: '请输入手机号'
     }
+  },
+
+  GOOD: {
+    goodNotFound: {
+      code: 5000,
+      message: "商品不存在"
+    },
+    cidNotNull: {
+      code: 5001,
+      message: "请选择商品分类"
+    },
+    
   }
 
 }

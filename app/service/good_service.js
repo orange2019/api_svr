@@ -1,5 +1,7 @@
 
 const goodModel = require('./../model/mall_goods_model')
+const categoryModel = require('./../model/mall_category_model')
+const Log = require('./../../lib/log')('good_service')
 const errCode = require('./../common/err_code')
 class GoodService 
 {
@@ -20,7 +22,7 @@ class GoodService
         // where.user_id = ctx.body.user_id || 0
         let offset = ctx.body.offset || 0
         let limit = ctx.body.limit || 10
-        let data = await adModel().model().findAndCountAll({
+        let data = await goodModel().model().findAndCountAll({
             where:where,
             order: [
                 ['create_time' , 'DESC']
@@ -34,10 +36,10 @@ class GoodService
         return ret
     }
     /**
-     * 增加广告
+     * 增加商品
      * @param {*} ctx 
      */
-    async adAdd(ctx)
+    async addGood(ctx)
     {
         let ret = {
             code: errCode.SUCCESS.code,
@@ -98,10 +100,10 @@ class GoodService
     }
 
     /**
-     * 编辑广告
+     * 编辑商品
      * @param {*} ctx 
      */
-    async modifyAdd(ctx)
+    async modifyGood(ctx)
     {
         let ret = {
             code: errCode.SUCCESS.code,
@@ -120,6 +122,73 @@ class GoodService
         adInfo.sort = ctx.body.sort;
         await adInfo.save();
         return ret;
+    }
+
+    /**
+     * 添加分类
+     * @param {*} ctx 
+     */
+    async addCategory(ctx)
+    {
+        let ret = {
+            code: errCode.SUCCESS.code,
+            message: errCode.SUCCESS.message
+        }
+        Log.info(ctx.uuid, 'addCategory().body', ctx.body)
+        let creatObj = {
+            pid: ctx.body.pid || 0,
+            name: ctx.body.name,
+            status: ctx.body.status || 0,
+            sort: ctx.body.sort || 0,
+        }
+        categoryModel().model().create(creatObj)
+        return ret;
+    }
+
+    /**
+     * 修改分类及状态
+     * @param {*} ctx 
+     */
+    async modifyCategory(ctx)
+    {
+        let ret = {
+            code: errCode.SUCCESS.code,
+            message: errCode.SUCCESS.message
+        }
+        Log.info(ctx.uuid, 'modifyCategory().body', ctx.body)
+        let allowedFields = ['pid', 'name', 'status', 'sort']
+        let categoryInfo = await categoryModel().model().findById(ctx.body.id)
+        if (!categoryInfo) {
+            ret.code = 4004
+            ret.message = '分类不存在'
+        } else {
+            allowedFields.forEach(element => {
+                if(ctx.body[element]){
+                    categoryInfo[element] = ctx.body[element]
+                } 
+            })
+            await categoryInfo.save();
+        }
+        
+        
+        return ret;
+    }
+
+    /**
+     * 分类列表
+     * @param {*} ctx 
+     */
+    async categoryList(ctx) {
+        let ret = {
+            code: errCode.SUCCESS.code,
+            message: errCode.SUCCESS.message
+        }
+        Log.info(ctx.uuid, 'categoryList().body', ctx.body)
+        let categoryInfo = await categoryModel().model().findAll()
+        Log.info(ctx.uuid, 'categoryList().categoryInfo', categoryInfo)
+        // let categoryList = [];
+        ret.data = categoryInfo
+        return ret
     }
 
 }
