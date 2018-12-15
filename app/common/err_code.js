@@ -76,6 +76,18 @@ module.exports = {
       code: 4004,
       message: '请输入手机号'
     }
+  },
+
+  GOOD: {
+    goodNotFound: {
+      code: 5000,
+      message: "商品不存在"
+    },
+    cidNotNull: {
+      code: 5001,
+      message: "请选择商品分类"
+    },
+    
   }
 
 }

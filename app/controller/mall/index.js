@@ -1,8 +1,7 @@
 const express = require('express')
 const router = express.Router()
-const goodService = require('./../../service/good_service')
 const Log = require('./../../../lib/log')('shop-control')
-
+const userService = require('./../../service/user_service')
 // 解析请求数据
 router.use(async (req, res, next) => {
 
@@ -17,8 +16,8 @@ router.use(async (req, res, next) => {
   next()
 })
 
-
-
+router.use('/goods', require('./goods'))
+router.use('/category',require('./category'))
 
 // 鉴权
 router.use(async (req, res, next) => {
@@ -32,8 +31,7 @@ router.use(async (req, res, next) => {
   next()
 })
 
-router.use('/goods', require('./goods'))
-router.use('/order',require('./order'))
+
 
 
 module.exports = router
