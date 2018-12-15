@@ -48,6 +48,14 @@ module.exports = {
     amountNotEnough : {
       code : 4000,
       message : '总积分不足'
+    },
+    orderPayDone : {
+      code : 40001,
+      message : '已付款订单不可取消'
+    },
+    orderNotFound : {
+      code : 4004,
+      message : '订单不存在'
     }
   },
 

@@ -53,13 +53,45 @@ class OrderService
             code: errCode.SUCCESS.code,
             message: errCode.SUCCESS.message
         }
-        Log.info(ctx.uuid, 'orderList().body', ctx.body)
-        // orderModel().model().findOne()
+        Log.info(ctx.uuid, 'orderDetail().body', ctx.body)
+        let orderInfo = await this._findOrder(ctx.body.order_id);
+        Log.info(ctx.uuid, 'orderDetail().orderInfo', orderInfo)
+        //TODO 挂钩商品
     }
 
+    /**
+     * 添加订单
+     * @param {*} ctx 
+     */
     async orderAdd(ctx)
     {
-        
+        let ret = {
+            code: errCode.SUCCESS.code,
+            message: errCode.SUCCESS.message
+        }
+        Log.info(ctx.uuid, 'orderAdd().body', ctx.body)
+        let createRow = {};
+        //todo 商品表结合，检查商品是否存在，
+        try {
+            createRow.user_id = ctx.body.user_id
+            createRow.goods_ids = ctx.body.goods_ids
+            createRow.goods_items = ctx.body.goods_items
+            createRow.amount =  ctx.body.amount
+            createRow.addr_name = ctx.body.addr_name
+            createRow.addr_mobile =ctx.body.addr_mobile
+            createRow.addr_info = ctx.body.addr_info
+            createRow.addr_postcode = ctx.body.addr_postcode
+            createRow.status = 1
+        }catch{
+            ret.code = 400
+            ret.message = '参数错误'
+            return ret
+        }
+        await orderModel().model().create(createRow)
+        // ret.data = data
+        Log.info(ctx.uuid, 'adList().ret', ret)
+        // ctx.result = ret
+        return ret
     }
 
     /**
@@ -74,13 +106,18 @@ class OrderService
         }
         Log.info(ctx.uuid, 'orderCancel().body', ctx.body)
 
-        let orderInfo = await orderModel().model().findById(ctx.body.order_id);
+        let orderInfo = await this._findOrder(ctx.body.order_id);
+        Log.info(ctx.uuid, 'orderCancel().orderInfo', orderInfo)
         if (!orderInfo) {
-            ret.code = 404;
-            ret.message = '不存在记录';
+            ret.code = errCode.ORDER.orderNotFound.code
+            ret.message = errCode.ORDER.orderNotFound.message
             return ret;
         }
-
+        if(orderInfo.status == 2){
+            ret.code = errCode.ORDER.orderPayDone.code
+            ret.message = errCode.ORDER.orderPayDone.message
+            return ret;
+        }
         orderInfo.status = -1;
         await orderInfo.save();
         ctx.result = ret
@@ -147,6 +184,14 @@ class OrderService
         ctx.result = ret
         return ret
 
+    }
+
+    /**
+     * 查找订单信息
+     * @param {*} ctx 
+     */
+    async _findOrder(order_id) {
+        return await orderModel().model().findById(order_id);
     }
 }
 module.exports = new OrderService()
