@@ -281,9 +281,11 @@ class UserService {
     })
 
     Log.info(`${ctx.uuid}|infoUpdate().userInfo`, ctx.userInfo)
+
     if (!userInfo) {
       let userData = {
-        realname: body.realname || '',
+
+        realname: body.realname ? decodeURI(body.realname) : '',
         sex: body.sex || 0,
         idcard_no: body.idcard_no || '',
         idcard_positive: body.idcard_positive || '',
@@ -301,8 +303,8 @@ class UserService {
         return ret
       }
     } else {
-      userInfo.realname = body.realname || ''
-      userInfo.sex = body.sex || 0
+      userInfo.realname = body.realname ? decodeURI(body.realname) : '',
+        userInfo.sex = body.sex || 0
       userInfo.idcard_no = body.idcard_no || ''
       userInfo.idcard_positive = body.idcard_positive || ''
       userInfo.idcard_reverse = body.idcard_positive || ''
