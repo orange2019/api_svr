@@ -303,8 +303,8 @@ class UserService {
         return ret
       }
     } else {
-      userInfo.realname = body.realname ? decodeURI(body.realname) : '',
-        userInfo.sex = body.sex || 0
+      userInfo.realname = body.realname ? decodeURI(body.realname) : ''
+      userInfo.sex = body.sex || 0
       userInfo.idcard_no = body.idcard_no || ''
       userInfo.idcard_positive = body.idcard_positive || ''
       userInfo.idcard_reverse = body.idcard_positive || ''
