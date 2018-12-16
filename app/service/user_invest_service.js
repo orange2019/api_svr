@@ -10,9 +10,9 @@ const UuidUtils = require('./../utils/uuid_utils')
 const dateUtils = require('./../utils/date_utils')
 const errCode = require('./../common/err_code')
 const cryptoUtils = require('./../utils/crypto_utils')
-const userTransactionService = require('./user_transaction_service')
+// const userTransactionService = require('./user_transaction_service')
 const Op = require('sequelize').Op
-const uuid = require('uuid')
+// const uuid = require('uuid')
 
 const {
   INVEST_RATES
@@ -285,6 +285,7 @@ class UserInvestService {
    * 计算
    */
   async investComputes() {
+    let log = arguments[0] || Log
     let self = this
     let now = parseInt(Date.now() / 1000)
     let userInvests = await UserModel().investModel().findAll({
@@ -300,7 +301,7 @@ class UserInvestService {
         ['create_time', 'ASC']
       ]
     })
-    console.log('investComputes.userInvests.len', userInvests.length)
+    log.info('investComputes.userInvests.len', userInvests.length)
 
     let userInvestIds = []
     for (let index = 0; index < userInvests.length; index++) {
@@ -311,7 +312,7 @@ class UserInvestService {
         userInvestIds.push(userId)
         isFirst = true
       }
-      await self.investComputed(userInvest, isFirst)
+      await self.investComputed(userInvest, isFirst, log)
     }
 
     return true
@@ -319,7 +320,8 @@ class UserInvestService {
   }
 
   async investComputed(userInvest, isFirst = false) {
-    console.log(`计算 start ID:${userInvest.id}`)
+    let log = arguments[2] || Log
+    log.info(`计算 start ID:${userInvest.id}`)
     let logDate = dateUtils.dateFormat(null, 'YYYYMMDD')
 
     let userId = userInvest.user_id
@@ -333,7 +335,7 @@ class UserInvestService {
       }
     })
     if (isLog) {
-      console.log('已记录......', isLog.id)
+      log.info('已记录......', isLog.id)
       return false
     }
 
@@ -354,7 +356,7 @@ class UserInvestService {
 
     if (isFirst) {
       // TODO 去找子级的
-      numChild = await this._computedChild(userId, baseNum)
+      numChild = await this._computedChild(userId, baseNum, log)
     }
 
     let logsData = {
@@ -366,13 +368,13 @@ class UserInvestService {
       num_child: numChild,
       log_date: dateUtils.dateFormat(null, 'YYYYMMDD')
     }
-    console.log('logsData', logsData)
+    log.info('logsData', logsData)
     let logRet = await UserModel().investLogsModel().create(logsData)
-    console.log('logRet', logRet.id)
+    log.info('logRet', logRet.id)
 
 
     let numTokenInc = numSelf + numChild + numFrozen
-    console.log('numTokenInc', numTokenInc)
+    log.info('numTokenInc', numTokenInc)
     let ctx = {
       uuid: UuidUtils.v4(),
       body: {
@@ -382,7 +384,7 @@ class UserInvestService {
       }
     }
     let retAssetsIn = await accountService.assetsIn(ctx)
-    console.log('retAssetsIn', retAssetsIn)
+    log.info('retAssetsIn', retAssetsIn)
     if (numChild) {
       let ctx = {
         uuid: UuidUtils.v4(),
@@ -393,17 +395,19 @@ class UserInvestService {
         }
       }
       let retAssetsIn = await accountService.assetsIn(ctx)
-      console.log('retAssetsInChild', retAssetsIn)
+      log.info('retAssetsInChild', retAssetsIn)
     }
 
     userAssets.token_num_frozen = userAssets.token_num_frozen - numFrozen
     let userAssetsRet = await userAssets.save()
-    console.log('userAssetsRet.id', userAssetsRet.id)
+    log.info('userAssetsRet.id', userAssetsRet.id)
 
 
   }
 
   async _computedChild(pid, baseNum) {
+    let log = arguments[2] || Log
+
     let now = parseInt(Date.now() / 1000)
     let rateLevels = await ConfigModel().getRateLevel()
 
@@ -412,7 +416,7 @@ class UserInvestService {
     let childInvestUserIds = [] // 推荐下级购买的记录ids
 
     if (child0 && child0.length) {
-      console.log('child0.len', child0.length)
+      log.info('child0.len', child0.length)
       let userIds = []
       child0.forEach(child => {
         userIds.push(child.id)
@@ -440,7 +444,7 @@ class UserInvestService {
     } else {
       return false
     }
-    console.log('childInvestUserIds', childInvestUserIds.length)
+    log.info('childInvestUserIds', childInvestUserIds.length)
     let level = 0
     if (childInvestUserIds.length > 0 && childInvestUserIds.length <= 1) {
       // 享受下一级
@@ -451,7 +455,7 @@ class UserInvestService {
     } else if (childInvestUserIds.length > 3) {
       level = childs.length
     }
-    console.log('level:', level)
+    log.info('level:', level)
 
     // level = childs.length
     let numChild = 0
@@ -460,7 +464,7 @@ class UserInvestService {
       // console.log('childArr len', childArr)
       for (let indexC = 0; indexC < childArr.length; indexC++) {
         const child = childArr[indexC]
-        console.log('child ', child.id)
+        log.info('child ', child.id)
         let investUserChilds = await UserModel().investModel().findAll({
           where: {
             user_id: child.id,
@@ -474,20 +478,20 @@ class UserInvestService {
         })
 
         investUserChilds.forEach(item => {
-          console.log('rate level ', rateLevels[index] || 0.1)
-          console.log('item.num', item.num)
+          log.info('rate level ', rateLevels[index] || 0.1)
+          log.info('item.num', item.num)
           let addNum = ((item.num > baseNum) ? baseNum : item.num) * (rateLevels[index] || 0.1) / 100
           numChild += addNum
-          console.log('numChild:add:', addNum)
+          log.info('numChild:add:', addNum)
           UserModel().recordChildInvest(pid, child.id, addNum).then(ret => {
-            console.log('numChild:add:ret', ret.id)
+            log.info('numChild:add:ret', ret.id)
           })
         })
       }
 
     }
 
-    console.log('numChild:end:', numChild)
+    log.info('numChild:end:', numChild)
     return (numChild > baseNum) ? baseNum : numChild
 
   }

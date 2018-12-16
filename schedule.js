@@ -22,7 +22,7 @@ module.exports = {
 
       const log = Log('investComputes')
       log.info('UserInvestService.investComputes() start at ' + new Date())
-      UserInvestService.investComputes().then(() => {
+      UserInvestService.investComputes(log).then(() => {
         log.info('UserInvestService.investComputes() end at ' + new Date())
       })
     })
