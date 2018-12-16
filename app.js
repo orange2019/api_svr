@@ -122,8 +122,12 @@ if (!module.parent) {
   app.listen(port, () => {
     log.info('api server started on port:' + port)
 
-    const schedule = require('./schedule')
-    schedule.start()
+    if (process.env.NODE_ENV == 'production') {
+      log.info('schedule started on port:' + port)
+      const schedule = require('./schedule')
+      schedule.start()
+    }
+
   })
 
   // console.log('express web started on port 8080')
