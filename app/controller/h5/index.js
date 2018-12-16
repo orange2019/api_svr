@@ -45,10 +45,7 @@ router.post('/newsDetail', async (req, res) => {
   return res.return(req.ctx)
 })
 
-router.post('/invite', async (req, res) => {
-  await userService.inviteInfo(req.ctx)
-  return res.return(req.ctx)
-})
+
 
 // 需要鉴权
 // 鉴权
@@ -82,6 +79,11 @@ router.post('/searchUserByMobile', async (req, res) => {
 
 router.post('/setTradePwd', async (req, res) => {
   await accountService.setTradePwd(req.ctx)
+  return res.return(req.ctx)
+})
+
+router.post('/invite', async (req, res) => {
+  await userService.inviteInfo(req.ctx)
   return res.return(req.ctx)
 })
 

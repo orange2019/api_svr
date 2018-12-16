@@ -107,9 +107,11 @@ class UserService {
       offset: offset,
       limit: limit
     })
-    Log.info(ctx.uuid, 'getUserInfoList().ret', ret)
+
     ret.data = data
     ctx.result = ret
+
+    Log.info(ctx.uuid, 'getUserInfoList().ret', ret)
     return ret
 
   }
@@ -319,6 +321,8 @@ class UserService {
       }
     }
 
+    ctx.result = ret
+    Log.info(`${ctx.uuid}|infoUpdate().ret`, ret)
     return ret
   }
 
@@ -387,9 +391,11 @@ class UserService {
     // let user = await UserModel().model().findById(userId)
     let userInfo = await UserModel().getUserInfoByUserId(userId)
 
+    console.log(userInfo)
+
     ret.data = {}
     // ret.data.invite_code = user.invite_code
-    ret.data.user_name = userInfo.realname
+    ret.data.user_name = userInfo.realname || ''
     ret.data.qrcode_url = config.domain.h5 + '/invite/download'
     ret.data.avatar = userInfo.avatar
     // ret.data.avatar = 'http://i10.hoopchina.com.cn/hupuapp/bbs/966/16313966/thread_16313966_20180726164538_s_65949_o_w1024_h1024_62044.jpg?x-oss-process=image/resize,w_800/format,jpg'
