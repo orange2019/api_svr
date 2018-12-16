@@ -54,10 +54,14 @@ class AccountService {
     // data.frozen_num = 0
 
     let userInvest = await UserModel().investLogsModel().sum('num_self', {
-      user_id: userId
+      where: {
+        user_id: userId
+      }
     })
     let userInvestChild = await UserModel().investLogsModel().sum('num_child', {
-      user_id: userId
+      where: {
+        user_id: userId
+      }
     })
     data.invest = userInvest / 100000000
     data.invest_child = userInvestChild / 100000000

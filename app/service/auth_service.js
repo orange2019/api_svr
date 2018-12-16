@@ -8,6 +8,34 @@ const smsUtils = require('./../utils/sms_utils')
 const Web3 = require('./../web3/index')
 
 class AuthService {
+
+  async sendSmsCode(ctx) {
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+
+    let {
+      mobile
+    } = ctx.body
+
+    if (!mobile) {
+      ret.code = errCode.SMS.mobileNotFound.code
+      ret.message = errCode.SMS.mobileNotFound.message
+
+      ctx.result = ret
+      return ret
+    }
+    let sendStatus = await smsUtils.sendSmsCode(mobile)
+    if (sendStatus === false) {
+      ret.code = errCode.SMS.sendError.code
+      ret.message = errCode.SMS.sendError.message
+    }
+
+    ctx.result = ret
+    return ret
+  }
+
   /**
    * 用户登陆
    */
@@ -76,15 +104,17 @@ class AuthService {
     if (!mobile || !password || mobile.length != 11) {
       ret.code = errCode.FAIL.code
       ret.message = '注册失败，提交数据有误'
+      ctx.result = ret
       return ret
     }
 
     // 验证手机号码
-    let checkCodeRst = await smsUtils.validateCode(mobile,verify_code)
+    let checkCodeRst = await smsUtils.validateCode(mobile, verify_code)
     Log.info(`${ctx.uuid}|register().checkCodeRst`, checkCodeRst)
-    if(checkCodeRst.code !== 0){
+    if (checkCodeRst.code !== 0) {
       ret.code = checkCodeRst.code
       ret.message = checkCodeRst.message
+      ctx.result = ret
       return ret
     }
 
@@ -97,7 +127,8 @@ class AuthService {
 
     if (user) {
       ret.code = errCode.FAIL.code
-      ret.message = '请不要重复注册'
+      ret.message = '您已注册，可直接前往登录'
+      ctx.result = ret
       return ret
     }
 
@@ -118,6 +149,7 @@ class AuthService {
       if (!inviteUser) {
         ret.code = errCode.FAIL.code
         ret.message = '无效邀请码'
+        ctx.result = ret
         return ret
       } else {
         pid = inviteUser.id

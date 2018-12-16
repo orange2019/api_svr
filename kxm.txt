@@ -1,0 +1,27 @@
+节点
+http://47.75.155.158:8545/
+
+chainId: 666
+
+卡西慕主账户
+address: 0xfE6e2AD5c69f2e26fa9Dab4E54275aeb34D015E8
+private key:  0x53946c6d184c555d528a5cc27d0c54def09cdd59f26b788c97aeac5a9551d8a9
+
+合约地址
+0xbc53e39E315dFE354105a77c5c713B9719888A86
+
+合约转账方法（充值，提现都使用此方法）
+function transferAllow (address _from, address _to,uint256 _value)
+
+参数说明
+from:转账方
+to:收账方
+value:代币数量(需要实际数量 * 10000000)
+
+调用合约 from 地址 : 固定为卡西慕主账户
+调用合约 to 地址：固定为合约地址
+
+充值
+from 固定为卡西慕主账户地址 to 为充值账户
+提现
+from 为提现账户 to 固定为卡西慕主账户地址

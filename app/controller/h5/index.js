@@ -4,6 +4,7 @@ const newsService = require('./../../service/news_service')
 const userInvestService = require('./../../service/user_invest_service')
 const userService = require('./../../service/user_service')
 const accountService = require('./../../service/account_service')
+const authService = require('./../../service/auth_service')
 const Log = require('./../../../lib/log')('h5-control')
 
 router.use(async (req, res, next) => {
@@ -45,7 +46,20 @@ router.post('/newsDetail', async (req, res) => {
   return res.return(req.ctx)
 })
 
+router.post('/inviteUser', async (req, res) => {
+  await userService.getByUuid(req.ctx)
+  return res.return(req.ctx)
+})
 
+router.post('/register', async (req, res) => {
+  await authService.register(req.ctx)
+  return res.return(req.ctx)
+})
+
+router.post('/verifyCode', async (req, res) => {
+  await authService.sendSmsCode(req.ctx)
+  return res.return(req.ctx)
+})
 
 // 需要鉴权
 // 鉴权

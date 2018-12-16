@@ -378,6 +378,30 @@ class UserService {
     return ret
   }
 
+  async getByUuid(ctx) {
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+
+    Log.info(ctx.uuid, 'getByUuid().body', ctx.body)
+
+    let uuid = ctx.body.uuid
+
+    let user = await UserModel().model().findOne({
+      where: {
+        uuid: uuid
+      }
+    })
+
+    ret.data = {
+      mobile: user.mobile
+    }
+
+    ctx.result = ret
+    return ret
+  }
+
   async inviteInfo(ctx) {
     let ret = {
       code: errCode.SUCCESS.code,
@@ -388,7 +412,7 @@ class UserService {
 
     let userId = ctx.body.user_id
 
-    // let user = await UserModel().model().findById(userId)
+    let user = await UserModel().model().findById(userId)
     let userInfo = await UserModel().getUserInfoByUserId(userId)
 
     console.log(userInfo)
@@ -396,7 +420,7 @@ class UserService {
     ret.data = {}
     // ret.data.invite_code = user.invite_code
     ret.data.user_name = userInfo.realname || ''
-    ret.data.qrcode_url = config.domain.h5 + '/invite/download'
+    ret.data.qrcode_url = config.domain.h5 + '/register?uuid=' + user.uuid
     ret.data.avatar = userInfo.avatar
     // ret.data.avatar = 'http://i10.hoopchina.com.cn/hupuapp/bbs/966/16313966/thread_16313966_20180726164538_s_65949_o_w1024_h1024_62044.jpg?x-oss-process=image/resize,w_800/format,jpg'
     // ret.data.down_url = config.domain.oss + '/uploads/download/wallet-app-release.apk'
