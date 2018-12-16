@@ -8,20 +8,20 @@ const goodService = require('../../service/good_service')
 
 
 /**
- * 添加分类
+ * 添加商品
  */
-router.post('/getDetailById', async(req,res)=> {
-  let ret = await goodService.getDetailById(req.ctx)
+router.post('/addGood', async(req,res)=> {
+  let ret = await goodService.addGood(req.ctx)
   res.json(ret)
 })
 
 /**
- * 添加分类
+ * 修改商品
  */
-// router.post('/addGood', async(req,res)=> {
-//   let ret = await goodService.addGood(req.ctx)
-//   res.json(ret)
-// })
+router.post('/modifyGood', async(req,res)=> {
+  let ret = await goodService.modifyGood(req.ctx)
+  res.json(ret)
+})
 
 /**
  * 商品列表
