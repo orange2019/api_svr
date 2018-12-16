@@ -8,7 +8,7 @@ const uuid = require('uuid')
 const reqUuid = uuid.v4()
 
 let content = {
-  mobile: '18676669411',
+  mobile: '18676669410',
   password: '123456',
   verify_code: '7602',
   invite_code: ''

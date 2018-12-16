@@ -314,6 +314,8 @@ class UserInvestService {
       await self.investComputed(userInvest, isFirst)
     }
 
+    return true
+
   }
 
   async investComputed(userInvest, isFirst = false) {
@@ -366,7 +368,7 @@ class UserInvestService {
     }
     console.log('logsData', logsData)
     let logRet = await UserModel().investLogsModel().create(logsData)
-    console.log('logRet', logRet)
+    console.log('logRet', logRet.id)
 
 
     let numTokenInc = numSelf + numChild + numFrozen

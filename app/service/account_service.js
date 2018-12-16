@@ -49,9 +49,9 @@ class AccountService {
     data.address = accountAddress
     data.isSetTradePwd = user.password_trade ? 1 : 0
 
-    // let userAssets = await UserModel().getAssetsByUserId(userId)
-    // data.frozen_num = userAssets.token_num_frozen
-    data.frozen_num = 0
+    let userAssets = await UserModel().getAssetsByUserId(userId)
+    data.frozen_num = userAssets.token_num_frozen
+    // data.frozen_num = 0
 
     let userInvest = await UserModel().investLogsModel().sum('num_self', {
       user_id: userId

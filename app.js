@@ -65,6 +65,10 @@ app.use((req, res, next) => {
   next()
 })
 
+app.get('/test', async (req, res) => {
+  res.send('success')
+})
+
 // let responseExtendMid = require('./app/middleware/response_extend')
 // app.use(responseExtendMid)
 
@@ -117,8 +121,12 @@ if (!module.parent) {
   let port = config.port.api_svr
   app.listen(port, () => {
     log.info('api server started on port:' + port)
+
+    const schedule = require('./schedule')
+    schedule.start()
   })
 
   // console.log('express web started on port 8080')
+
 
 }
