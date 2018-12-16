@@ -12,6 +12,16 @@ router.post('/list', async (req, res) => {
 
 })
 
+router.post('/listInvite', async (req, res) => {
+  await userService.getUserInviteList(req.ctx)
+  return res.return(req.ctx)
+})
+
+router.post('/inviteInfo', async (req, res) => {
+  await userService.getUserInviteInfo(req.ctx)
+  return res.return(req.ctx)
+})
+
 // router.post('/detail' , async(req, res) => {
 
 //   await newsService.detail(req.ctx)

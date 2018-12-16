@@ -55,6 +55,94 @@ class UserService {
     return ret
   }
 
+  async getUserInviteInfo(ctx) {
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+
+    Log.info(ctx.uuid, 'getUserInviteInfo().body', ctx.body)
+
+    let userId = ctx.body.user_id
+
+    let user = await UserModel().model().findById(userId)
+    let userInfo = await UserModel().getUserInfoByUserId(userId)
+    let inviteInfo = await UserModel().getAllChilds([userId])
+
+    ret.data = {
+      user: {
+        mobile: user.mobile || '',
+        realname: userInfo.realname || '',
+        avatar: userInfo.avatar || ''
+      },
+      invite: inviteInfo || []
+    }
+
+    ctx.result = ret
+    Log.info(ctx.uuid, 'getUserInviteInfo().ret', ret)
+    return ret
+  }
+
+  async getUserInviteList(ctx, where = {}, offset = 0, limit = 10) {
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+
+    Log.info(ctx.uuid, 'getUserInviteList().body', ctx.body)
+
+    where = ctx.body.where || {}
+    offset = ctx.body.offset || 0
+    limit = ctx.body.limit || 10
+
+    let map = {}
+    if (where.keyword) {
+      map.mobile = {
+        [Op.like]: `%${where.keyword}%`
+      }
+    }
+
+    Log.info(ctx.uuid, 'getUserInviteList().where', where, 'offset|limit', offset, limit)
+
+    let userModel = UserModel().model()
+    let userInfoModel = UserModel().infoModel()
+
+    userModel.hasOne(userInfoModel, {
+      foreignKey: 'user_id'
+    })
+
+    let data = await userModel.findAndCountAll({
+      where: map,
+      include: [{
+        model: userInfoModel,
+        attributes: ['realname', 'avatar']
+      }],
+      offset: offset,
+      limit: limit,
+      attributes: ['id', 'uuid', 'mobile', 'status', 'create_time']
+    })
+    Log.info(ctx.uuid, 'getUserInviteList().data', data)
+
+    let lists = []
+    for (let index = 0; index < data.rows.length; index++) {
+      let item = data.rows[index]
+
+      let list = item.dataValues
+      let invite = await UserModel().getAllChildsCount([item.id])
+      console.log(invite)
+      list.invite = invite
+      lists.push(list)
+    }
+    ret.data = {
+      rows: lists,
+      count: data.count
+    }
+    ctx.result = ret
+
+    Log.info(ctx.uuid, 'getUserInviteList().ret', ret)
+    return ret
+  }
+
   /**
    * 获取用户列表，关联查询
    * @param {*} ctx 

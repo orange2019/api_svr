@@ -533,7 +533,8 @@ class UserModel extends BaseModel {
     }
 
     let items = await this.model().findAll({
-      where: map
+      where: map,
+      attributes: ['id', 'uuid', 'mobile', 'wallet_address']
     })
     if (items.length) {
       let pids = []
@@ -546,6 +547,34 @@ class UserModel extends BaseModel {
       level++
 
       return await this.getAllChilds(pids, level, arr)
+
+    } else {
+      return arr
+    }
+  }
+
+  async getAllChildsCount(userIds = [], level = 0, arr = []) {
+    let map = {
+      pid: {
+        [Op.in]: userIds
+      }
+    }
+
+    let items = await this.model().findAll({
+      where: map,
+      attributes: ['id']
+    })
+    if (items.length) {
+      let pids = []
+      arr[level] = items.length || 0
+      items.forEach(item => {
+        // arr[level].push(item.dataValues)
+        pids.push(item.id)
+      })
+
+      level++
+
+      return await this.getAllChildsCount(pids, level, arr)
 
     } else {
       return arr
