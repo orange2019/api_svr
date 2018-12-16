@@ -54,5 +54,6 @@ router.use('/news', require('./news'))
 router.use('/user', require('./user'))
 router.use('/config', require('./config'))
 router.use('/assets', require('./assets'))
+router.use('/invest', require('./invest'))
 
 module.exports = router

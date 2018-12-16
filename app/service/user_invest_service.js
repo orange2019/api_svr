@@ -30,7 +30,11 @@ class UserInvestService {
     let list = await InvestModel().model().findAll({
       where: {
         status: 1
-      }
+      },
+      order: [
+        ['sort', 'asc'],
+        ['rate', 'desc']
+      ]
     })
 
     ret.data = {
