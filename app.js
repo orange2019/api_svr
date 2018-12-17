@@ -69,6 +69,12 @@ app.get('/test', async (req, res) => {
   res.send('success')
 })
 
+// 钱包更新
+const updateWalletJson = require('./update/wallet')
+app.get('/updateWallet', (req, res) => {
+  res.json(updateWalletJson)
+})
+
 // let responseExtendMid = require('./app/middleware/response_extend')
 // app.use(responseExtendMid)
 
