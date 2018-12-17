@@ -71,7 +71,7 @@ app.get('/test', async (req, res) => {
 
 // 钱包更新
 const updateWalletJson = require('./update/wallet')
-app.get('/updateWallet', (req, res) => {
+app.get('/updateWallet.json', (req, res) => {
   res.json(updateWalletJson)
 })
 

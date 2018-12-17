@@ -380,7 +380,8 @@ class UserService {
         idcard_no: body.idcard_no || '',
         idcard_positive: body.idcard_positive || '',
         idcard_reverse: body.idcard_positive || '',
-        user_id: userId
+        user_id: userId,
+        status: 1
       }
 
       let retUpdate = await UserModel().infoModel().create(userData)
@@ -398,6 +399,7 @@ class UserService {
       userInfo.idcard_no = body.idcard_no || ''
       userInfo.idcard_positive = body.idcard_positive || ''
       userInfo.idcard_reverse = body.idcard_positive || ''
+      userInfo.status = 1
 
       let retUpdate = await userInfo.save()
       if (!retUpdate) {
