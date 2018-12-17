@@ -43,8 +43,8 @@ let config = {
     INVEST_OUT: 4, // 投资出
     INVEST_IN: 5, // 投资入
     INVEST_IN_SUB: 6, // 投资子级入
-    SCORE_IN: 7, // 积分兑换
-    SCORE_OUT: 8, // 积分消费
+    FROZEN: 7, // 冻结
+    UNFROZEN: 8, // 解冻
   },
 
   key: {

@@ -16,6 +16,16 @@ router.post('/inByAddress', async (req, res) => {
   return res.return(req.ctx)
 })
 
+router.post('/frozen', async (req, res) => {
+  await accountService.assetsFrozen(req.ctx)
+  return res.return(req.ctx)
+})
+
+router.post('/unFrozen', async (req, res) => {
+  await accountService.assetsUnfrozen(req.ctx)
+  return res.return(req.ctx)
+})
+
 
 
 

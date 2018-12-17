@@ -73,6 +73,101 @@ class AccountService {
     return ret
   }
 
+  /**
+   * 解冻
+   * @param {*} ctx 
+   */
+  async assetsUnfrozen(ctx) {
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+    let t = await UserModel().getTrans()
+
+    try {
+      let userId = ctx.body.user_id
+      let num = ctx.body.num
+      let userAssets = await UserModel().getAssetsByUserId(userId)
+      if (num == 0 || userAssets.token_num_backup < num) {
+        throw new Error('数量错误')
+      }
+
+      ctx.body.type = 8
+      // ctx.body.num = invest.num
+      let userAssetsOutRet = await this.assetsIn(ctx, t)
+      if (userAssetsOutRet.code != 0) {
+        throw new Error(userAssetsOutRet.message)
+      }
+
+      // 
+      userAssets.token_num_backup = userAssets.token_num_backup - parseFloat(num)
+      let retSave = await userAssets.save({
+        transcation: t
+      })
+      if (!retSave) {
+        throw new Error('保存用户资产数据失败')
+      }
+
+    } catch (err) {
+      ret.code = errCode.FAIL.code
+      ret.message = err.message || 'err'
+
+      t.rollback()
+    }
+
+    t.commit()
+    ctx.result = ret
+    return ret
+
+  }
+
+  /**
+   * 冻结
+   * @param {*} ctx 
+   */
+  async assetsFrozen(ctx) {
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+    let t = await UserModel().getTrans()
+
+    try {
+      let userId = ctx.body.user_id
+      let num = ctx.body.num
+      let userAssets = await UserModel().getAssetsByUserId(userId)
+      if (num == 0) {
+        throw new Error('数量错误')
+      }
+
+      ctx.body.type = 7
+      // ctx.body.num = invest.num
+      let userAssetsOutRet = await this.assetsOut(ctx, t)
+      if (userAssetsOutRet.code != 0) {
+        throw new Error(userAssetsOutRet.message)
+      }
+
+      // 
+      userAssets.token_num_backup = userAssets.token_num_backup + parseFloat(num)
+      let retSave = await userAssets.save({
+        transcation: t
+      })
+      if (!retSave) {
+        throw new Error('保存用户资产数据失败')
+      }
+
+    } catch (err) {
+      ret.code = errCode.FAIL.code
+      ret.message = err.message || 'err'
+
+      t.rollback()
+    }
+
+    t.commit()
+    ctx.result = ret
+    return ret
+  }
+
   async assetsInByAddress(ctx) {
 
     let ret = {
@@ -187,12 +282,14 @@ class AccountService {
         .model()
         .findById(userId)
       // let accountAddress = user.wallet_address
-      if (user.password != cryptoUtils.md5(password)) {
-        if (user.password_trade != cryptoUtils.md5(password)) {
-          throw new Error('密码错误')
-        }
+      // if (!ctx.body.hasOwnProperty('isAdmin') && !ctx.body.isAdmin) {
+      //   if (user.password != cryptoUtils.md5(password)) {
+      //     if (user.password_trade != cryptoUtils.md5(password)) {
+      //       throw new Error('密码错误')
+      //     }
+      //   }
+      // }
 
-      }
       let privateKey = user.private_key
       let account = await web3.getAccountFromPk(privateKey)
 

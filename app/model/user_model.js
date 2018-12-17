@@ -476,6 +476,17 @@ class UserModel extends BaseModel {
           this.setDataValue('token_num_frozen', val * 100000000)
         }
       },
+      token_num_backup: {
+        type: Sequelize.BIGINT,
+        defaultValue: 0,
+        get() {
+          const num = this.getDataValue('token_num_backup')
+          return num / 100000000
+        },
+        set(val) {
+          this.setDataValue('token_num_backup', val * 100000000)
+        }
+      },
       create_time: {
         type: Sequelize.BIGINT(11),
         defaultValue: parseInt(Date.now() / 1000)
