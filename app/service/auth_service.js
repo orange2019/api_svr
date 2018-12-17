@@ -171,6 +171,10 @@ class AuthService {
       private_key: privateKey || ''
     })
 
+    // 加上userInfo
+    let userId = user.id
+    UserModel().getUserInfoByUserId(userId)
+
     ret.data = {
       uuid: user.uuid
     }

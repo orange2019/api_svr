@@ -6,6 +6,7 @@ const Op = require('sequelize').Op
 const cryptoUtils = require('./../utils/crypto_utils')
 const web3 = require('./../web3')
 const config = require('./../../config/index')
+const Sequelize = require('sequelize')
 
 class UserService {
 
@@ -163,10 +164,18 @@ class UserService {
     limit = ctx.body.limit || 10
 
     let map = {}
+    let mapInfo = {}
     if (where.keyword) {
       map.mobile = {
         [Op.like]: `%${where.keyword}%`
       }
+    }
+    if (where.hasOwnProperty('status')) {
+      map.status = where.status
+    }
+
+    if (where.hasOwnProperty('audit')) {
+      mapInfo.status = where.audit
     }
 
     Log.info(ctx.uuid, 'getUserInfoList().where', where, 'offset|limit', offset, limit)
@@ -183,17 +192,26 @@ class UserService {
       foreignKey: 'user_id'
     })
 
+    let includeUserInfoModel = {
+      model: userInfoModel
+    }
+    if (Object.keys(mapInfo).length) {
+      includeUserInfoModel.where = mapInfo
+    }
+
     let data = await userModel.findAndCountAll({
       where: map,
-      include: [{
-          model: userInfoModel
-        },
+      include: [includeUserInfoModel,
         {
           model: userAssetsModel
         }
       ],
       offset: offset,
-      limit: limit
+      limit: limit,
+      order: [
+        ['status', 'asc'],
+        ['create_time', 'desc']
+      ]
     })
 
     ret.data = data

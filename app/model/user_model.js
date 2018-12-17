@@ -608,7 +608,8 @@ class UserModel extends BaseModel {
     })
     if (!ret) {
       ret = await this.infoModel().create({
-        user_id: userId
+        user_id: userId,
+        status: 0
       })
     }
     return ret
