@@ -556,25 +556,25 @@ class UserService {
 
     Log.info(ctx.uuid, 'inviteList().where', map)
 
-    let userModel = UserModel().model()
-    let userInfoModel = UserModel().infoModel()
+    // let userModel = UserModel().model()
+    // let userInfoModel = UserModel().infoModel()
 
-    userModel.hasOne(userInfoModel, {
-      foreignKey: 'user_id'
-    })
+    // userModel.hasOne(userInfoModel, {
+    //   foreignKey: 'user_id'
+    // })
 
-    let data = await userModel.findAndCountAll({
-      where: map,
-      include: [{
-        model: userInfoModel,
-        attributes: ['realname', 'avatar']
-      }],
-      order: [
-        ['create_time', 'DESC']
-      ],
-      attributes: ['id', 'uuid', 'mobile', 'status', 'create_time']
-    })
-
+    // let data = await userModel.findAndCountAll({
+    //   where: map,
+    //   include: [{
+    //     model: userInfoModel,
+    //     attributes: ['realname', 'avatar']
+    //   }],
+    //   order: [
+    //     ['create_time', 'DESC']
+    //   ],
+    //   attributes: ['id', 'uuid', 'mobile', 'status', 'create_time']
+    // })
+    let data = await UserModel().getAllChilds([userId])
     ret.data = data
     Log.info(ctx.uuid, 'inviteList().ret', ret)
     ctx.result = ret

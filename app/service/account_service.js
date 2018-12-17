@@ -49,8 +49,11 @@ class AccountService {
     data.address = accountAddress
     data.isSetTradePwd = user.password_trade ? 1 : 0
 
+
     let userAssets = await UserModel().getAssetsByUserId(userId)
     data.frozen_num = userAssets.token_num_frozen
+    data.backup_num = userAssets.token_num_backup
+    data.token_total = data.token_balance + userAssets.token_num_frozen + userAssets.token_num_backup
     // data.frozen_num = 0
 
     let userInvest = await UserModel().investLogsModel().sum('num_self', {
@@ -358,6 +361,7 @@ class AccountService {
 
     } catch (err) {
       console.log(err)
+      Log.error(`${ctx.uuid}|assetsOut().transRet err`, err.message)
       ret.code = errCode.FAIL.code
       ret.message = err.message || 'err'
     }

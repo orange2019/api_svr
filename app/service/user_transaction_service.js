@@ -51,7 +51,10 @@ class UserTransactionService {
         }
       ],
       offset: offset,
-      limit: limit
+      limit: limit,
+      order: [
+        ['create_time', 'desc']
+      ]
     })
 
     Log.info(ctx.uuid, 'getUserInfoList().queryRet', queryRet)

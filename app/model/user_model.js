@@ -543,10 +543,22 @@ class UserModel extends BaseModel {
       }
     }
 
+    let userInfoModel = this.infoModel()
+    this.model().hasOne(userInfoModel, {
+      foreignKey: 'user_id'
+    })
     let items = await this.model().findAll({
       where: map,
-      attributes: ['id', 'uuid', 'mobile', 'wallet_address']
+      include: [{
+        model: userInfoModel,
+        attributes: ['realname', 'avatar']
+      }],
+      attributes: ['id', 'uuid', 'mobile', 'wallet_address', 'create_time'],
+      order: [
+        ['create_time', 'DESC']
+      ]
     })
+
     if (items.length) {
       let pids = []
       arr[level] = []

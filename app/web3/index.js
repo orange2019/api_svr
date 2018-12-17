@@ -1,6 +1,7 @@
 const web3Proxy = require('./proxy')
 const Web3 = require('web3')
 const chainId = require('./../../config').chainId
+const Log = require('./../../lib/log')('web3')
 class Web3Class {
 
   /**
@@ -54,40 +55,46 @@ class Web3Class {
    */
   async tokenTransfer(contractObj, account, from, to, num) {
 
-    let decimal = await contractObj.methods.decimals().call()
-    console.log('contract decimal:', decimal)
-    let value = parseInt(num * 10 ** decimal)
-    console.log('contract value:', value)
-    // let from = account.address
-    let transafer = contractObj.methods.transferAllow(from, to, value)
+    try {
+      let decimal = await contractObj.methods.decimals().call()
+      Log.info('contract decimal:', decimal)
+      let value = parseInt(num * 10 ** decimal)
+      Log.info('contract value:', value)
+      // let from = account.address
+      let transafer = contractObj.methods.transferAllow(from, to, value)
 
-    let contractAddress = contractObj.options.address
-    let gas = await this.tokenTransferGas(contractObj, account, from, to, num)
+      let contractAddress = contractObj.options.address
+      let gas = await this.tokenTransferGas(contractObj, account, from, to, num)
 
-    let tx = {
-      gas: gas,
-      from: account.address,
-      to: contractAddress,
-      data: transafer.encodeABI(),
-      chainId: chainId
+      let tx = {
+        gas: gas,
+        from: account.address,
+        to: contractAddress,
+        data: transafer.encodeABI(),
+        chainId: chainId
+      }
+      // Log.info(tx)
+
+      let signed = await web3Proxy._web3().eth.accounts.signTransaction(tx, account.privateKey)
+      Log.info(signed)
+      let receipt = await web3Proxy._web3().eth.sendSignedTransaction(signed.rawTransaction)
+
+      // Log.info(signed)
+      return receipt
+    } catch (err) {
+      Log.error(err.message || err)
+      return false
     }
-    // console.log(tx)
 
-    let signed = await web3Proxy._web3().eth.accounts.signTransaction(tx, account.privateKey)
-    console.log(signed)
-    let receipt = await web3Proxy._web3().eth.sendSignedTransaction(signed.rawTransaction)
-
-    // console.log(signed)
-    return receipt
 
   }
 
   async tokenTransferGas(contractObj, account, from, to, num, eth = false) {
 
     let decimal = await contractObj.methods.decimals().call()
-    console.log('contract decimal:', decimal)
+    Log.info('contract decimal:', decimal)
     let value = parseInt(num * 10 ** decimal)
-    console.log('contract value:', value)
+    Log.info('contract value:', value)
     // let from = account.address
     let transfer = contractObj.methods.transferAllow(from, to, value)
     let contractAddress = contractObj.options.address
@@ -96,7 +103,7 @@ class Web3Class {
       to: contractAddress
       // gas: 5000000
     })
-    console.log('gas', gas)
+    Log.info('gas', gas)
     if (eth) {
       let gasPrice = await web3Proxy.getGasPrice()
       return Web3.utils.fromWei((gas * gasPrice).toString())

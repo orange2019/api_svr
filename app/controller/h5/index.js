@@ -76,7 +76,10 @@ router.use(async (req, res, next) => {
     return res.return(req.ctx)
   }
 
-  if (req.ctx.body.user_status != 1) {
+  let url = req.path
+  console.log('===============', url)
+  let whiteUrls = ['/investList', '/assets', '/invite', '/inviteList']
+  if (req.ctx.body.user_status != 1 && whiteUrls.indexOf(url) < 0) {
     req.ctx.result = {
       code: -101,
       message: '用户待审核'
