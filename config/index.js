@@ -80,7 +80,8 @@ vZxq5+sTEOH9XTvgelNqN025jVpeNPeeUQcFDY5jWg==
   // default_contract_id: 1,
   blockchain_port: 'http://47.75.155.158:8545',
   default_contract_id: 1,
-  chainId: '666'
+  chainId: '666',
+  decimals: 100000000
 }
 
 let env = process.env.NODE_ENV ? process.env.NODE_ENV : ''

@@ -1,6 +1,7 @@
 const Sequelize = require('sequelize')
 const BaseModel = require('./base_model')
 const errCode = require('./../common/err_code')
+const DECIMALS = require('./../../config').decimals
 class UserAssetsModel extends BaseModel {
 
   constructor() {
@@ -12,7 +13,7 @@ class UserAssetsModel extends BaseModel {
         primaryKey: true,
         autoIncrement: true
       },
-      user_id : {
+      user_id: {
         type: Sequelize.BIGINT,
         defaultValue: 0
       },
@@ -69,31 +70,33 @@ class UserAssetsModel extends BaseModel {
    * @param {*} num 
    * @param {*} t 
    */
-  async addtokenNum(ctx, userId , num , t = null){
+  async addtokenNum(ctx, userId, num, t = null) {
     let ret = {
       code: errCode.SUCCESS.code,
       message: errCode.SUCCESS.message
     }
 
-    if(num < 0) {
+    if (num < 0) {
       ret.code = errCode.FAIL.code
       ret.message = 'num error'
       return ret
     }
 
     let data = await this.model().findOne({
-      where: { user_id : userId}
+      where: {
+        user_id: userId
+      }
     })
     let opts = {}
-    if(t) opts.transaction = t
+    if (t) opts.transaction = t
 
-    if(!data){
+    if (!data) {
       data = await this.model().create({
         user_id: userId,
         token_num: num
       })
-    }else {
-      data.token_num = data.token_num + num
+    } else {
+      data.token_num = (data.token_num * DECIMALS + num * DECIMALS) / DECIMALS
       data.save()
     }
 

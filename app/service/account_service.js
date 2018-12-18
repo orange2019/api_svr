@@ -7,6 +7,7 @@ const tokenService = require('./token_service')
 const cryptoUtils = require('./../utils/crypto_utils')
 const Op = require('sequelize').Op
 const web3 = require('./../web3')
+const DECIMALS = require('./../../config').decimals
 
 class AccountService {
   /**
@@ -49,11 +50,11 @@ class AccountService {
     data.address = accountAddress
     data.isSetTradePwd = user.password_trade ? 1 : 0
 
-
+    // const decimals = 100000000
     let userAssets = await UserModel().getAssetsByUserId(userId)
     data.frozen_num = userAssets.token_num_frozen
     data.backup_num = userAssets.token_num_backup
-    data.token_total = data.token_balance + userAssets.token_num_frozen + userAssets.token_num_backup
+    data.token_total = (data.token_balance * DECIMALS + userAssets.token_num_frozen * DECIMALS + userAssets.token_num_backup * DECIMALS) / DECIMALS
     // data.frozen_num = 0
 
     let userInvest = await UserModel().investLogsModel().sum('num_self', {
@@ -103,7 +104,7 @@ class AccountService {
       }
 
       // 
-      userAssets.token_num_backup = userAssets.token_num_backup - parseFloat(num)
+      userAssets.token_num_backup = (userAssets.token_num_backup * DECIMALS - num * DECIMALS) / DECIMALS
       let retSave = await userAssets.save({
         transcation: t
       })
@@ -151,7 +152,7 @@ class AccountService {
       }
 
       // 
-      userAssets.token_num_backup = userAssets.token_num_backup + parseFloat(num)
+      userAssets.token_num_backup = (userAssets.token_num_backup * DECIMALS + num * DECIMALS) / DECIMALS
       let retSave = await userAssets.save({
         transcation: t
       })

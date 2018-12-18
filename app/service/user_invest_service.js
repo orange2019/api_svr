@@ -13,6 +13,7 @@ const cryptoUtils = require('./../utils/crypto_utils')
 // const userTransactionService = require('./user_transaction_service')
 const Op = require('sequelize').Op
 // const uuid = require('uuid')
+const DECIMALS = require('./../../config').decimals
 
 const {
   INVEST_RATES
@@ -244,7 +245,8 @@ class UserInvestService {
       }
 
       // 记录用户资产
-      let newNum = userAssets.token_num_frozen + tokenNum
+      // const decimals = 100000000
+      let newNum = (userAssets.token_num_frozen * DECIMALS + tokenNum * DECIMALS) / DECIMALS
       Log.info(ctx.uuid, 'investApply().newNum', newNum)
       userAssets.token_num_frozen = newNum
       let retUserAssests = await userAssets.save({
@@ -402,7 +404,8 @@ class UserInvestService {
       log.info('retAssetsInChild', retAssetsIn)
     }
 
-    userAssets.token_num_frozen = userAssets.token_num_frozen - numFrozen
+    // const decimals = 100000000
+    userAssets.token_num_frozen = (userAssets.token_num_frozen * DECIMALS - numFrozen * DECIMALS) / DECIMALS
     let userAssetsRet = await userAssets.save()
     log.info('userAssetsRet.id', userAssetsRet.id)
 
@@ -503,184 +506,185 @@ class UserInvestService {
   /**
    * 计算收益
    */
-  async compute() {
-    let logger = require('./../../lib/log')('compute')
-    let investLogsModel = UserModel().investLogsModel()
-    let count = await UserModel().formulaModel().count()
-    logger.info('compute().start|count:', count)
+  // async compute() {
+  //   let logger = require('./../../lib/log')('compute')
+  //   let investLogsModel = UserModel().investLogsModel()
+  //   let count = await UserModel().formulaModel().count()
+  //   logger.info('compute().start|count:', count)
 
 
-    let limit = 10
-    let page = Math.ceil(count / limit)
-    let investFormula = {}
-    let now = parseInt(Date.now() / 1000)
-    logger.info('compute().page', page)
+  //   let limit = 10
+  //   let page = Math.ceil(count / limit)
+  //   let investFormula = {}
+  //   let now = parseInt(Date.now() / 1000)
+  //   logger.info('compute().page', page)
 
-    let ret = {
-      success: [],
-      fail: []
-    }
+  //   let ret = {
+  //     success: [],
+  //     fail: []
+  //   }
 
-    let user
+  //   let user
 
-    for (let index = 0; index < page; index++) {
-      let offset = index * limit
-      let items = await UserModel().formulaModel().findAll({
-        offset: offset,
-        limit: limit
-      })
+  //   for (let index = 0; index < page; index++) {
+  //     let offset = index * limit
+  //     let items = await UserModel().formulaModel().findAll({
+  //       offset: offset,
+  //       limit: limit
+  //     })
 
-      for (let j = 0; j < items.length; j++) {
+  //     for (let j = 0; j < items.length; j++) {
 
-        let item = items[j]
-        let level = -1
-        let userId = item.user_id
+  //       let item = items[j]
+  //       let level = -1
+  //       let userId = item.user_id
 
-        try {
-          // 判断是否结算
-          let isLog = false
-          let count = await investLogsModel.count({
-            where: {
-              user_id: userId,
-              log_date: dateUtils.dateFormat(null, 'YYYYMMDD')
-            }
-          })
-          isLog = count || 0
+  //       try {
+  //         // 判断是否结算
+  //         let isLog = false
+  //         let count = await investLogsModel.count({
+  //           where: {
+  //             user_id: userId,
+  //             log_date: dateUtils.dateFormat(null, 'YYYYMMDD')
+  //           }
+  //         })
+  //         isLog = count || 0
 
-          if (isLog) {
-            ret.success.push(userId)
-            continue
-          }
+  //         if (isLog) {
+  //           ret.success.push(userId)
+  //           continue
+  //         }
 
-          investFormula = item.invest_formula
-          if (!investFormula || !investFormula.hasOwnProperty('lv_0')) {
-            logger.info(`${userId}|无投产`)
-            ret.fail.push(userId)
-            continue
-          }
+  //         investFormula = item.invest_formula
+  //         if (!investFormula || !investFormula.hasOwnProperty('lv_0')) {
+  //           logger.info(`${userId}|无投产`)
+  //           ret.fail.push(userId)
+  //           continue
+  //         }
 
-          // 计算lv_0的投产状况
-          let selfNumUnfrozen = 0
-          let selfNumInvest = 0
-          let baseNum = 0
+  //         // 计算lv_0的投产状况
+  //         let selfNumUnfrozen = 0
+  //         let selfNumInvest = 0
+  //         let baseNum = 0
 
-          let selfFormulas = investFormula.lv_0['u_' + userId]
-          for (let index = 0; index < selfFormulas.length; index++) {
-            let selfFormula = selfFormulas[index]
-            if (selfFormula.st < now && selfFormula.et > now) {
+  //         let selfFormulas = investFormula.lv_0['u_' + userId]
+  //         for (let index = 0; index < selfFormulas.length; index++) {
+  //           let selfFormula = selfFormulas[index]
+  //           if (selfFormula.st < now && selfFormula.et > now) {
 
-              selfNumUnfrozen += selfFormula.num / selfFormula.days
+  //             selfNumUnfrozen += selfFormula.num / selfFormula.days
 
-              selfNumInvest += selfFormula.num * selfFormula.rate / selfFormula.days / 100
-              if (!baseNum) baseNum = selfFormula.num
+  //             selfNumInvest += selfFormula.num * selfFormula.rate / selfFormula.days / 100
+  //             if (!baseNum) baseNum = selfFormula.num
 
-            }
-          }
+  //           }
+  //         }
 
-          if (!baseNum) {
-            logger.info(`${userId}|无有效投产`)
-            ret.fail.push(userId)
-            continue
-          }
+  //         if (!baseNum) {
+  //           logger.info(`${userId}|无有效投产`)
+  //           ret.fail.push(userId)
+  //           continue
+  //         }
 
-          // 计算自己的
-          logger.info(`${userId}|解冻资产${selfNumUnfrozen}`)
-          logger.info(`${userId}|解冻收益${selfNumInvest}`)
+  //         // 计算自己的
+  //         logger.info(`${userId}|解冻资产${selfNumUnfrozen}`)
+  //         logger.info(`${userId}|解冻收益${selfNumInvest}`)
 
-          // if (!investFormula.hasOwnProperty('lv_1')) {
-          //   logger.info(`${userId}|无推荐投产`)
-          //   ret.fail.push(userId)
-          //   continue
-          // }
+  //         // if (!investFormula.hasOwnProperty('lv_1')) {
+  //         //   logger.info(`${userId}|无推荐投产`)
+  //         //   ret.fail.push(userId)
+  //         //   continue
+  //         // }
 
-          let childsNum = investFormula.hasOwnProperty('lv_1') ? Object.keys(investFormula.lv_1).length : 0
-          if (childsNum == 0) {
-            level = 0
-          } else if (childsNum >= 1 && childsNum < 3) {
-            level = 1
-          } else if (childsNum >= 3 && childsNum < 5) {
-            level = 2
-          } else {
-            level = Object.keys(investFormula).length
-          }
+  //         let childsNum = investFormula.hasOwnProperty('lv_1') ? Object.keys(investFormula.lv_1).length : 0
+  //         if (childsNum == 0) {
+  //           level = 0
+  //         } else if (childsNum >= 1 && childsNum < 3) {
+  //           level = 1
+  //         } else if (childsNum >= 3 && childsNum < 5) {
+  //           level = 2
+  //         } else {
+  //           level = Object.keys(investFormula).length
+  //         }
 
-          let childNumInvest = 0
-          let levelDataArr = Object.values(investFormula)
-          logger.info(`${userId}|levelData.len:`, Object.keys(investFormula).length)
-          logger.info(`${userId}|levelData.computeLen:`, level)
+  //         let childNumInvest = 0
+  //         let levelDataArr = Object.values(investFormula)
+  //         logger.info(`${userId}|levelData.len:`, Object.keys(investFormula).length)
+  //         logger.info(`${userId}|levelData.computeLen:`, level)
 
-          for (let indexLevel = 1; indexLevel <= level; indexLevel++) {
-            let levelData = levelDataArr[indexLevel] || null
-            if (levelData) {
+  //         for (let indexLevel = 1; indexLevel <= level; indexLevel++) {
+  //           let levelData = levelDataArr[indexLevel] || null
+  //           if (levelData) {
 
-              let childFormulaArr = Object.values(levelData)
-              logger.info(`${userId}|level:${level}|childData.len:`, childFormulaArr.length)
+  //             let childFormulaArr = Object.values(levelData)
+  //             logger.info(`${userId}|level:${level}|childData.len:`, childFormulaArr.length)
 
-              for (let indexCf = 0; indexCf < childFormulaArr.length; indexCf++) {
-                let childFormulas = childFormulaArr[indexCf]
-                logger.info(`${userId}|level:${level}|childFormulas.len`, childFormulas.length)
+  //             for (let indexCf = 0; indexCf < childFormulaArr.length; indexCf++) {
+  //               let childFormulas = childFormulaArr[indexCf]
+  //               logger.info(`${userId}|level:${level}|childFormulas.len`, childFormulas.length)
 
-                for (let indexC = 0; indexC < childFormulas.length; indexC++) {
-                  let childFormula = childFormulas[indexC]
-                  logger.info(`${userId}|level:${level}|childFormula`, childFormula)
+  //               for (let indexC = 0; indexC < childFormulas.length; indexC++) {
+  //                 let childFormula = childFormulas[indexC]
+  //                 logger.info(`${userId}|level:${level}|childFormula`, childFormula)
 
-                  if (childFormula.st < now && childFormula.et > now) {
-                    let childFormulaNum = (baseNum > childFormula.num) ? childFormula.num : baseNum // 下级购买数量大于自己，使用自己的作为基数
-                    childNumInvest += childFormulaNum * childFormula.rate / 100
-                    // childNumInvest += childFormula.num * childFormula.rate / 100 / childFormula.days // TODO是否除以天数  
-                  }
+  //                 if (childFormula.st < now && childFormula.et > now) {
+  //                   let childFormulaNum = (baseNum > childFormula.num) ? childFormula.num : baseNum // 下级购买数量大于自己，使用自己的作为基数
+  //                   childNumInvest += childFormulaNum * childFormula.rate / 100
+  //                   // childNumInvest += childFormula.num * childFormula.rate / 100 / childFormula.days // TODO是否除以天数  
+  //                 }
 
-                }
-              }
-            }
+  //               }
+  //             }
+  //           }
 
-          }
+  //         }
 
-          logger.info(`${userId}|childNumInvest:`, childNumInvest)
-          childNumInvest = (childNumInvest > baseNum) ? baseNum : childNumInvest
+  //         logger.info(`${userId}|childNumInvest:`, childNumInvest)
+  //         childNumInvest = (childNumInvest > baseNum) ? baseNum : childNumInvest
 
-          let investNum = selfNumInvest + selfNumUnfrozen + childNumInvest
-          logger.info(`${userId}|investNum:`, investNum)
+  //         let investNum = selfNumInvest + selfNumUnfrozen + childNumInvest
+  //         logger.info(`${userId}|investNum:`, investNum)
 
-          ret.success.push(userId)
+  //         ret.success.push(userId)
 
-          await investLogsModel.create({
-            user_id: userId,
-            num: investNum,
-            num_frozen: selfNumUnfrozen,
-            num_self: selfNumInvest,
-            num_child: childNumInvest
-          })
+  //         await investLogsModel.create({
+  //           user_id: userId,
+  //           num: investNum,
+  //           num_frozen: selfNumUnfrozen,
+  //           num_self: selfNumInvest,
+  //           num_child: childNumInvest
+  //         })
 
-          // 链上转币
-          let tokenNum = selfNumInvest + childNumInvest
-          let ctx = {
-            uuid: UuidUtils.v4(),
-            body: {
-              user_id: userId,
-              num: tokenNum,
-              type: 4
-            }
-          }
-          let retAssetsIn = await accountService.assetsIn(ctx)
-          logger.info(`${userId}|retAssetsIn`, retAssetsIn)
+  //         // 链上转币
+  //         let tokenNum = selfNumInvest + childNumInvest
+  //         let ctx = {
+  //           uuid: UuidUtils.v4(),
+  //           body: {
+  //             user_id: userId,
+  //             num: tokenNum,
+  //             type: 4
+  //           }
+  //         }
+  //         let retAssetsIn = await accountService.assetsIn(ctx)
+  //         logger.info(`${userId}|retAssetsIn`, retAssetsIn)
 
-          user = await UserAssetsModel().model().findById(userId)
-          // user.token_num = user.token_num + investNum
-          user.token_num_frozen = user.token_num_frozen - selfNumUnfrozen
-          await user.save()
+  //         user = await UserAssetsModel().model().findById(userId)
+  //         // user.token_num = user.token_num + investNum
+  //         // const decimals = 100000000
+  //         user.token_num_frozen = (user.token_num_frozen * DECIMALS - selfNumUnfrozen * DECIMALS) / DECIMALS
+  //         await user.save()
 
-        } catch (err) {
-          console.log(err)
-          logger.info(`${userId}|err:`, err)
-          ret.fail.push(userId)
-        }
+  //       } catch (err) {
+  //         console.log(err)
+  //         logger.info(`${userId}|err:`, err)
+  //         ret.fail.push(userId)
+  //       }
 
-      }
-    }
+  //     }
+  //   }
 
-    return ret
-  }
+  //   return ret
+  // }
 
   /**
    * 投产
@@ -753,8 +757,10 @@ class UserInvestService {
 
       // 更新资产
       let userAssets = await this.getAssestByUserId(ctx, userId)
+      // const decimals = 100000000
+      let newNumFrozen = (userAssets.token_num_frozen * DECIMALS + tokenNum * DECIMALS) / DECIMALS
       let userAssetUpdate = await userAssets.update({
-        token_num_frozen: userAssets.token_num_frozen + tokenNum
+        token_num_frozen: newNumFrozen
       }, {
         transaction: t
       })
