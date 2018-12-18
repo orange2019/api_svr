@@ -150,13 +150,13 @@ class UserInvestService {
       }
     })
 
-    let investTotal = parseInt(invest.num * invest.days / invest.rate / 100 * 100000000) / 100000000
-    let investTotalLeave = investTotal - (sum / 100000000)
+    let investTotal = parseInt(invest.num * invest.rate / 100 * DECIMALS) / DECIMALS
+    let investTotalLeave = investTotal - (sum / DECIMALS)
 
     ret.data = {
       info: info,
       invest: invest,
-      sum: (sum / 100000000) || 0,
+      sum: (sum / DECIMALS) || 0,
       count: count || 0,
       investTotal: investTotal || 0,
       investTotalLeave: investTotalLeave || investTotal
@@ -357,7 +357,8 @@ class UserInvestService {
       numFrozen = Math.ceil(numFrozen)
     }
 
-    let numSelf = baseNum / rate / 100
+    // 自己收益
+    let numSelf = baseNum * rate / 100 / days
     let numChild = 0
 
     if (isFirst) {
@@ -381,22 +382,35 @@ class UserInvestService {
 
     let numTokenInc = numSelf + numChild + numFrozen
     log.info('numTokenInc', numTokenInc)
+    // 收益
     let ctx = {
       uuid: UuidUtils.v4(),
       body: {
         user_id: userId,
-        num: numSelf + numFrozen,
+        num: numSelf,
         type: 5
       }
     }
     let retAssetsIn = await accountService.assetsIn(ctx)
     log.info('retAssetsIn', retAssetsIn)
+    // 投入解冻
+    let ctx1 = {
+      uuid: UuidUtils.v4(),
+      body: {
+        user_id: userId,
+        num: numFrozen,
+        type: 9
+      }
+    }
+    let retAssetsIn1 = await accountService.assetsIn(ctx1)
+    log.info('retAssetsIn1', retAssetsIn1)
+    // 子级收益
     if (numChild) {
       let ctx = {
         uuid: UuidUtils.v4(),
         body: {
           user_id: userId,
-          num: numSelf,
+          num: numChild,
           type: 6
         }
       }
@@ -405,6 +419,7 @@ class UserInvestService {
     }
 
     // const decimals = 100000000
+    // 计算当日的
     userAssets.token_num_frozen = (userAssets.token_num_frozen * DECIMALS - numFrozen * DECIMALS) / DECIMALS
     let userAssetsRet = await userAssets.save()
     log.info('userAssetsRet.id', userAssetsRet.id)

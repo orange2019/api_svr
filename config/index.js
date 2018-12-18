@@ -45,6 +45,7 @@ let config = {
     INVEST_IN_SUB: 6, // 投资子级入
     FROZEN: 7, // 冻结
     UNFROZEN: 8, // 解冻
+    INVEST_FROZEN: 9, // 投资解冻
   },
 
   key: {
