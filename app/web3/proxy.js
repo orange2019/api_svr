@@ -70,7 +70,7 @@ class Web3Proxy {
         tran.on('confirmation', (confirmationNumber, receipt) => {
           console.log('confirmation: ' + confirmationNumber)
           console.log('confirmation:receipt ')
-          console.log(receipt)
+          // console.log(receipt)
         })
 
         tran.on('transactionHash', hash => {
