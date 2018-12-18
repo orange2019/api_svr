@@ -389,6 +389,7 @@ class AccountService {
       let toAddress = ctx.body.to_address
       let num = ctx.body.num
       let password = ctx.body.password
+      let type = ctx.body.type || 3
 
       let user = await UserModel()
         .model()
@@ -401,18 +402,23 @@ class AccountService {
 
       }
 
-      let toUser = await UserModel()
-        .model()
-        .findOne({
-          where: {
-            wallet_address: toAddress
-          }
-        })
-      if (!toUser || !toUser.id) {
-        throw new Error('所转账至对方账户错误')
+      if (type == 3) {
+        let toUser = await UserModel()
+          .model()
+          .findOne({
+            where: {
+              wallet_address: toAddress
+            }
+          })
+        if (!toUser || !toUser.id) {
+          throw new Error('所转账至对方账户错误')
+        } else {
+          ctx.body.to_user_id = toUser.id
+        }
       } else {
-        ctx.body.to_user_id = toUser.id
+        ctx.body.to_user_id = 0
       }
+
 
       let privateKey = user.private_key
       let account = await web3.getAccountFromPk(privateKey)
@@ -481,7 +487,7 @@ class AccountService {
       }
 
       // 记录转账信息
-      ctx.body.type = 3 // 交易类型:转账
+      ctx.body.type = type // 交易类型:转账
       ctx.body.hash = transRet.transactionHash
       ctx.body.gas = transRet.cumulativeGasUsed
       let userTransRet = await userTransationService.transafer(ctx)

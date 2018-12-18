@@ -61,6 +61,11 @@ router.post('/verifyCode', async (req, res) => {
   return res.return(req.ctx)
 })
 
+router.post('/resetMobile', async (req, res) => {
+  await authService.resetMobile(req.ctx)
+  return res.return(req.ctx)
+})
+
 // 需要鉴权
 // 鉴权
 router.use(async (req, res, next) => {
@@ -87,6 +92,11 @@ router.use(async (req, res, next) => {
     return res.return(req.ctx)
   }
   next()
+})
+
+router.post('/verifyCodeAuth', async (req, res) => {
+  await authService.sendSmsCodeAuth(req.ctx)
+  return res.return(req.ctx)
 })
 
 router.post('/searchUserByMobile', async (req, res) => {

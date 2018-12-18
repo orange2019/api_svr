@@ -36,6 +36,33 @@ class AuthService {
     return ret
   }
 
+  async sendSmsCodeAuth(ctx) {
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+
+    let userId = ctx.body.user_id
+    let user = await UserModel().model().findById(userId)
+    let mobile = user.mobile
+
+    if (!mobile) {
+      ret.code = errCode.SMS.mobileNotFound.code
+      ret.message = errCode.SMS.mobileNotFound.message
+
+      ctx.result = ret
+      return ret
+    }
+    let sendStatus = await smsUtils.sendSmsCode(mobile)
+    if (sendStatus === false) {
+      ret.code = errCode.SMS.sendError.code
+      ret.message = errCode.SMS.sendError.message
+    }
+
+    ctx.result = ret
+    return ret
+  }
+
   /**
    * 用户登陆
    */
@@ -199,7 +226,7 @@ class AuthService {
     } = ctx.body
 
     // 验证手机短信
-    let checkCodeRst = smsUtils.validateCode(mobile, verify_code)
+    let checkCodeRst = await smsUtils.validateCode(mobile, verify_code)
     if (checkCodeRst.code !== 0) {
       ret.code = checkCodeRst.code
       ret.message = checkCodeRst.message
@@ -227,6 +254,60 @@ class AuthService {
     }
 
     return ret
+  }
+
+  async resetMobile(ctx) {
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+
+    let {
+      mobile,
+      password,
+      verify_code,
+      mobile_new
+    } = ctx.body
+
+    // 验证手机短信
+    let checkCodeRst = await smsUtils.validateCode(mobile_new, verify_code)
+    Log.info(`${ctx.uuid}|resetMobile().checkCodeRst`, checkCodeRst)
+    if (checkCodeRst.code !== 0) {
+      ret.code = checkCodeRst.code
+      ret.message = checkCodeRst.message
+      ctx.result = ret
+      return ret
+    }
+
+    let user = await UserModel().model().findOne({
+      where: {
+        mobile: mobile
+      }
+    })
+    Log.info(`${ctx.uuid}|resetMobile().user`, user)
+    if (!user) {
+      ret.code = errCode.FAIL.code
+      ret.message = '无效用户'
+      ctx.result = ret
+      return ret
+    }
+
+    if (user.password != cryptoUtils.md5(password)) {
+      ret.code = errCode.FAIL.code
+      ret.message = '密码错误'
+      ctx.result = ret
+      return ret
+    }
+
+    user.mobile = mobile_new
+    let saveRet = await user.save()
+    if (!saveRet) {
+      ret.code = errCode.FAIL.code
+      ret.message = '重置手机号失败'
+    }
+    ctx.result = ret
+    return ret
+
   }
 
 }

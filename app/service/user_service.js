@@ -6,7 +6,7 @@ const Op = require('sequelize').Op
 const cryptoUtils = require('./../utils/crypto_utils')
 const web3 = require('./../web3')
 const config = require('./../../config/index')
-const Sequelize = require('sequelize')
+const smsUtils = require('./../utils/sms_utils')
 
 class UserService {
 
@@ -594,7 +594,8 @@ class UserService {
     let userId = ctx.body.user_id
     let {
       password,
-      password_again
+      password_again,
+      verify_code
     } = ctx.body
     if (password !== password_again) {
       ret.code = errCode.FAIL.code
@@ -603,7 +604,20 @@ class UserService {
       ctx.result = ret
       return ret
     }
+
+
+
     let user = await UserModel().model().findById(userId)
+
+    // 验证手机号码
+    let checkCodeRst = await smsUtils.validateCode(user.mobile, verify_code)
+    Log.info(`${ctx.uuid}|register().checkCodeRst`, checkCodeRst)
+    if (checkCodeRst.code !== 0) {
+      ret.code = checkCodeRst.code
+      ret.message = checkCodeRst.message
+      ctx.result = ret
+      return ret
+    }
 
     user.password = cryptoUtils.md5(password)
     await user.save()
