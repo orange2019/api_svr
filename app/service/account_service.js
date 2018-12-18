@@ -1,5 +1,6 @@
 const Log = require('./../../lib/log')('user_service')
 const UserModel = require('./../model/user_model')
+const InvestModel = require('./../model/invest_model')
 const ContractTokenModel = require('./../model/contract_token_model')
 const errCode = require('./../common/err_code')
 const userTransationService = require('./user_transaction_service')
@@ -539,6 +540,87 @@ class AccountService {
     return ret
   }
 
+  async investChildInfo(ctx) {
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+
+    Log.info(`${ctx.uuid}|investchildInfo().body`, ctx.body)
+    let userId = ctx.body.user_id // 鉴权通过了，不可能是0
+    let childs = await UserModel().getAllChilds([userId])
+    let ids = []
+    let userInfos = {}
+    let levels = {}
+
+    for (let index = 0; index < childs.length; index++) {
+      const child = childs[index]
+      child.forEach(item => {
+        ids.push(item.id)
+        levels['lv_' + item.id] = index
+        userInfos['ur_' + item.id] = item
+      })
+
+    }
+
+    let investModel = InvestModel().model()
+    let userInvestModel = UserModel().investModel()
+
+    userInvestModel.belongsTo(investModel, {
+      targetKey: 'id',
+      foreignKey: 'invest_id'
+    })
+    let userInvests = await userInvestModel.findAll({
+      where: {
+        user_id: {
+          [Op.in]: ids
+        },
+      },
+      include: [{
+        model: investModel,
+        attributes: ['name']
+      }],
+      order: [
+        ['create_time', 'desc']
+      ]
+    })
+
+    let buyIds = []
+    let lists = []
+    userInvests.forEach(item => {
+      let list = item.dataValues
+      list.user = userInfos['ur_' + item.user_id]
+      lists.push(list)
+      if (buyIds.indexOf(item.user_id) < 0) {
+        buyIds.push(item.user_id)
+      }
+
+    })
+
+    let noBuyUser = []
+    ids.forEach(id => {
+
+      if (buyIds.indexOf(id) < 0) {
+        console.log('============', id)
+        noBuyUser.push(userInfos['ur_' + id])
+      }
+    })
+
+
+    ret.data = {
+      ids,
+      levels,
+      lists,
+      buyIds,
+      noBuyUser
+    }
+    Log.info(`${ctx.uuid}|investchildInfo().ret`, ret)
+
+    ctx.result = ret
+    return ret
+  }
+
+
   async investChild(ctx) {
     let ret = {
       code: errCode.SUCCESS.code,
@@ -551,10 +633,15 @@ class AccountService {
     let limit = ctx.body.limit || 20
 
     let userInfoModel = UserModel().infoModel()
+    let userModel = UserModel().model()
     let userInvestChildModel = UserModel().investChildModel()
 
     userInvestChildModel.belongsTo(userInfoModel, {
       targetKey: 'user_id',
+      foreignKey: 'child_id'
+    })
+    userInvestChildModel.belongsTo(userModel, {
+      targetKey: 'id',
       foreignKey: 'child_id'
     })
     let queryRet = await userInvestChildModel.findAndCountAll({
@@ -567,6 +654,9 @@ class AccountService {
       include: [{
         model: userInfoModel,
         attributes: ['realname', 'avatar']
+      }, {
+        model: userModel,
+        attributes: ['mobile']
       }],
       offset: offset,
       limit: limit

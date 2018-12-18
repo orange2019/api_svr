@@ -161,6 +161,11 @@ router.post('/investTeam', async (req, res) => {
   return res.return(req.ctx)
 })
 
+router.post('/investTeamInfo', async (req, res) => {
+  await accountService.investChildInfo(req.ctx)
+  return res.return(req.ctx)
+})
+
 router.post('/inviteList', async (req, res) => {
   await userService.inviteList(req.ctx)
   return res.return(req.ctx)

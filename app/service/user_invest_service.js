@@ -953,6 +953,9 @@ class UserInvestService {
         model: investModel,
         attributes: ['name']
       }],
+      order: [
+        ['create_time', 'desc']
+      ]
     })
 
     Log.info(`${ctx.uuid}|investInfoAndLogs().list`, list)
