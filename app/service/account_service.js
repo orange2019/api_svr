@@ -403,20 +403,24 @@ class AccountService {
 
       }
 
+      let toUser = await UserModel()
+        .model()
+        .findOne({
+          where: {
+            wallet_address: toAddress
+          }
+        })
       if (type == 3) {
-        let toUser = await UserModel()
-          .model()
-          .findOne({
-            where: {
-              wallet_address: toAddress
-            }
-          })
+
         if (!toUser || !toUser.id) {
           throw new Error('所转账至对方账户错误')
         } else {
           ctx.body.to_user_id = toUser.id
         }
       } else {
+        if (toUser && toUser.id) {
+          throw new Error('所转账至对方账户错误')
+        }
         ctx.body.to_user_id = 0
       }
 

@@ -329,7 +329,8 @@ class UserService {
     ret.data = {
       user: user,
       invite_url: config.domain.h5 + '/invite',
-      reset_pwd_url: config.domain.h5 + '/resetPwd'
+      reset_pwd_url: config.domain.h5 + '/resetPwd',
+      reset_mobile_url: config.domain.h5 + '/resetMobile'
     }
 
     ctx.result = ret
