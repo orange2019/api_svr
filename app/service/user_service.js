@@ -383,6 +383,15 @@ class UserService {
     Log.info(`${ctx.uuid}|infoUpdate().body`, ctx.body)
     let userId = ctx.body.user_id || 0
 
+    let user = await UserModel().model().findById(userId)
+    if (user.status == 1) {
+      ret.code = errCode.FAIL.code
+      ret.message = '实名认证通过，用户信息无法修改'
+
+      ctx.result = ret
+      return ret
+    }
+
     let userInfo = await UserModel().infoModel().findOne({
       where: {
         user_id: userId
