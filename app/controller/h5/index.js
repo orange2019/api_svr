@@ -99,6 +99,11 @@ router.post('/verifyCodeAuth', async (req, res) => {
   return res.return(req.ctx)
 })
 
+router.post('/verifyCodeAuthCheck', async (req, res) => {
+  await authService.sendSmsCodeAuthCheck(req.ctx)
+  return res.return(req.ctx)
+})
+
 router.post('/searchUserByMobile', async (req, res) => {
   await accountService.searchUserByMobile(req.ctx)
   return res.return(req.ctx)

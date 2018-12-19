@@ -63,6 +63,33 @@ class AuthService {
     return ret
   }
 
+  async sendSmsCodeAuthCheck(ctx) {
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+
+    let userId = ctx.body.user_id
+    let {
+      verify_code
+    } = ctx.body
+
+    let user = await UserModel().model().findById(userId)
+
+    // 验证手机号码
+    let checkCodeRst = await smsUtils.validateCode(user.mobile, verify_code)
+    Log.info(`${ctx.uuid}|sendSmsCodeAuthCheck().checkCodeRst`, checkCodeRst)
+    if (checkCodeRst.code !== 0) {
+      ret.code = checkCodeRst.code
+      ret.message = checkCodeRst.message
+      ctx.result = ret
+      return ret
+    }
+
+    ctx.result = ret
+    return ret
+  }
+
   /**
    * 用户登陆
    */
