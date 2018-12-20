@@ -66,12 +66,15 @@ class Web3Class {
       let contractAddress = contractObj.options.address
       let gas = await this.tokenTransferGas(contractObj, account, from, to, num)
 
+      let nonce = await web3Proxy.getNonce(account.address)
+
       let tx = {
         gas: gas,
         from: account.address,
         to: contractAddress,
         data: transafer.encodeABI(),
-        chainId: chainId
+        chainId: chainId,
+        nonce: nonce
       }
       // Log.info(tx)
 
