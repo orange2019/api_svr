@@ -6,36 +6,6 @@ const errCode = require('./../common/err_code')
 class GoodService 
 {
     /**
-     * 所有广告列表
-     * @param {*} ctx 
-     */
-    async goodList(ctx)
-    {
-        let ret = {
-            code: errCode.SUCCESS.code,
-            message: errCode.SUCCESS.message
-        }
-      
-        Log.info(ctx.uuid, 'adList().body', ctx.body)
-      
-        let where = {}
-        // where.user_id = ctx.body.user_id || 0
-        let offset = ctx.body.offset || 0
-        let limit = ctx.body.limit || 10
-        let data = await goodModel().model().findAndCountAll({
-            where:where,
-            order: [
-                ['create_time' , 'DESC']
-              ],
-            offset: offset, 
-            limit: limit
-        })
-        ret.data = data
-        Log.info(ctx.uuid, 'goodList().ret', ret)
-        ctx.result = ret
-        return ret
-    }
-    /**
      * 增加商品
      * @param {*} ctx 
      */
@@ -252,7 +222,9 @@ class GoodService
         }
       
         Log.info(ctx.uuid, 'goodList().body', ctx.body)
-      
+        let page = parseInt(ctx.query.page) || 1
+        let limit = parseInt(ctx.query.limit) || 10
+
         let where = {
             // status : 1
         }
@@ -262,17 +234,24 @@ class GoodService
                 goodInfo[element] = ctx.body[element]
             } 
         })
-        let offset = ctx.body.offset || 0
-        let limit = ctx.body.limit || 10
-        let data = await goodModel().model().findAll({
-            where:where,
+        let queryList = await goodModel().model().findAll({
+            offset: (page - 1) * limit,
+            limit: limit,
             order: [
                 ['id' , 'DESC']
               ],
-            offset: offset, 
-            limit: limit
         })
-        ret.data = data
+        let queryCount = await goodModel().model().count({
+            where: where
+        })
+        Log.info(ctx.uuid, 'goodList().queryCount', queryCount)
+        
+        ret.data = {
+            list: queryList || [],
+            count: queryCount,
+            page: page,
+            limit: limit
+        }
         Log.info(ctx.uuid, 'goodList().ret', ret)
         ctx.result = ret
         return ret

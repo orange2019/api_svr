@@ -11,24 +11,24 @@ const goodService = require('../../service/good_service')
  * 添加商品
  */
 router.post('/addGood', async(req,res)=> {
-  let ret = await goodService.addGood(req.ctx)
-  res.json(ret)
+  await goodService.addGood(req.ctx)
+  return res.return(req.ctx)
 })
 
 /**
  * 修改商品
  */
 router.post('/modifyGood', async(req,res)=> {
-  let ret = await goodService.modifyGood(req.ctx)
-  res.json(ret)
+   await goodService.modifyGood(req.ctx)
+  return res.return(req.ctx)
 })
 
 /**
  * 商品列表
  */
 router.post('/goodList', async(req,res)=> {
-  let ret = await goodService.goodList(req.ctx)
-  res.json(ret)
+  await goodService.goodList(req.ctx)
+  return res.return(req.ctx)
 })
 
 module.exports = router
