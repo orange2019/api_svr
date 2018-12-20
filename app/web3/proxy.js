@@ -31,6 +31,11 @@ class Web3Proxy {
   _web3() {
     return this.web3
   }
+
+  async getNonce(address) {
+    let nonce = await this.web3.eth.getTransactionCount(address)
+    return nonce++
+  }
   /**
    * 部署合约
    * @param {*} from 
