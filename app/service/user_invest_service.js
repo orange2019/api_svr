@@ -225,7 +225,7 @@ class UserInvestService {
 
       // 添加投产记录 
       let startTime = parseInt(Date.now() / 1000)
-      let endTime = startTime + 30 * 24 * 3600
+      let endTime = startTime + (invest.days * 24 * 3600)
       let userInvestData = {
         user_id: userId,
         invest_id: investId,
