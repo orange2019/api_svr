@@ -3,15 +3,6 @@ const path = require('path')
 
 let config = {
 
-  // db: {
-  //   host: '59939c0a9a983.gz.cdb.myqcloud.com',
-  //   port: 5579,
-  //   dbname: '2018_kxm_dev',
-  //   username: 'kaximu',
-  //   password: 'kaximu2018',
-  //   maxLimit: 1000,
-  // },
-
   // aliyun
   db: {
     host: 'rm-wz9077258c2ibppy7ro.mysql.rds.aliyuncs.com',
@@ -88,6 +79,7 @@ vZxq5+sTEOH9XTvgelNqN025jVpeNPeeUQcFDY5jWg==
 let env = process.env.NODE_ENV ? process.env.NODE_ENV : ''
 
 if (env) {
+
   if (fs.existsSync(path.join(__dirname, './' + env + '.js'))) {
     let extendsConfig = require('./' + env)
     if (extendsConfig) {
@@ -97,4 +89,6 @@ if (env) {
 
 }
 
+console.log('config db host:', config.db.host)
+console.log('config db default_contract_id:', config.default_contract_id)
 module.exports = config
