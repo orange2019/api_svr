@@ -36,6 +36,8 @@ router.use(async (req, res, next) => {
   next()
 })
 
+router.use('/video', require('./video'))
+
 router.post('/newsList', async (req, res) => {
   await newsService.h5List(req.ctx)
   return res.return(req.ctx)
