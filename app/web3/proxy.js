@@ -223,6 +223,17 @@ class Web3Proxy {
   }
 
   /**
+   * 获取容许的
+   * @param {*} contract 
+   * @param {*} owner 
+   * @param {*} spender 
+   */
+  async getTokenAllowance(contract, owner, spender) {
+    let result = await contract.methods.allowance(owner, spender).call()
+    return result
+  }
+
+  /**
    * 转账到指定账户
    * @param {*} contract 
    * @param {*} to 

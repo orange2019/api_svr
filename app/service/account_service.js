@@ -238,7 +238,7 @@ class AccountService {
       let userBalance = await web3.getBalance(owner.address)
       Log.info(`${ctx.uuid}|assetsIn().userBalance`, userBalance)
       if (userBalance == 0 || userBalance < gas) {
-        throw new Error('无足够交易手续费GAS')
+        throw new Error('系统无足够交易手续费GAS，请稍后再试')
       }
 
       let transRet = await web3.tokenTransfer(
@@ -336,7 +336,7 @@ class AccountService {
       let userBalance = await web3.getBalance(owner.address)
       Log.info(`${ctx.uuid}|assetsOut().userBalance`, userBalance)
       if (userBalance == 0 || userBalance < gas) {
-        throw new Error('无足够交易手续费GAS')
+        throw new Error('系统无足够交易手续费GAS，请稍后再试')
       }
 
       // 调用web3转账
@@ -482,17 +482,57 @@ class AccountService {
       let userBalance = await web3.getBalance(owner.address)
       Log.info(`${ctx.uuid}|assetsTransfer().userBalance`, userBalance)
       if (userBalance == 0 || userBalance < gas) {
-        throw new Error('无足够交易手续费GAS')
+        throw new Error('系统无足够交易手续费GAS，请稍后再试')
       }
 
       // 调用web3转账
-      let transRet = await web3.tokenTransfer(
-        contract,
-        owner,
-        account.address,
-        toAddress,
-        num
-      )
+      let transRet = null
+      if (type == 2) {
+        // 从用户账户转到主账户
+        let transRet1 = await web3.tokenTransfer(
+          contract,
+          owner,
+          account.address,
+          owner.address,
+          num
+        )
+        if (!transRet1) {
+          throw new Error('转账失败,请稍后重试')
+        }
+
+        let gas1 = await web3.tokenTransferToGas(
+          contract,
+          owner,
+          toAddress,
+          num,
+          true
+        )
+
+        gas += gas1
+        Log.info(`${ctx.uuid}|assetsTransfer().gas`, gas)
+        // 确认燃料(gas)是否够
+        let userBalance = await web3.getBalance(owner.address)
+        Log.info(`${ctx.uuid}|assetsTransfer().userBalance`, userBalance)
+        if (userBalance == 0 || userBalance < gas) {
+          throw new Error('系统无足够交易手续费GAS，请稍后再试')
+        }
+
+        transRet = await web3.tokenTransferTo(
+          contract,
+          owner,
+          toAddress,
+          num
+        )
+      } else {
+        transRet = await web3.tokenTransfer(
+          contract,
+          owner,
+          account.address,
+          toAddress,
+          num
+        )
+      }
+
       Log.info(`${ctx.uuid}|assetsTransfer().transRet`, transRet)
       if (!transRet) {
         throw new Error('转账失败')

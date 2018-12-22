@@ -10,7 +10,7 @@ const reqUuid = uuid.v4()
 let content = {
   mobile: '18676669410',
   password: '123456',
-  verify_code: '7602',
+  verify_code: '6088',
   invite_code: ''
 }
 let cryptStr = cryptUtils.hmacMd5(content, reqUuid)
