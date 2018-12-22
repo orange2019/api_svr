@@ -6,6 +6,7 @@ const Op = require('sequelize').Op
 const cryptoUtils = require('./../utils/crypto_utils')
 const smsUtils = require('./../utils/sms_utils')
 const Web3 = require('./../web3/index')
+const StrUtils = require('./../utils/str_utils')
 
 class AuthService {
 
@@ -215,6 +216,7 @@ class AuthService {
       privateKey
     } = await Web3.accountRegister()
     Log.info(`${ctx.uuid}|register().address`, address, privateKey)
+    let addressReserve = StrUtils.transWalletAddress(address)
 
     user = await UserModel().model().create({
       mobile: mobile,
@@ -222,6 +224,7 @@ class AuthService {
       status: 0,
       pid: pid,
       wallet_address: address || '',
+      reserve_address: addressReserve,
       private_key: privateKey || ''
     })
 

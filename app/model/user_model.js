@@ -63,6 +63,10 @@ class UserModel extends BaseModel {
         type: Sequelize.STRING(64),
         defaultValue: ''
       },
+      reserve_address: {
+        type: Sequelize.STRING(64),
+        defaultValue: ''
+      },
       private_key: {
         type: Sequelize.STRING(128),
         defaultValue: ''

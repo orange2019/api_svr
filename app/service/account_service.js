@@ -9,6 +9,7 @@ const cryptoUtils = require('./../utils/crypto_utils')
 const Op = require('sequelize').Op
 const web3 = require('./../web3')
 const DECIMALS = require('./../../config').decimals
+const StrUtils = require('./../utils/str_utils')
 
 class AccountService {
   /**
@@ -48,7 +49,7 @@ class AccountService {
     }
     data.balance = userBalance
     data.token_balance = userTokenBalance / 10 ** 8
-    data.address = accountAddress
+    data.address = StrUtils.transWalletAddress(accountAddress)
     data.isSetTradePwd = user.password_trade ? 1 : 0
 
     // const decimals = 100000000
@@ -403,11 +404,14 @@ class AccountService {
 
       }
 
+      let addressReserve = StrUtils.transWalletAddress(toAddress)
+      Log.info(`${ctx.uuid}|assetsTransfer().toAddress transWalletAddress`, addressReserve)
       let toUser = await UserModel()
         .model()
         .findOne({
           where: {
-            wallet_address: toAddress
+            // wallet_address: toAddress
+            reserve_address: addressReserve
           }
         })
       if (type == 3) {
@@ -427,6 +431,7 @@ class AccountService {
 
       let privateKey = user.private_key
       let account = await web3.getAccountFromPk(privateKey)
+
       // if (user.address != account.private_key) {
       //   throw new Error('私钥错误')
       // }
@@ -462,6 +467,8 @@ class AccountService {
         throw new Error('代币可用余额不足')
       }
 
+      toAddress = StrUtils.reTransWalletAddress(addressReserve)
+      Log.info(`${ctx.uuid}|assetsTransfer().toAddress reTransWalletAddress`, toAddress)
       let gas = await web3.tokenTransferGas(
         contract,
         owner,
@@ -751,6 +758,10 @@ class AccountService {
         ['create_time', 'DESC']
       ],
       attributes: ['id', 'uuid', 'mobile', 'wallet_address', 'status', 'create_time']
+    })
+
+    list.forEach(item => {
+      item.wallet_address = StrUtils.transWalletAddress(item.wallet_address)
     })
 
     ret.data = {
