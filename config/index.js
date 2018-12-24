@@ -64,7 +64,7 @@ vZxq5+sTEOH9XTvgelNqN025jVpeNPeeUQcFDY5jWg==
   },
 
   domain: {
-    h5: 'http://www.kaximumck.com:4003',
+    h5: 'http://h5.kaximumck.com',
     oss: ''
   },
 
