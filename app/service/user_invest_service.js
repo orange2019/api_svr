@@ -198,6 +198,23 @@ class UserInvestService {
         throw new Error('无效产品')
       }
 
+      // 判断数量
+      let now = parseInt(Date.now() / 1000)
+      let count = await UserModel().investModel().count({
+        where: {
+          user_id: userId,
+          start_time: {
+            [Op.lt]: now
+          },
+          end_time: {
+            [Op.gt]: now
+          }
+        }
+      })
+      if (count >= 2) {
+        throw new Error('超过购买限制:2个')
+      }
+
       // 判断密码
       if (user.password_trade != cryptoUtils.md5(password)) {
         if (user.password != cryptoUtils.md5(password)) {
