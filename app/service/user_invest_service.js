@@ -471,10 +471,10 @@ class UserInvestService {
     if (childInvestUserIds.length > 0 && childInvestUserIds.length <= 1) {
       // 享受下一级
       level = 1
-    } else if (childInvestUserIds.length > 1 && childInvestUserIds.length <= 3) {
+    } else if (childInvestUserIds.length > 1 && childInvestUserIds.length <= 2) {
       // 享受两级
       level = 2
-    } else if (childInvestUserIds.length > 3) {
+    } else if (childInvestUserIds.length > 2) {
       level = childs.length
     }
     log.info('level:', level)
