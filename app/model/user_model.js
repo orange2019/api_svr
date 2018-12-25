@@ -147,6 +147,10 @@ class UserModel extends BaseModel {
         type: Sequelize.BIGINT(11),
         defaultValue: parseInt(Date.now() / 1000)
       },
+      status: {
+        type: Sequelize.INTEGER(2),
+        defaultValue: 0
+      }
     }, {
       timestamps: true,
       createdAt: 'create_time',
