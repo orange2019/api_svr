@@ -426,7 +426,7 @@ class UserService {
       userInfo.sex = body.sex || 0
       userInfo.idcard_no = body.idcard_no || ''
       userInfo.idcard_positive = body.idcard_positive || ''
-      userInfo.idcard_reverse = body.idcard_positive || ''
+      userInfo.idcard_reverse = body.idcard_reverse || ''
       userInfo.status = 1
 
       let retUpdate = await userInfo.save()
