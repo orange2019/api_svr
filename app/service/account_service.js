@@ -9,6 +9,7 @@ const cryptoUtils = require('./../utils/crypto_utils')
 const Op = require('sequelize').Op
 const web3 = require('./../web3')
 const DECIMALS = require('./../../config').decimals
+const ScoreRate = require('./../../config').scoreRete
 const StrUtils = require('./../utils/str_utils')
 
 class AccountService {
@@ -375,6 +376,108 @@ class AccountService {
     return ret
   }
 
+  async assetsToScore(ctx) {
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+
+    try {
+      Log.info(`${ctx.uuid}|assetsTransfer().body`, ctx.body)
+      let userId = ctx.body.user_id // 鉴权通过了，不可能是0
+      // let toAddress = ctx.body.to_address
+      let num = ctx.body.num
+      let password = ctx.body.password
+      let type = 10
+
+      let user = await UserModel()
+        .model()
+        .findById(userId)
+      // let accountAddress = user.wallet_address
+      if (user.password_trade != cryptoUtils.md5(password)) {
+        if (user.password != cryptoUtils.md5(password)) {
+          throw new Error('密码验证错误')
+        }
+
+      }
+
+      let privateKey = user.private_key
+      let account = await web3.getAccountFromPk(privateKey)
+
+      let forzenNum = 0
+
+      let {
+        contract,
+        owner
+      } = await tokenService._info()
+
+      let tokenBalance = await tokenService._getUserTokenBalance(account.address)
+      if (tokenBalance - forzenNum < num) {
+        throw new Error('代币可用余额不足')
+      }
+
+      // toAddress = StrUtils.reTransWalletAddress(addressReserve)
+      let toAddress = owner.address
+      Log.info(`${ctx.uuid}|assetsTransfer().toAddress reTransWalletAddress`, toAddress)
+      let gas = await web3.tokenTransferGas(
+        contract,
+        owner,
+        account.address,
+        toAddress,
+        num,
+        true
+      )
+      Log.info(`${ctx.uuid}|assetsTransfer().gas`, gas)
+      // 确认燃料(gas)是否够
+      let userBalance = await web3.getBalance(owner.address)
+      Log.info(`${ctx.uuid}|assetsTransfer().userBalance`, userBalance)
+      if (userBalance == 0 || userBalance < gas) {
+        throw new Error('系统无足够交易手续费GAS，请稍后再试')
+      }
+
+      // 调用web3转账
+      let transRet = await web3.tokenTransfer(
+        contract,
+        owner,
+        account.address,
+        toAddress,
+        num
+      )
+
+      Log.info(`${ctx.uuid}|assetsTransfer().transRet`, transRet)
+      if (!transRet) {
+        throw new Error('转账失败')
+      }
+
+      // 记录转账信息
+      ctx.body.type = type // 交易类型:转账
+      ctx.body.hash = transRet.transactionHash
+      ctx.body.gas = transRet.cumulativeGasUsed
+      let userTransRet = await userTransationService.transafer(ctx)
+
+      Log.info(`${ctx.uuid}|assetsTransfer().userTransRet`, userTransRet)
+      if (userTransRet.code !== 0) {
+        throw new Error(transRet.message)
+      }
+
+      // 记录用户积分
+      let userAssets = await UserModel().getAssetsByUserId(userId)
+      let newScore = Math.ceil((userAssets.score + num / ScoreRate) * 100) / 100
+      userAssets.score = newScore
+      let saveScoreRet = await userAssets.save()
+      if (!saveScoreRet) {
+        throw new Error('更新积分失败')
+      }
+    } catch (err) {
+      // console.log(err)
+      ret.code = errCode.FAIL.code
+      ret.message = err.message || 'err'
+    }
+
+    Log.info(`${ctx.uuid}|assetsTransfer().ret`, ret)
+    ctx.result = ret
+    return ret
+  }
   /**
    * 转账
    * @param {*} ctx

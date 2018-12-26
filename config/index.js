@@ -37,6 +37,7 @@ let config = {
     FROZEN: 7, // 冻结
     UNFROZEN: 8, // 解冻
     INVEST_FROZEN: 9, // 投资解冻
+    SCORE_EXCAHNGE: 10, // 积分兑换
   },
 
   key: {
@@ -73,7 +74,8 @@ vZxq5+sTEOH9XTvgelNqN025jVpeNPeeUQcFDY5jWg==
   blockchain_port: 'http://47.75.155.158:8545',
   default_contract_id: 1,
   chainId: '666',
-  decimals: 100000000
+  decimals: 100000000,
+  scoreRete: 1,
 }
 
 let env = process.env.NODE_ENV ? process.env.NODE_ENV : ''

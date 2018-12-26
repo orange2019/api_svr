@@ -505,7 +505,14 @@ class UserModel extends BaseModel {
       },
       score: {
         type: Sequelize.BIGINT,
-        defaultValue: 0
+        defaultValue: 0,
+        get() {
+          const num = this.getDataValue('score')
+          return num / 100
+        },
+        set(val) {
+          this.setDataValue('score', val * 100)
+        }
       }
 
     }, {
