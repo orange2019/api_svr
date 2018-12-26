@@ -407,7 +407,7 @@ class UserService {
         sex: body.sex || 0,
         idcard_no: body.idcard_no || '',
         idcard_positive: body.idcard_positive || '',
-        idcard_reverse: body.idcard_positive || '',
+        idcard_reverse: body.idcard_reverse || '',
         user_id: userId,
         status: 1
       }
