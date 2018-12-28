@@ -5,95 +5,6 @@ const Log = require('./../../lib/log')('good_service')
 const errCode = require('./../common/err_code')
 class GoodService 
 {
-    /**
-     * 增加商品
-     * @param {*} ctx 
-     */
-    async addGood(ctx)
-    {
-        let ret = {
-            code: errCode.SUCCESS.code,
-            message: errCode.SUCCESS.message
-        }
-        Log.info(ctx.uuid, 'addGood().body', ctx.body)
-        let createRow = {};
-        try{
-            createRow.c_id = ctx.body.c_id || 0
-            createRow.name =  ctx.body.name
-            createRow.cover  =  ctx.body.cover
-            createRow.info   =  ctx.body.info
-            createRow.price = ctx.body.price 
-            createRow.stock = ctx.body.stock || 0 //库存
-            createRow.description = ctx.body.description || ''
-            createRow.status = ctx.body.status || 0
-        }catch{
-            ret.code = 400
-            ret.message = '参数错误'
-            return ret
-        }
-        await goodModel().model().create(createRow)
-        // Log.info(ctx.uuid, 'addGood().ret', ret)
-        // ctx.result = ret
-        return ret
-    }
-
-    /**
-     * 已经投放的广告列表
-     * @param {*} ctx 
-     */
-    async publishList(ctx)
-    {
-        let ret = {
-            code: errCode.SUCCESS.code,
-            message: errCode.SUCCESS.message
-        }
-      
-        Log.info(ctx.uuid, 'publishList().body', ctx.body)
-      
-        let where = {
-            status : 1
-        }
-        // where.user_id = ctx.body.user_id || 0
-        // let offset = ctx.body.offset || 0
-        // let limit = ctx.body.limit || 10
-        let data = await adModel().model().findAll({
-            where:where,
-            order: [
-                ['sort' , 'ASC']
-              ],
-            // offset: offset, 
-            // limit: limit
-        })
-        ret.data = data
-        Log.info(ctx.uuid, 'publishList().ret', ret)
-        ctx.result = ret
-        return ret
-    }
-
-    /**
-     * 编辑商品
-     * @param {*} ctx 
-     */
-    async modifyGood(ctx)
-    {
-        let ret = {
-            code: errCode.SUCCESS.code,
-            message: errCode.SUCCESS.message
-        }
-        Log.info(ctx.uuid, 'modifyAdd().body', ctx.body)
-
-        let adInfo = await UserModel().model().findById(ctx.body.ad_id);
-        if (!adInfo) {
-            ret.code = 404;
-            ret.message = '不存在记录';
-            return ret;
-        }
-        
-        adInfo.status = ctx.body.status;
-        adInfo.sort = ctx.body.sort;
-        await adInfo.save();
-        return ret;
-    }
 
     /**
      * 添加分类
@@ -177,9 +88,10 @@ class GoodService
         goodInfo.categoryInfo = categoryInfo
         Log.info(ctx.uuid, 'getDetailById().goodInfo',goodInfo,'categoryInfo:',categoryInfo)
         ret.data = { 'goodInfo': goodInfo, 'categoryInfo': categoryInfo }
+
+        ctx.result = ret
         return ret
     }
-
 
      /**
      * 修改商品信息
@@ -191,22 +103,24 @@ class GoodService
             code: errCode.SUCCESS.code,
             message: errCode.SUCCESS.message
         }
-        Log.info(ctx.uuid, 'modifyCategory().body', ctx.body)
+        Log.info(ctx.uuid, 'modifyGood().body', ctx.body)
         let allowedFields = ['c_id', 'name', 'cover', 'info', 'price', 'status', 'stock', 'description']
-        let goodInfo = await categoryModel().model().findById(ctx.body.id)
+        let goodInfo = await goodModel().model().findById(ctx.body.id)
+        Log.info(ctx.uuid, 'modifyGood().goodInfo', goodInfo)
         if (!goodInfo) {
             ret.code = 4004
             ret.message = '商品不存在'
         } else {
             allowedFields.forEach(element => {
-                if(ctx.body[element]){
+                if ( null != ctx.body[element] ) {
                     goodInfo[element] = ctx.body[element]
                 } 
             })
             await goodInfo.save();
+            Log.info(ctx.uuid, 'modifyGood().goodInfo', goodInfo)
         }
         
-        
+        ctx.result = ret
         return ret;
     }
 
@@ -254,6 +168,38 @@ class GoodService
         }
         Log.info(ctx.uuid, 'goodList().ret', ret)
         ctx.result = ret
+        return ret
+    }
+
+    /**
+     * 增加商品
+     * @param {*} ctx 
+     */
+    async addGood(ctx)
+    {
+        let ret = {
+            code: errCode.SUCCESS.code,
+            message: errCode.SUCCESS.message
+        }
+        Log.info(ctx.uuid, 'addGood().body', ctx.body)
+        let createRow = {};
+        try{
+            createRow.c_id = ctx.body.c_id || 0
+            createRow.name =  ctx.body.name
+            createRow.cover  =  ctx.body.cover
+            createRow.info   =  ctx.body.info
+            createRow.price = ctx.body.price 
+            createRow.stock = ctx.body.stock || 0 //库存
+            createRow.description = ctx.body.description || ''
+            createRow.status = ctx.body.status || 0
+        }catch{
+            ret.code = 400
+            ret.message = '参数错误'
+            return ret
+        }
+        await goodModel().model().create(createRow)
+        // Log.info(ctx.uuid, 'addGood().ret', ret)
+        // ctx.result = ret
         return ret
     }
 }
