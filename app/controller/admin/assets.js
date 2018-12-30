@@ -31,6 +31,23 @@ router.post('/in', async (req, res) => {
   return res.return(req.ctx)
 })
 
+router.post('/outList', async (req, res) => {
+  await accountService.assetsOutList(req.ctx)
+  return res.return(req.ctx)
+})
+
+router.post('/outFail', async (req, res) => {
+  await accountService.assetsOutFail(req.ctx)
+  return res.return(req.ctx)
+})
+
+router.post('/outSuccess', async (req, res) => {
+  await accountService.assetsOutSuccess(req.ctx)
+  return res.return(req.ctx)
+})
+
+
+
 
 
 

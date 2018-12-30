@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const adminService = require('./../../service/admin_service')
+const authService = require('./../../service/auth_service')
 
 router.post('/login', async (req, res) => {
 
@@ -21,6 +22,12 @@ router.post('/logout', async (req, res) => {
 
 router.post('/adminUpdate', async (req, res) => {
   await adminService.update(req.ctx)
+  return res.return(req.ctx)
+})
+
+router.post('/verifyCode', async (req, res) => {
+  req.ctx.body.mobile = '18676669410'
+  await authService.sendSmsCode(req.ctx)
   return res.return(req.ctx)
 })
 

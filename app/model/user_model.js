@@ -451,6 +451,60 @@ class UserModel extends BaseModel {
     return model
   }
 
+  assetsOutModel() {
+    let model = this.db().define('user_assets_out', {
+      id: {
+        type: Sequelize.BIGINT,
+        primaryKey: true,
+        autoIncrement: true
+      },
+      user_id: {
+        type: Sequelize.BIGINT,
+        defaultValue: 0
+      },
+      create_time: {
+        type: Sequelize.BIGINT(11),
+        defaultValue: parseInt(Date.now() / 1000)
+      },
+      update_time: {
+        type: Sequelize.BIGINT(11),
+        defaultValue: parseInt(Date.now() / 1000)
+      },
+      status: {
+        type: Sequelize.TINYINT(2),
+        defaultValue: 0
+      },
+      to_address: {
+        type: Sequelize.STRING(128),
+        defaultValue: ''
+      },
+      num: {
+        type: Sequelize.BIGINT,
+        defaultValue: 0,
+        get() {
+          const num = this.getDataValue('num')
+          return num / 100000000
+        },
+        set(val) {
+          this.setDataValue('num', val * 100000000)
+        }
+      },
+      remark: {
+        type: Sequelize.STRING(255),
+        defaultValue: ''
+      }
+
+    }, {
+      timestamps: true,
+      createdAt: 'create_time',
+      updatedAt: 'update_time',
+      freezeTableName: true,
+      tableName: 't_user_assets_out'
+    })
+
+    return model
+  }
+
   assetsModel() {
     let model = this.db().define('user_assets', {
       id: {

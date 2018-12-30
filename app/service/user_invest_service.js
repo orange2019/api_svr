@@ -519,7 +519,9 @@ class UserInvestService {
         investUserChilds.forEach(item => {
           log.info('rate level ', rateLevels[index] || 0.1)
           log.info('item.num', item.num)
-          let addNum = ((item.num > baseNum) ? baseNum : item.num) * (rateLevels[index] || 0.1) / 100
+          let itemNum = this._computedOneDay(item)
+          log.info('numChild:add:itemNum', itemNum)
+          let addNum = ((itemNum > baseNum) ? baseNum : itemNum) * (rateLevels[index] || 0.1) / 100
           numChild += addNum
           log.info('numChild:add:', addNum)
           UserModel().recordChildInvest(pid, child.id, addNum).then(ret => {
@@ -533,6 +535,10 @@ class UserInvestService {
     log.info('numChild:end:', numChild)
     return (numChild > baseNum) ? baseNum : numChild
 
+  }
+
+  _computedOneDay(item) {
+    return (item.num / item.days) + (item.num * item.rate / 100 / item.days)
   }
 
   /**

@@ -11,6 +11,7 @@ const web3 = require('./../web3')
 const DECIMALS = require('./../../config').decimals
 const ScoreRate = require('./../../config').scoreRete
 const StrUtils = require('./../utils/str_utils')
+const smsUtils = require('./../utils/sms_utils')
 
 class AccountService {
   /**
@@ -211,6 +212,16 @@ class AccountService {
     }
 
     try {
+      if (ctx.body.hasOwnProperty('code')) {
+        let verify_code = ctx.body.code
+        let mobile = '18676669410'
+        let checkCodeRst = await smsUtils.validateCode(mobile, verify_code)
+        Log.info(`${ctx.uuid}|sendSmsCodeAuthCheck().checkCodeRst`, checkCodeRst)
+        if (checkCodeRst.code !== 0) {
+          throw new Error('验证码不正确')
+        }
+      }
+
       Log.info(`${ctx.uuid}|assetsIn().body`, ctx.body)
       let userId = ctx.body.user_id // 鉴权通过了，不可能是0
 
@@ -271,6 +282,213 @@ class AccountService {
     Log.info(`${ctx.uuid}|assetsIn().ret`, ret)
     ctx.result = ret
     return ret
+  }
+
+  async assetsOutSuccess(ctx) {
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+
+    Log.info(`${ctx.uuid}|assetsOutList().body`, ctx.body)
+
+    let t = await UserModel().getTrans()
+    try {
+      let assetsOutId = ctx.body.assets_out_id
+      let userAssetsOut = await UserModel().assetsOutModel().findById(assetsOutId)
+      if (!userAssetsOut) {
+        throw new Error('无效条目')
+      }
+      let userId = userAssetsOut.user_id
+      // let user = await UserModel().model().findById(userId)
+
+      let toAddress = userAssetsOut.to_address
+      let num = userAssetsOut.num
+
+      let {
+        contract,
+        owner
+      } = await tokenService._info()
+
+      let gas = await web3.tokenTransferToGas(
+        contract,
+        owner,
+        toAddress,
+        num,
+        true
+      )
+      Log.info(`${ctx.uuid}|assetsOut().gas`, gas)
+      // 确认燃料(gas)是否够
+      let userBalance = await web3.getBalance(owner.address)
+      Log.info(`${ctx.uuid}|assetsOut().userBalance`, userBalance)
+      if (userBalance == 0 || userBalance < gas) {
+        throw new Error('系统无足够交易手续费GAS，请稍后再试')
+      }
+
+      // 调用web3转账
+      let transRet = await web3.tokenTransferTo(
+        contract,
+        owner,
+        toAddress,
+        num
+      )
+      Log.info(`${ctx.uuid}|assetsOut().transRet`, transRet)
+      if (!transRet) {
+        throw new Error('审核通过失败')
+      }
+
+      userAssetsOut.status = 1
+      let saveRet = await userAssetsOut.save({
+        transcation: t
+      })
+      if (!saveRet) {
+        throw new Error('审核通过记录失败')
+      }
+
+      // 记录转账信息
+      ctx.body.user_id = userId
+      ctx.body.type = 2 // 交易类型:转账
+      ctx.body.hash = transRet.transactionHash
+      ctx.body.gas = transRet.cumulativeGasUsed
+      let userTransRet = await userTransationService.transafer(ctx, t)
+
+      Log.info(`${ctx.uuid}|assetsTransfer().userTransRet`, userTransRet)
+      if (userTransRet.code !== 0) {
+        throw new Error(transRet.message)
+      }
+
+      t.commit()
+
+    } catch (err) {
+
+      t.rollback()
+      ret.code = errCode.FAIL.code
+      ret.code = err.message || 'err'
+    }
+
+    ctx.result = ret
+    return ret
+  }
+
+  async assetsOutFail(ctx) {
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+
+    Log.info(`${ctx.uuid}|assetsOutFail().body`, ctx.body)
+
+    let t = await UserModel().getTrans()
+    try {
+      let assetsOutId = ctx.body.assets_out_id
+      let userAssetsOut = await UserModel().assetsOutModel().findById(assetsOutId)
+      if (!userAssetsOut) {
+        throw new Error('无效条目')
+      }
+      let userId = userAssetsOut.user_id
+      let user = await UserModel().model().findById(userId)
+
+      let userAddress = user.wallet_address
+      let num = userAssetsOut.num
+
+      let {
+        contract,
+        owner
+      } = await tokenService._info()
+
+      let gas = await web3.tokenTransferGas(
+        contract,
+        owner,
+        owner.address,
+        userAddress,
+        num,
+        true
+      )
+      Log.info(`${ctx.uuid}|assetsOutFail().gas`, gas)
+      // 确认燃料(gas)是否够
+      let userBalance = await web3.getBalance(owner.address)
+      Log.info(`${ctx.uuid}|assetsOutFail().userBalance`, userBalance)
+      if (userBalance == 0 || userBalance < gas) {
+        throw new Error('系统无足够交易手续费GAS，请稍后再试')
+      }
+
+      // 调用web3转账
+      let transRet = await web3.tokenTransfer(
+        contract,
+        owner,
+        owner.address,
+        userAddress,
+        num
+      )
+      Log.info(`${ctx.uuid}|assetsOutFail().transRet`, transRet)
+      if (!transRet) {
+        throw new Error('审核不通过失败')
+      }
+
+      userAssetsOut.remark = ctx.body.remark || ''
+      userAssetsOut.status = 2
+      let saveRet = await userAssetsOut.save({
+        transcation: t
+      })
+      if (!saveRet) {
+        throw new Error('审核不通过记录失败')
+      }
+
+      t.commit()
+
+    } catch (err) {
+
+      t.rollback()
+      ret.code = errCode.FAIL.code
+      ret.message = err.message || 'err'
+    }
+
+    ctx.result = ret
+    return ret
+  }
+
+  async assetsOutList(ctx) {
+
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+
+    Log.info(`${ctx.uuid}|assetsOutList().body`, ctx.body)
+    let where = ctx.body.where
+    let map = {}
+    if (where.user_id) {
+      map.user_id = where.user_id
+    }
+
+    let userAssetsOutModel = UserModel().assetsOutModel()
+    let userInfoModel = UserModel().infoModel()
+
+    userAssetsOutModel.belongsTo(userInfoModel, {
+      targetKey: 'user_id',
+      foreignKey: 'user_id'
+    })
+
+
+    let data = await userAssetsOutModel.findAndCountAll({
+      where: map,
+      include: [{
+        model: userInfoModel,
+        attributes: ['realname', 'avatar']
+      }],
+      offset: ctx.body.offset || 0,
+      limit: ctx.body.limit || 10,
+      order: [
+        ['create_time', 'desc']
+      ]
+    })
+
+    ret.data = data
+    Log.info(`${ctx.uuid}|assetsOutList().ret`, ret)
+    ctx.result = ret
+    return ret
+
+
   }
 
   async assetsOut(ctx, t = null) {
@@ -478,6 +696,7 @@ class AccountService {
     ctx.result = ret
     return ret
   }
+
   /**
    * 转账
    * @param {*} ctx
@@ -488,6 +707,7 @@ class AccountService {
       message: errCode.SUCCESS.message
     }
 
+    let t = await UserModel().getTrans()
     try {
       Log.info(`${ctx.uuid}|assetsTransfer().body`, ctx.body)
       let userId = ctx.body.user_id // 鉴权通过了，不可能是0
@@ -591,17 +811,6 @@ class AccountService {
       // 调用web3转账
       let transRet = null
       if (type == 2) {
-        // 从用户账户转到主账户
-        let transRet1 = await web3.tokenTransfer(
-          contract,
-          owner,
-          account.address,
-          owner.address,
-          num
-        )
-        if (!transRet1) {
-          throw new Error('转账失败,请稍后重试')
-        }
 
         let gas1 = await web3.tokenTransferToGas(
           contract,
@@ -620,12 +829,38 @@ class AccountService {
           throw new Error('系统无足够交易手续费GAS，请稍后再试')
         }
 
-        transRet = await web3.tokenTransferTo(
+        // 从用户账户转到主账户
+        let transRet1 = await web3.tokenTransfer(
           contract,
           owner,
-          toAddress,
+          account.address,
+          owner.address,
           num
         )
+
+        if (!transRet1) {
+          throw new Error('转账失败,请稍后重试')
+        }
+
+        // transRet = await web3.tokenTransferTo(
+        //   contract,
+        //   owner,
+        //   toAddress,
+        //   num
+        // )
+
+        let assetsOutRet = await UserModel().assetsOutModel().create({
+          user_id: userId,
+          to_address: toAddress,
+          num: num,
+          status: 0
+        }, {
+          transcation: t
+        })
+        if (!assetsOutRet) {
+          throw new Error('申请提币失败')
+        }
+
       } else {
         transRet = await web3.tokenTransfer(
           contract,
@@ -634,27 +869,32 @@ class AccountService {
           toAddress,
           num
         )
+
+        Log.info(`${ctx.uuid}|assetsTransfer().transRet`, transRet)
+        if (!transRet) {
+          throw new Error('转账失败')
+        }
+
+        // 记录转账信息
+        ctx.body.type = type // 交易类型:转账
+        ctx.body.hash = transRet.transactionHash
+        ctx.body.gas = transRet.cumulativeGasUsed
+        let userTransRet = await userTransationService.transafer(ctx, t)
+
+        Log.info(`${ctx.uuid}|assetsTransfer().userTransRet`, userTransRet)
+        if (userTransRet.code !== 0) {
+          throw new Error(transRet.message)
+        }
       }
 
-      Log.info(`${ctx.uuid}|assetsTransfer().transRet`, transRet)
-      if (!transRet) {
-        throw new Error('转账失败')
-      }
+      t.commit()
 
-      // 记录转账信息
-      ctx.body.type = type // 交易类型:转账
-      ctx.body.hash = transRet.transactionHash
-      ctx.body.gas = transRet.cumulativeGasUsed
-      let userTransRet = await userTransationService.transafer(ctx)
-
-      Log.info(`${ctx.uuid}|assetsTransfer().userTransRet`, userTransRet)
-      if (userTransRet.code !== 0) {
-        throw new Error(transRet.message)
-      }
     } catch (err) {
       console.log(err)
       ret.code = errCode.FAIL.code
       ret.message = err.message || 'err'
+
+      t.rollback()
     }
 
     Log.info(`${ctx.uuid}|assetsTransfer().ret`, ret)
