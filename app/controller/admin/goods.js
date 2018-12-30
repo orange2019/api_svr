@@ -20,7 +20,7 @@ router.post('/addGood', async(req,res)=> {
  */
 router.post('/modifyGood', async(req,res)=> {
    await goodService.modifyGood(req.ctx)
-  return res.return(req.ctx)
+    return res.return(req.ctx)
 })
 
 /**
@@ -30,5 +30,14 @@ router.post('/goodList', async(req,res)=> {
   await goodService.goodList(req.ctx)
   return res.return(req.ctx)
 })
+
+/**
+ * 商品详情
+ */
+router.post('/getDetailById', async (req, res) => {
+  await goodService.getDetailById(req.ctx)
+  return res.return(req.ctx)
+})
+
 
 module.exports = router
