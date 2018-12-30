@@ -153,6 +153,11 @@ router.post('/assets', async (req, res) => {
   return res.return(req.ctx)
 })
 
+router.post('/assetsOutLogs', async (req, res) => {
+  await accountService.userAssetsOutLogs(req.ctx)
+  return res.return(req.ctx)
+})
+
 router.post('/assetsTransaction', async (req, res) => {
   await accountService.transactions(req.ctx)
   return res.return(req.ctx)

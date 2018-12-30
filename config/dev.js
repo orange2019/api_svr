@@ -11,7 +11,7 @@ module.exports = {
 
   default_contract_id: 2,
 
-  port: {
-    api_svr: 5001
-  },
+  // port: {
+  //   api_svr: 5001
+  // },
 }

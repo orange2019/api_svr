@@ -36,6 +36,9 @@ class UserTransactionService {
     if (body.user_id) {
       map.user_id = body.user_id
     }
+    if (body.type != 0) {
+      map.type = body.type
+    }
     let offset = body.offset || 0
     let limit = body.limit || 10
 

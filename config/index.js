@@ -75,6 +75,7 @@ vZxq5+sTEOH9XTvgelNqN025jVpeNPeeUQcFDY5jWg==
   chainId: '666',
   decimals: 100000000,
   scoreRete: 1,
+  assetsInMobile: ''
 }
 
 let env = process.env.NODE_ENV ? process.env.NODE_ENV : ''

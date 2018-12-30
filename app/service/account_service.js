@@ -12,6 +12,7 @@ const DECIMALS = require('./../../config').decimals
 const ScoreRate = require('./../../config').scoreRete
 const StrUtils = require('./../utils/str_utils')
 const smsUtils = require('./../utils/sms_utils')
+const config = require('./../../config')
 
 class AccountService {
   /**
@@ -77,6 +78,29 @@ class AccountService {
     ret.data = data
     Log.info(`${ctx.uuid}|userAssets().ret`, ret)
 
+    ctx.result = ret
+    return ret
+  }
+
+  async userAssetsOutLogs(ctx) {
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+
+    Log.info(`${ctx.uuid}|userAssets().body`, ctx.body)
+    let userId = ctx.body.user_id // 鉴权通过了，不可能是0
+
+    let queryRet = await UserModel().assetsOutModel().findAndCountAll({
+      where: {
+        user_id: userId
+      },
+      order: [
+        ['create_time', 'desc']
+      ]
+    })
+
+    ret.data = queryRet
     ctx.result = ret
     return ret
   }
@@ -213,13 +237,13 @@ class AccountService {
 
     try {
       if (ctx.body.hasOwnProperty('code')) {
-        let verify_code = ctx.body.code
-        let mobile = '18676669410'
-        let checkCodeRst = await smsUtils.validateCode(mobile, verify_code)
-        Log.info(`${ctx.uuid}|sendSmsCodeAuthCheck().checkCodeRst`, checkCodeRst)
-        if (checkCodeRst.code !== 0) {
-          throw new Error('验证码不正确')
-        }
+        // let verify_code = ctx.body.code
+        // let mobile = config.assetsInMobile
+        // let checkCodeRst = await smsUtils.validateCode(mobile, verify_code)
+        // Log.info(`${ctx.uuid}|sendSmsCodeAuthCheck().checkCodeRst`, checkCodeRst)
+        // if (checkCodeRst.code !== 0) {
+        //   throw new Error('验证码不正确')
+        // }
       }
 
       Log.info(`${ctx.uuid}|assetsIn().body`, ctx.body)

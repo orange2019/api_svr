@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const adminService = require('./../../service/admin_service')
 const authService = require('./../../service/auth_service')
+const config = require('./../../../config')
 
 router.post('/login', async (req, res) => {
 
@@ -26,7 +27,7 @@ router.post('/adminUpdate', async (req, res) => {
 })
 
 router.post('/verifyCode', async (req, res) => {
-  req.ctx.body.mobile = '18676669410'
+  req.ctx.body.mobile = config.assetsInMobile
   await authService.sendSmsCode(req.ctx)
   return res.return(req.ctx)
 })
