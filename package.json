@@ -9,7 +9,7 @@
     "stop": "forever stop app.js",
     "testRpc": "forever start testRpc.js",
     "restart": "forever stop index.js && cross-env NODE_ENV=production forever start index.js",
-    "test": "cross-env NODE_ENV=production node app.js"
+    "test": "cross-env NODE_ENV=dev node app.js"
   },
   "repository": {
     "type": "git",
