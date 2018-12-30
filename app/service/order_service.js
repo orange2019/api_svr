@@ -258,7 +258,8 @@ class OrderService {
    * 查找订单信息
    * @param {*} ctx 
    */
-  async _findOrder(order_id) {
+  async findOrderById(order_id) {
+
     return await orderModel().model().findById(order_id)
   }
 
@@ -353,7 +354,7 @@ class OrderService {
     let userId = ctx.body.user_id
     let orderId = ctx.body.order_id
 
-    let order = await orderModel().model().findById(orderId)
+    let order = await this.findOrderById(orderId)
     Log.info(ctx.uuid, 'info().order', order)
     if (!order || order.user_id != userId) {
       ret.code = errCode.FAIL.code
@@ -365,8 +366,23 @@ class OrderService {
     ctx.result = ret
     return ret
 
-
   }
+
+  
+  async orderDetail(ctx) {
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+    Log.info(ctx.uuid, 'orderDetail().body', ctx.body)
+    let orderId = ctx.body.order_id
+    let order = await this.findOrderById(orderId)
+    Log.info(ctx.uuid, 'orderDetail', order)
+    ret.data = order
+    ctx.result = ret
+    return ret
+  }
+
 }
 
 module.exports = new OrderService()
