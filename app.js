@@ -46,6 +46,10 @@ const updateWalletJson = require('./update/wallet')
 app.get('/updateWallet.json', (req, res) => {
   res.json(updateWalletJson)
 })
+const updateDappJson = require('./update/dapp')
+app.get('/updateDapp.json', (req, res) => {
+  res.json(updateDappJson)
+})
 
 // let responseExtendMid = require('./app/middleware/response_extend')
 // app.use(responseExtendMid)
