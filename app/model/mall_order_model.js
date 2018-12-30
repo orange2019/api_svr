@@ -6,8 +6,7 @@ class MallOrderModel extends BaseModel {
   constructor() {
     super()
 
-    let model = this.db().define('mall_order', 
-    {
+    let model = this.db().define('mall_order', {
       id: {
         type: Sequelize.BIGINT,
         primaryKey: true,
@@ -20,7 +19,16 @@ class MallOrderModel extends BaseModel {
         type: Sequelize.TEXT()
       },
       goods_items: {
-        type: Sequelize.TEXT()
+        type: Sequelize.TEXT(),
+        defaultValue: '',
+        get() {
+          const val = this.getDataValue('goods_items')
+          return val ? JSON.parse(val) : []
+        },
+        set(val) {
+          val = val ? JSON.stringify(val) : ''
+          this.setDataValue('goods_items', val)
+        }
       },
       amount: {
         type: Sequelize.FLOAT(20)
@@ -51,15 +59,34 @@ class MallOrderModel extends BaseModel {
       },
       logistics_company: {
         type: Sequelize.STRING(12),
-        defaultValue: 0
+        defaultValue: ''
       },
       logistics_no: {
         type: Sequelize.STRING(64),
-        defaultValue: 0
+        defaultValue: ''
+      },
+      address: {
+        type: Sequelize.TEXT(),
+        defaultValue: '',
+        get() {
+          const val = this.getDataValue('address')
+          return val ? JSON.parse(val) : []
+        },
+        set(val) {
+          val = val ? JSON.stringify(val) : ''
+          this.setDataValue('address', val)
+        }
+      },
+      order_no: {
+        type: Sequelize.STRING(32),
+        defaultValue: ''
+      },
+      remark: {
+        type: Sequelize.STRING(255),
+        defaultValue: ''
       }
 
-    }, 
-    {
+    }, {
       timestamps: true,
       createdAt: 'create_time',
       updatedAt: 'update_time',

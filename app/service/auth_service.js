@@ -121,12 +121,12 @@ class AuthService {
     }
 
     // 生成token
-    let from = ctx.body.from || 1
+    let type = ctx.query.type || 0
     let token = uuid.v4()
-    if (from == 1) {
+    if (type == 0) {
       user.auth_token_1 = token
     } else {
-      user.auth_token_1 = token
+      user.auth_token_2 = token
     }
 
     await user.save()

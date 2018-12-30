@@ -52,7 +52,32 @@ class UserService {
     ctx.body.user_id = user.id
     ctx.body.user_uuid = user.uuid
     ctx.body.user_status = user.status
+    ctx.body.user = user.dataValues
 
+    return ret
+  }
+
+  async getUserInfo(ctx) {
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+
+    let userId = ctx.body.user_id
+    let user = ctx.body.user
+    let userInfo = await UserModel().getUserInfoByUserId(userId)
+    let userAssets = await UserModel().getAssetsByUserId(userId)
+
+    let data = {
+      mobile: user.mobile,
+      realname: userInfo.realname,
+      avatar: userInfo.avatar,
+      sex: userInfo.sex,
+      score: userAssets.score
+    }
+
+    ret.data = data
+    ctx.result = ret
     return ret
   }
 
@@ -222,6 +247,50 @@ class UserService {
 
   }
 
+  async getUserAddress(ctx) {
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+
+    Log.info(ctx.uuid, 'getUserInfoList().body', ctx.body)
+
+    let userId = ctx.body.user_id
+
+    let userInfo = await UserModel().getUserInfoByUserId(userId)
+
+    ret.data = {
+      address: userInfo.address
+    }
+
+    ctx.result = ret
+    return ret
+  }
+
+  async updateUserAddress(ctx) {
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+
+    Log.info(ctx.uuid, 'getUserInfoList().body', ctx.body)
+
+    let userId = ctx.body.user_id
+    let address = ctx.body.address
+
+    let userInfo = await UserModel().getUserInfoByUserId(userId)
+    userInfo.address = address
+
+    let updateRet = await userInfo.save()
+
+    if (!updateRet) {
+      ret.code = errCode.FAIL.errCode
+      ret.message = '更新地址信息失败'
+    }
+
+    ctx.result = ret
+    return ret
+  }
   /**
    * 修改状态
    * @param {*} ctx 

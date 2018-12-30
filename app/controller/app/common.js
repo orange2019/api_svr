@@ -36,4 +36,21 @@ router.post('/config', async (req, res) => {
   })
 })
 
+router.post('/config2', async (req, res) => {
+  return res.json({
+    code: 0,
+    message: '',
+    data: {
+      version: '0.0.1',
+      urls: {
+        user: config.domain.h5 + '/assets',
+        show: config.domain.h5 + '/show',
+        mall: config.domain.h5 + '/mall',
+        news: config.domain.h5 + '/news?type=2'
+      }
+    }
+  })
+})
+
+
 module.exports = router

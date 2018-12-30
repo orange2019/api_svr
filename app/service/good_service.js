@@ -1,32 +1,29 @@
-
 const goodModel = require('./../model/mall_goods_model')
 const categoryModel = require('./../model/mall_category_model')
 const Log = require('./../../lib/log')('good_service')
 const errCode = require('./../common/err_code')
-class GoodService 
-{
+class GoodService {
     /**
      * 增加商品
      * @param {*} ctx 
      */
-    async addGood(ctx)
-    {
+    async addGood(ctx) {
         let ret = {
             code: errCode.SUCCESS.code,
             message: errCode.SUCCESS.message
         }
         Log.info(ctx.uuid, 'addGood().body', ctx.body)
         let createRow = {};
-        try{
+        try {
             createRow.c_id = ctx.body.c_id || 0
-            createRow.name =  ctx.body.name
-            createRow.cover  =  ctx.body.cover
-            createRow.info   =  ctx.body.info
-            createRow.price = ctx.body.price 
+            createRow.name = ctx.body.name
+            createRow.cover = ctx.body.cover
+            createRow.info = ctx.body.info
+            createRow.price = ctx.body.price
             createRow.stock = ctx.body.stock || 0 //库存
             createRow.description = ctx.body.description || ''
             createRow.status = ctx.body.status || 0
-        }catch{
+        } catch {
             ret.code = 400
             ret.message = '参数错误'
             return ret
@@ -41,26 +38,25 @@ class GoodService
      * 已经投放的广告列表
      * @param {*} ctx 
      */
-    async publishList(ctx)
-    {
+    async publishList(ctx) {
         let ret = {
             code: errCode.SUCCESS.code,
             message: errCode.SUCCESS.message
         }
-      
+
         Log.info(ctx.uuid, 'publishList().body', ctx.body)
-      
+
         let where = {
-            status : 1
+            status: 1
         }
         // where.user_id = ctx.body.user_id || 0
         // let offset = ctx.body.offset || 0
         // let limit = ctx.body.limit || 10
         let data = await adModel().model().findAll({
-            where:where,
+            where: where,
             order: [
-                ['sort' , 'ASC']
-              ],
+                ['sort', 'ASC']
+            ],
             // offset: offset, 
             // limit: limit
         })
@@ -74,8 +70,7 @@ class GoodService
      * 编辑商品
      * @param {*} ctx 
      */
-    async modifyGood(ctx)
-    {
+    async modifyGood(ctx) {
         let ret = {
             code: errCode.SUCCESS.code,
             message: errCode.SUCCESS.message
@@ -88,7 +83,7 @@ class GoodService
             ret.message = '不存在记录';
             return ret;
         }
-        
+
         adInfo.status = ctx.body.status;
         adInfo.sort = ctx.body.sort;
         await adInfo.save();
@@ -99,8 +94,7 @@ class GoodService
      * 添加分类
      * @param {*} ctx 
      */
-    async addCategory(ctx)
-    {
+    async addCategory(ctx) {
         let ret = {
             code: errCode.SUCCESS.code,
             message: errCode.SUCCESS.message
@@ -120,8 +114,7 @@ class GoodService
      * 修改分类及状态
      * @param {*} ctx 
      */
-    async modifyCategory(ctx)
-    {
+    async modifyCategory(ctx) {
         let ret = {
             code: errCode.SUCCESS.code,
             message: errCode.SUCCESS.message
@@ -134,14 +127,14 @@ class GoodService
             ret.message = '分类不存在'
         } else {
             allowedFields.forEach(element => {
-                if(ctx.body[element]){
+                if (ctx.body[element]) {
                     categoryInfo[element] = ctx.body[element]
-                } 
+                }
             })
             await categoryInfo.save();
         }
-        
-        
+
+
         return ret;
     }
 
@@ -175,18 +168,20 @@ class GoodService
         let goodInfo = await goodModel().model().findByPk(ctx.body.id)
         let categoryInfo = await categoryModel().model().findById(goodInfo.c_id)
         goodInfo.categoryInfo = categoryInfo
-        Log.info(ctx.uuid, 'getDetailById().goodInfo',goodInfo,'categoryInfo:',categoryInfo)
-        ret.data = { 'goodInfo': goodInfo, 'categoryInfo': categoryInfo }
+        Log.info(ctx.uuid, 'getDetailById().goodInfo', goodInfo, 'categoryInfo:', categoryInfo)
+        ret.data = {
+            'goodInfo': goodInfo,
+            'categoryInfo': categoryInfo
+        }
         return ret
     }
 
 
-     /**
+    /**
      * 修改商品信息
      * @param {*} ctx 
      */
-    async modifyGood(ctx)
-    {
+    async modifyGood(ctx) {
         let ret = {
             code: errCode.SUCCESS.code,
             message: errCode.SUCCESS.message
@@ -199,14 +194,14 @@ class GoodService
             ret.message = '商品不存在'
         } else {
             allowedFields.forEach(element => {
-                if(ctx.body[element]){
+                if (ctx.body[element]) {
                     goodInfo[element] = ctx.body[element]
-                } 
+                }
             })
             await goodInfo.save();
         }
-        
-        
+
+
         return ret;
     }
 
@@ -214,42 +209,43 @@ class GoodService
      * 商品列表
      * @param {*} ctx 
      */
-    async goodList(ctx)
-    {
+    async goodList(ctx) {
         let ret = {
             code: errCode.SUCCESS.code,
             message: errCode.SUCCESS.message
         }
-      
+
         Log.info(ctx.uuid, 'goodList().body', ctx.body)
-        let page = parseInt(ctx.query.page) || 1
-        let limit = parseInt(ctx.query.limit) || 10
+        let offset = parseInt(ctx.body.offset || 0)
+        let limit = parseInt(ctx.body.limit || 10)
 
         let where = {
-            // status : 1
+            status: 1
         }
         let allowedFields = ['c_id', 'name', 'status', 'stock']
         allowedFields.forEach(element => {
-            if(ctx.body[element]){
-                goodInfo[element] = ctx.body[element]
-            } 
+            if (ctx.body[element]) {
+                where[element] = ctx.body[element]
+            }
         })
+
         let queryList = await goodModel().model().findAll({
-            offset: (page - 1) * limit,
+            offset: offset,
             limit: limit,
             order: [
-                ['id' , 'DESC']
-              ],
+                ['id', 'DESC']
+            ]
         })
         let queryCount = await goodModel().model().count({
             where: where
         })
+
         Log.info(ctx.uuid, 'goodList().queryCount', queryCount)
-        
+
         ret.data = {
             list: queryList || [],
             count: queryCount,
-            page: page,
+            offset: offset,
             limit: limit
         }
         Log.info(ctx.uuid, 'goodList().ret', ret)

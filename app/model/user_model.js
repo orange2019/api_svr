@@ -132,7 +132,7 @@ class UserModel extends BaseModel {
         defaultValue: '',
         get() {
           const text = this.getDataValue('address')
-          return text ? JSON.parse(text) : {}
+          return text ? JSON.parse(text) : []
         },
         set(val) {
           let text = val ? JSON.stringify(val) : ''
