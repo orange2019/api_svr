@@ -21,8 +21,7 @@ let config = {
   },
 
   port: {
-    api_svr: 4001,
-    file_svr: 4002
+    api_svr: 4001
   },
 
   INVEST_RATES: [3, 1.5, 0.75, 0.38, 0.19, 0.1],

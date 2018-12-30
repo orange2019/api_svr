@@ -16,34 +16,6 @@ let log = require('./lib/log')('app')
 
 let app = express()
 
-// const cors = require('cors')
-// var corsOptions = {
-//   origin: 'http://localhost:4000',
-//   // optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
-// }
-// app.use(cors(corsOptions))
-
-// 单独起一个文件服务
-// let app2 = express()
-// app2.use('/uploads', express.static(path.join(__dirname, './uploads')))
-// app2.listen(config.port.file_svr, () => {
-//   log.info('file server started on port:' + config.port.file_svr)
-// })
-
-// 设置模板引擎
-// let viewPath = path.join(__dirname , './app/views')
-// app.set('views' , viewPath)
-// app.engine('html', require('ejs').__express)
-// app.set('view engine' , 'html')
-
-// 静态文件
-// session 支持
-// app.use(session({
-//   resave: true, // don't save session if unmodified
-//   saveUninitialized: true, // don't create session until something stored
-//   secret: 'open.cc512.com'
-// }))
-
 // parse request bodies (req.body)
 app.use(bodyParser.urlencoded({
   extended: true
