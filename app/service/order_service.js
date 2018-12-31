@@ -50,6 +50,42 @@ class OrderService {
     return ret
   }
 
+   /**
+   * 订单列表
+   * @param {*} ctx 
+   */
+  async managerList(ctx) {
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+
+    Log.info(ctx.uuid, 'orderList().body', ctx.body)
+    let where = {}
+    let page = ctx.body.page || 1
+    let limit = ctx.body.limit || 10;
+    let offset = page > 0 ? (page-1)*limit : 0
+    
+    let data = await orderModel().model().findAndCountAll({
+      where: where,
+      order: [
+        ['status', 'DESC'],
+        ['create_time', 'DESC']
+      ],
+      offset: offset,
+      limit: limit
+    })
+
+    ret.data = {
+      list: data.rows || [],
+      count: data.count,
+      page: page,
+      limit: limit
+    }
+    Log.info(ctx.uuid, 'orderList().ret', ret)
+    ctx.result = ret
+    return ret
+  }
   /**
    * 确认收货完成
    * @param {*} ctx 
