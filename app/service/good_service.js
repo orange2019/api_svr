@@ -2,6 +2,7 @@ const goodModel = require('./../model/mall_goods_model')
 const categoryModel = require('./../model/mall_category_model')
 const Log = require('./../../lib/log')('good_service')
 const errCode = require('./../common/err_code')
+const Op = require('sequelize').Op
 class GoodService {
 
     /**
@@ -48,7 +49,7 @@ class GoodService {
             await categoryInfo.save();
         }
 
-
+        ctx.result = ret
         return ret;
     }
 
@@ -62,10 +63,15 @@ class GoodService {
             message: errCode.SUCCESS.message
         }
         Log.info(ctx.uuid, 'categoryList().body', ctx.body)
-        let categoryInfo = await categoryModel().model().findAll()
+        let categoryInfo = await categoryModel().model().findAll({
+            where: {
+                pid: 0
+            }
+        })
         Log.info(ctx.uuid, 'categoryList().categoryInfo', categoryInfo)
         // let categoryList = [];
         ret.data = categoryInfo
+        ctx.result = ret
         return ret
     }
 
@@ -134,19 +140,36 @@ class GoodService {
 
         Log.info(ctx.uuid, 'goodList().body', ctx.body)
         let page = parseInt(ctx.query.page) || 1
-        let limit = parseInt(ctx.query.limit) || 10
+        let limit = parseInt(ctx.body.limit) || parseInt(ctx.query.limit) || 10
+        let offset = (page - 1) * limit
+        if (ctx.body.offset) {
+            offset = ctx.body.offset
+        }
+
 
         let where = {
-            // status : 1
+            // status: 1
         }
-        let allowedFields = ['c_id', 'name', 'status', 'stock']
+        let allowedFields = ['c_id', 'name', 'status', 'stock', 'keyword']
         allowedFields.forEach(element => {
             if (ctx.body[element]) {
-                goodInfo[element] = ctx.body[element]
+                if (element == 'keyword') {
+                    where.name = {
+                        [Op.like]: '%' + ctx.body[element] + '%'
+                    }
+                } else if (element == 'c_id') {
+                    if (ctx.body[element] > 0) {
+                        where[element] = ctx.body[element]
+                    }
+                } else {
+                    where[element] = ctx.body[element]
+                }
+
             }
         })
         let queryList = await goodModel().model().findAll({
-            offset: (page - 1) * limit,
+            where: where,
+            offset: offset,
             limit: limit,
             order: [
                 ['id', 'DESC']
@@ -196,6 +219,7 @@ class GoodService {
         await goodModel().model().create(createRow)
         // Log.info(ctx.uuid, 'addGood().ret', ret)
         // ctx.result = ret
+        ctx.result = ret
         return ret
     }
 }

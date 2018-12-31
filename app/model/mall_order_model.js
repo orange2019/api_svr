@@ -33,18 +33,6 @@ class MallOrderModel extends BaseModel {
       amount: {
         type: Sequelize.FLOAT(20)
       },
-      addr_name: {
-        type: Sequelize.STRING(64),
-      },
-      addr_mobile: {
-        type: Sequelize.STRING(12),
-      },
-      addr_info: {
-        type: Sequelize.STRING(255),
-      },
-      addr_postcode: {
-        type: Sequelize.STRING(12),
-      },
       create_time: {
         type: Sequelize.BIGINT(11),
         defaultValue: parseInt(Date.now() / 1000)

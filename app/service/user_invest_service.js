@@ -1,7 +1,6 @@
 const Log = require('./../../lib/log')('user_service')
 const BaseModel = require('./../model/base_model')
 const UserModel = require('./../model/user_model')
-// const UserAssetsModel = require('./../model/user_assets_model')
 const InvestModel = require('./../model/invest_model')
 const ConfigModel = require('./../model/config_model')
 const accountService = require('./account_service')

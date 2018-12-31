@@ -1,7 +1,7 @@
 const Log = require('../../lib/log')('order_service')
 const userModel = require('../model/user_model')
 const orderModel = require('../model/mall_order_model')
-const userAssetsModel = require('../model/user_assets_model')
+const payModel = require('../model/mall_pay_model')
 const mallGoodsModel = require('../model/mall_goods_model')
 const errCode = require('../common/err_code')
 const cryptoUtils = require('./../utils/crypto_utils')
@@ -38,8 +38,9 @@ class OrderService {
     let data = await orderModel().model().findAndCountAll({
       where: where,
       order: [
-        ['status', 'DESC'],
-        ['create_time', 'DESC']
+        ['update_time', 'DESC'],
+        ['status', 'DESC']
+
       ],
       offset: offset,
       limit: limit
@@ -240,6 +241,19 @@ class OrderService {
         throw new Error('订单更新失败')
       }
 
+      // 记录积分使用
+      let payRet = await payModel().model().create({
+        user_id: userId,
+        order_id: orderInfo.id,
+        num: orderAmount,
+        type: 1
+      }, {
+        transaction: t
+      })
+      if (!payRet) {
+        throw new Error('记录支付失败')
+      }
+
       t.commit()
     } catch (err) {
       //错误即回滚
@@ -276,6 +290,7 @@ class OrderService {
       let userId = ctx.body.user_id
       let address = ctx.body.address || ''
       let items = ctx.body.items
+      let remark = ctx.body.remark || ''
 
       console.log(items)
 
@@ -321,7 +336,8 @@ class OrderService {
         goods_ids: '-' + goodsIds.join('-') + '-',
         goods_items: goodsItems,
         amount: totalPrice,
-        address: address
+        address: address,
+        remark: remark
       })
 
       if (order.id) {
@@ -368,7 +384,7 @@ class OrderService {
 
   }
 
-  
+
   async orderDetail(ctx) {
     let ret = {
       code: errCode.SUCCESS.code,

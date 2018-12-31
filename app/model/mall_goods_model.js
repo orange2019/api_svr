@@ -33,7 +33,7 @@ class mallGoodsModel extends BaseModel {
         defaultValue: 0
       },
       description: {
-          type: Sequelize.STRING(255),
+        type: Sequelize.STRING(255),
       },
       create_time: {
         type: Sequelize.BIGINT(11),
@@ -46,6 +46,18 @@ class mallGoodsModel extends BaseModel {
       status: {
         type: Sequelize.INTEGER(2),
         defaultValue: 0
+      },
+      pics: {
+        type: Sequelize.TEXT,
+        defaultValue: '',
+        get() {
+          const text = this.getDataValue('pics')
+          return text ? JSON.parse(text) : []
+        },
+        set(val) {
+          let text = val ? JSON.stringify(val) : ''
+          this.setDataValue('pics', text)
+        }
       }
     }, {
       timestamps: true,

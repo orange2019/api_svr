@@ -5,7 +5,6 @@
 const Log = require('../../lib/log')('account_service');
 const BaseModel = require('../model/base_model');
 const UserModel = require('../model/user_model');
-const UserAssetsModel = require('../model/user_assets_model');
 const UuidUtils = require('../utils/uuid_utils');
 const dateUtils = require('../utils/date_utils');
 const errCode = require('../common/err_code');
@@ -15,29 +14,28 @@ class Account_Service {
     /**
      * 用户注册
      */
-    async accountRegister(ctx)
-    {
+    async accountRegister(ctx) {
         let ret = {
-            code : errCode.SUCCESS.code,
-            message : errCode.SUCCESS.message
+            code: errCode.SUCCESS.code,
+            message: errCode.SUCCESS.message
         };
         var user = await UserModel().model().build({
-            'mobile'     : ctx.mobile,
-            'password'   : ctx.password,
-            'fod_token'  : ctx.fod_token,
-            'auth_token' : ctx.auth_token,
-            'status' : 0,
-            'pid'    : ctx.pid || 0,
-            'uuid'   : '',
+            'mobile': ctx.mobile,
+            'password': ctx.password,
+            'fod_token': ctx.fod_token,
+            'auth_token': ctx.auth_token,
+            'status': 0,
+            'pid': ctx.pid || 0,
+            'uuid': '',
 
         });
         user = await user.save();
         //TODO 生成token
         let token = await this._generateToken(user);
         ret.data = {
-            token : token
+            token: token
         };
-  
+
         ctx.result = ret
         return ret
     }
@@ -45,54 +43,55 @@ class Account_Service {
     /**
      * 用户登陆
      */
-    async accountLogin(ctx)
-    {
+    async accountLogin(ctx) {
         let ret = {
-            code : errCode.SUCCESS.code,
-            message : errCode.SUCCESS.message
-          }
-          let { mobile, password } = ctx.body
-      
-          let user = await UserModel().model().findOne({
+            code: errCode.SUCCESS.code,
+            message: errCode.SUCCESS.message
+        }
+        let {
+            mobile,
+            password
+        } = ctx.body
+
+        let user = await UserModel().model().findOne({
             where: {
                 mobile: mobile
             }
-          })
-          Log.info(`${ctx.uuid}|login().admin` , user , cryptoUtils.md5(password))
-      
-          if(!user || user.password.toUpperCase() != cryptoUtils.md5(password)){
+        })
+        Log.info(`${ctx.uuid}|login().admin`, user, cryptoUtils.md5(password))
+
+        if (!user || user.password.toUpperCase() != cryptoUtils.md5(password)) {
             ret.code = errCode.ACCOUNT.loginFail.code;
             ret.message = errCode.ACCOUNT.loginFail.message;
-          }else {
+        } else {
             //TODO 生成token
             let token = await this._generateToken(user);
             ret.data = {
-                token : token
+                token: token
             };
-          }
-      
-          ctx.result = ret
-          return ret
+        }
+
+        ctx.result = ret
+        return ret
     }
 
     /**
      * 用户信息
      */
-    async accountInfo(userId)
-    {
+    async accountInfo(userId) {
         let userModel = UserModel().model();
         let userInfoModel = UserModel().infoModel();
         userModel.hasOne(userInfoModel, {
             foreignKey: 'user_id'
         });
         let data = await userModel.findOne({
-            where: {id:userId},
-            include: [
-              {
+            where: {
+                id: userId
+            },
+            include: [{
                 model: userInfoModel
-              }
-            ]
-          })
+            }]
+        })
         //   console.log(data);
         return data;
     }
@@ -101,7 +100,7 @@ class Account_Service {
      * 修改用户信息
      * @param {Object} params 
      */
-    async accountInfoUpdate(params){
+    async accountInfoUpdate(params) {
         let ret = {
             code: errCode.SUCCESS.code,
             message: errCode.SUCCESS.message
@@ -110,7 +109,7 @@ class Account_Service {
         let userId = params.userId || '';
         let user = await this.accountInfo(userId);
 
-        if(!user){
+        if (!user) {
             ret.code = errCode.ACCOUNT.accountNotFound.code;
             ret.message = errCode.ACCOUNT.accountNotFound.message;
             // ctx.result = ret
@@ -122,33 +121,30 @@ class Account_Service {
         return ret;
     }
 
-    async accountChangePassword()
-    {
+    async accountChangePassword() {
         //TODO: 校验验证码完成后，再执行修改密码
         let params = {
-            userId : '',
-            password : ''
+            userId: '',
+            password: ''
         };
         let result = await this._changePassword(params);
     }
-    
+
     /**
      * 用户修改密码
      * @param {Object} params 
      * 
      */
-    async _changePassword(params)
-    {
+    async _changePassword(params) {
         Log.info(`_changePassword | ${params}`);
         console.log(params);
         let ret = {
             code: errCode.SUCCESS.code,
             message: errCode.SUCCESS.message
-          }
-        let userId = params.userId || 0 ;
-        let password = params.password || null ;
-        if( !password )
-        {
+        }
+        let userId = params.userId || 0;
+        let password = params.password || null;
+        if (!password) {
             ret.code = errCode.ACCOUNT.accountNotFound.code;
             ret.message = errCode.ACCOUNT.accountNotFound.message;
             // ctx.result = ret
@@ -171,8 +167,7 @@ class Account_Service {
     /**
      * 生成验证登录状态的token
      */
-    async _generateToken(params)
-    {
+    async _generateToken(params) {
 
     }
 }

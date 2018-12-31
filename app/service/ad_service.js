@@ -1,31 +1,33 @@
 const Log = require('./../../lib/log')('order_service')
 const adModel = require('./../model/mall_ad_model')
 const errCode = require('./../common/err_code')
-class AdService 
-{
+class AdService {
     /**
      * 所有广告列表
      * @param {*} ctx 
      */
-    async adList(ctx)
-    {
+    async adList(ctx) {
         let ret = {
             code: errCode.SUCCESS.code,
             message: errCode.SUCCESS.message
         }
-      
+
         Log.info(ctx.uuid, 'adList().body', ctx.body)
-      
+
         let where = {}
+        if (ctx.body.status) {
+            where.status = ctx.body.status
+        }
         // where.user_id = ctx.body.user_id || 0
         let offset = ctx.body.offset || 0
         let limit = ctx.body.limit || 10
         let data = await adModel().model().findAndCountAll({
-            where:where,
+            where: where,
             order: [
-                ['create_time' , 'DESC']
-              ],
-            offset: offset, 
+                ['sort', 'asc'],
+                ['create_time', 'DESC']
+            ],
+            offset: offset,
             limit: limit
         })
         ret.data = data
@@ -37,22 +39,21 @@ class AdService
      * 增加广告
      * @param {*} ctx 
      */
-    async adAdd(ctx)
-    {
+    async adAdd(ctx) {
         let ret = {
             code: errCode.SUCCESS.code,
             message: errCode.SUCCESS.message
         }
         Log.info(ctx.uuid, 'orderList().body', ctx.body)
         let createRow = {};
-        try{
+        try {
             createRow.title = ctx.body.title
-            createRow.description =  ctx.body.description
-            createRow.photo  =  ctx.body.photo
-            createRow.link   =  ctx.body.link
+            createRow.description = ctx.body.description
+            createRow.photo = ctx.body.photo
+            createRow.link = ctx.body.link
             createRow.status = ctx.body.status || 0
-            createRow.sort   = ctx.body.sort   || 0
-        }catch{
+            createRow.sort = ctx.body.sort || 0
+        } catch {
             ret.code = 400
             ret.message = '参数错误'
             return ret
@@ -68,26 +69,25 @@ class AdService
      * 已经投放的广告列表
      * @param {*} ctx 
      */
-    async publishList(ctx)
-    {
+    async publishList(ctx) {
         let ret = {
             code: errCode.SUCCESS.code,
             message: errCode.SUCCESS.message
         }
-      
+
         Log.info(ctx.uuid, 'publishList().body', ctx.body)
-      
+
         let where = {
-            status : 1
+            status: 1
         }
         // where.user_id = ctx.body.user_id || 0
         // let offset = ctx.body.offset || 0
         // let limit = ctx.body.limit || 10
         let data = await adModel().model().findAll({
-            where:where,
+            where: where,
             order: [
-                ['sort' , 'ASC']
-              ],
+                ['sort', 'ASC']
+            ],
             // offset: offset, 
             // limit: limit
         })
@@ -101,8 +101,7 @@ class AdService
      * 编辑广告
      * @param {*} ctx 
      */
-    async modifyAdd(ctx)
-    {
+    async modifyAdd(ctx) {
         let ret = {
             code: errCode.SUCCESS.code,
             message: errCode.SUCCESS.message
@@ -115,7 +114,7 @@ class AdService
             ret.message = '不存在记录';
             return ret;
         }
-        
+
         adInfo.status = ctx.body.status;
         adInfo.sort = ctx.body.sort;
         await adInfo.save();
