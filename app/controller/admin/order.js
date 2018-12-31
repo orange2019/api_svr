@@ -23,4 +23,12 @@ router.post('/orderDetail', async (req, res) => {
   return res.return(req.ctx)
 })
 
+/**
+ * 订单修改
+ */
+router.post('/orderModify', async (req, res) => {
+  await orderService.orderModify(req.ctx)
+  return res.return(req.ctx)
+})
+
 module.exports = router
