@@ -56,6 +56,7 @@ router.use('/goods', require('./goods'))
 router.use('/config', require('./config'))
 router.use('/assets', require('./assets'))
 router.use('/invest', require('./invest'))
-router.use('/order',require('./order'))
+router.use('/order', require('./order'))
+router.use('/category',require('./category'))
 
 module.exports = router

@@ -22,6 +22,7 @@ class GoodService {
             sort: ctx.body.sort || 0,
         }
         categoryModel().model().create(creatObj)
+        ctx.result = ret
         return ret;
     }
 
@@ -41,8 +42,8 @@ class GoodService {
             ret.code = 4004
             ret.message = '分类不存在'
         } else {
-            allowedFields.forEach(element => {
-                if (ctx.body[element]) {
+            Object.keys(ctx.body).forEach(element => {
+                if (allowedFields.indexOf(element) > -1) {
                     categoryInfo[element] = ctx.body[element]
                 }
             })
@@ -51,6 +52,18 @@ class GoodService {
 
         ctx.result = ret
         return ret;
+    }
+
+    async categoryDetail(ctx) {
+        let ret = {
+            code: errCode.SUCCESS.code,
+            message: errCode.SUCCESS.message
+        }
+        Log.info(ctx.uuid, 'getDetailById().body', ctx.body)
+        let categoryInfo = await categoryModel().model().findById(ctx.body.id)
+        ret.data = categoryInfo
+        ctx.result = ret
+        return  ret
     }
 
     /**
@@ -63,14 +76,27 @@ class GoodService {
             message: errCode.SUCCESS.message
         }
         Log.info(ctx.uuid, 'categoryList().body', ctx.body)
-        let categoryInfo = await categoryModel().model().findAll({
-            where: {
-                pid: 0
-            }
-        })
-        Log.info(ctx.uuid, 'categoryList().categoryInfo', categoryInfo)
+
+        let page = ctx.body.page || 1
+        let limit = ctx.body.limit || 10;
+        let offset = page > 0 ? (page-1)*limit : 0
+        let where = {}
         // let categoryList = [];
-        ret.data = categoryInfo
+        let data = await categoryModel().model().findAndCountAll({
+            where: where,
+            order: [
+              ['id', 'DESC'],
+            ],
+            offset: offset,
+            limit: limit
+        })
+        Log.info(ctx.uuid, 'categoryList().data', data)
+        ret.data = {
+        list: data.rows || [],
+        count: data.count,
+        page: page,
+        limit: limit
+        }
         ctx.result = ret
         return ret
     }
