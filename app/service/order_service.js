@@ -419,6 +419,30 @@ class OrderService {
     return ret
   }
 
+  async orderModify(ctx) {
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+    Log.info(ctx.uuid, 'orderModify().body', ctx.body)
+    let orderId = ctx.body.id
+    let order = await this.findOrderById(orderId)
+    let allowedFields = ['logistics_company', 'logistics_no', 'status']
+    if (!order) {
+      ret.code = 4004;
+      ret.message = "订单不存在"
+    } else {
+      allowedFields.forEach(element => {
+        if (ctx.body[element]) {
+          order[element] = ctx.body[element]
+        }
+    })
+      await order.save()
+    }
+    ctx.result = ret
+    return ret
+  }
+
 }
 
 module.exports = new OrderService()
