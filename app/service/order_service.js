@@ -5,6 +5,8 @@ const payModel = require('../model/mall_pay_model')
 const mallGoodsModel = require('../model/mall_goods_model')
 const errCode = require('../common/err_code')
 const cryptoUtils = require('./../utils/crypto_utils')
+const uuidUtils = require('./../utils/uuid_utils')
+const dateUtils = require('./../utils/date_utils')
 const Op = require('sequelize').Op
 
 class OrderService {
@@ -328,7 +330,8 @@ class OrderService {
       let items = ctx.body.items
       let remark = ctx.body.remark || ''
 
-      console.log(items)
+      // console.log(items)
+      Log.info(ctx.uuid, 'create().items', items)
 
       let totalPrice = 0
       let goodsIds = []
@@ -367,13 +370,15 @@ class OrderService {
       // }
 
       // 创建订单
+      let orderNo = this._createOrderNo(ctx)
       let order = await orderModel().model().create({
         user_id: userId,
         goods_ids: '-' + goodsIds.join('-') + '-',
         goods_items: goodsItems,
         amount: totalPrice,
         address: address,
-        remark: remark
+        remark: remark,
+        order_no: orderNo
       })
 
       if (order.id) {
@@ -394,6 +399,15 @@ class OrderService {
 
     ctx.result = ret
     return ret
+  }
+
+  _createOrderNo(ctx){
+    let orderNo = ''
+    orderNo += uuidUtils.randomNum(6).toString()
+    orderNo += dateUtils.dateFormat(null , 'YYYYMMDDHHmmss')
+    orderNo += uuidUtils.randomNum(6).toString()
+    Log.info(ctx.uuid, 'create()._createOrderNo', orderNo)
+    return orderNo
   }
 
   async info(ctx) {
