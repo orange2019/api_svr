@@ -58,5 +58,6 @@ router.use('/assets', require('./assets'))
 router.use('/invest', require('./invest'))
 router.use('/order', require('./order'))
 router.use('/category',require('./category'))
+router.use('/video', require('./video'))
 
 module.exports = router

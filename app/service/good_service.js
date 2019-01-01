@@ -21,7 +21,7 @@ class GoodService {
             status: ctx.body.status || 0,
             sort: ctx.body.sort || 0,
         }
-        categoryModel().model().create(creatObj)
+        await categoryModel().model().create(creatObj)
         ctx.result = ret
         return ret;
     }

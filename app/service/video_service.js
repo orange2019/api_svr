@@ -60,7 +60,7 @@ class VideoService {
 
     Log.info(`${ctx.uuid}|list().where`, where)
 
-    let data = VideoModel().model().findAndCountAll({
+    let data = await VideoModel().model().findAndCountAll({
       where: where,
       offset: (page - 1) * limit,
       limit: limit,
@@ -131,7 +131,6 @@ class VideoService {
     Log.info(`${ctx.uuid}|update().updateData`, updateData)
 
     if (updateData.id) {
-
       // 修改
       let video = await VideoModel().model().findById(updateData.id)
       Log.info(`${ctx.uuid}|update().video`, video)
@@ -220,6 +219,29 @@ class VideoService {
     ctx.result = ret
     Log.info(`${ctx.uuid}|status().ret`, ret)
     return ret
+
+  }
+
+  /**
+   * 添加视频
+   * @param {*} ctx 
+   */
+  async add(ctx) {
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+    Log.info(ctx.uuid, 'addCategory().body', ctx.body)
+    let creatObj = {
+        title: ctx.body.title,
+        description: ctx.body.description,
+        url: ctx.body.url,
+        status: ctx.body.status || 0,
+        sort: ctx.body.sort || 0,
+    }
+    await VideoModel().model().create(creatObj)
+    ctx.result = ret
+    return ret;
 
   }
 
