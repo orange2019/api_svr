@@ -31,7 +31,12 @@ class MallOrderModel extends BaseModel {
         }
       },
       amount: {
-        type: Sequelize.FLOAT(20)
+        type: Sequelize.FLOAT(20 , 2),
+        defaultValue:0
+      },
+      amount_logistics: {
+        type: Sequelize.FLOAT(20 , 2),
+        defaultValue:0,
       },
       create_time: {
         type: Sequelize.BIGINT(11),

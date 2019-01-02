@@ -24,6 +24,10 @@ class mallGoodsModel extends BaseModel {
         type: Sequelize.TEXT(),
         defaultValue: ''
       },
+      price_logistics: {
+        type: Sequelize.DECIMAL(),
+        defaultValue: 0
+      },
       price: {
         type: Sequelize.DECIMAL(),
         defaultValue: 0

@@ -230,7 +230,7 @@ class OrderService {
         throw new Error('订单已支付或取消')
       }
 
-      let orderAmount = orderInfo.amount
+      let orderAmount = orderInfo.amount + orderInfo.amount_logistics
       let userAssets = await userModel().getAssetsByUserId(userId)
       let userScore = userAssets.score
       //积分不足
@@ -334,6 +334,7 @@ class OrderService {
       Log.info(ctx.uuid, 'create().items', items)
 
       let totalPrice = 0
+      let totalPriceLogistics = 0
       let goodsIds = []
       let goodsItems = []
       for (let index = 0; index < items.length; index++) {
@@ -354,17 +355,20 @@ class OrderService {
         }
 
         totalPrice += mallGoods.price * item.count * 100
+        totalPriceLogistics += mallGoods.price_logistics * item.count * 100
         goodsIds.push(item.id)
         goodsItems.push({
           id: mallGoods.id,
           name: mallGoods.name,
           price: mallGoods.price,
+          price_logistics: mallGoods.price_logistics,
           cover: mallGoods.cover,
           count: item.count
         })
       }
 
       totalPrice = totalPrice / 100
+      totalPriceLogistics = totalPriceLogistics / 100
       // if (userAssets < totalPrice) {
       //     throw new Error('积分余额不足')
       // }
@@ -376,6 +380,7 @@ class OrderService {
         goods_ids: '-' + goodsIds.join('-') + '-',
         goods_items: goodsItems,
         amount: totalPrice,
+        amount_logistics: totalPriceLogistics,
         address: address,
         remark: remark,
         order_no: orderNo
