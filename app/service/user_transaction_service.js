@@ -60,6 +60,30 @@ class UserTransactionService {
       ]
     })
 
+    let newList = []
+    for (let index = 0; index < queryRet.rows.length; index++) {
+      const item = queryRet.rows[index]
+
+      if(item.type == 3 && item.to_user_id){
+        let toUser = await UserModel().model().findById(item.to_user_id)
+        let toUserInfo = await UserModel().getUserInfoByUserId(item.to_user_id)
+        item.dataValues.to_user = {
+          realname : toUserInfo.realname || '',
+          mobile: toUser.mobile || ''
+        }
+      }else {
+        item.dataValues.to_user = {
+          realname : '',
+          mobile: ''
+        }
+      }
+      
+      newList.push(item)
+      
+    }
+
+    queryRet.rows = newList
+
     Log.info(ctx.uuid, 'getUserInfoList().queryRet', queryRet)
     ret.data = queryRet
     ctx.result = ret
@@ -94,7 +118,7 @@ class UserTransactionService {
       user_id: userId,
       num: body.num || 0,
       type: transType,
-      to: toUserId,
+      to_user_id: toUserId,
       hash: hash,
       gas_used: gasUsed
     }

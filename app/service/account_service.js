@@ -237,13 +237,13 @@ class AccountService {
 
     try {
       if (ctx.body.hasOwnProperty('code')) {
-        // let verify_code = ctx.body.code
-        // let mobile = config.assetsInMobile
-        // let checkCodeRst = await smsUtils.validateCode(mobile, verify_code)
-        // Log.info(`${ctx.uuid}|sendSmsCodeAuthCheck().checkCodeRst`, checkCodeRst)
-        // if (checkCodeRst.code !== 0) {
-        //   throw new Error('验证码不正确')
-        // }
+        let verify_code = ctx.body.code
+        let mobile = config.assetsInMobile
+        let checkCodeRst = await smsUtils.validateCode(mobile, verify_code)
+        Log.info(`${ctx.uuid}|sendSmsCodeAuthCheck().checkCodeRst`, checkCodeRst)
+        if (checkCodeRst.code !== 0) {
+          throw new Error('验证码不正确')
+        }
       }
 
       Log.info(`${ctx.uuid}|assetsIn().body`, ctx.body)
