@@ -751,6 +751,36 @@ class UserService {
     ctx.result = ret
     return ret
   }
+
+  /**
+   * 用户地址列表
+   * @param {*} ctx 
+   */
+  async userAddressList(ctx) {
+    let ret = {
+      code: errCode.SUCCESS.code,
+      message: errCode.SUCCESS.message
+    }
+    let page = ctx.body.page || 1
+    let limit = ctx.body.limit || 10;
+    let offset = page > 0 ? (page-1)*limit : 0
+    // let where = {}
+    let userInfoModel = UserModel().infoModel()
+    let list = await userInfoModel.findAndCountAll({
+      // where: where,
+      offset: offset,
+      limit: limit
+    })
+    Log.info(ctx.uuid, 'userAddressList().list', list)
+    ret.data = {
+      list: list.rows || [],
+      count: list.count,
+      page: page,
+      limit: limit
+    }
+    ctx.result = ret
+    return ret
+  }
 }
 
 module.exports = new UserService()

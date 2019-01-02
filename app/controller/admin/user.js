@@ -63,6 +63,14 @@ router.post('/getTokenBalance', async (req, res) => {
   return res.return(req.ctx)
 })
 
+/**
+ * 用户地址列表
+ */
+router.post('/addressList', async (req, res) => {
+  await userService.userAddressList(req.ctx)
+  return res.return(req.ctx)
+})
+
 
 
 module.exports = router
