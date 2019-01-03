@@ -40,9 +40,7 @@ class OrderService {
     let data = await orderModel().model().findAndCountAll({
       where: where,
       order: [
-        ['update_time', 'DESC'],
-        ['status', 'DESC']
-
+        ['id', 'DESC']
       ],
       offset: offset,
       limit: limit
@@ -65,6 +63,14 @@ class OrderService {
 
     Log.info(ctx.uuid, 'orderList().body', ctx.body)
     let where = {}
+    if (ctx.body.where.keyword) {
+      where.order_no={
+        [Op.like]: '%' + ctx.body.where.keyword
+      }
+    }
+    if (ctx.body.where.status) {
+      where.status = ctx.body.where.status
+    }
     let page = ctx.body.page || 1
     let limit = ctx.body.limit || 10;
     let offset = page > 0 ? (page-1)*limit : 0
@@ -85,7 +91,7 @@ class OrderService {
       page: page,
       limit: limit
     }
-    Log.info(ctx.uuid, 'orderList().ret', ret)
+    // Log.info(ctx.uuid, 'orderList().ret', ret)
     ctx.result = ret
     return ret
   }
