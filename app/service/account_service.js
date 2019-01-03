@@ -374,6 +374,7 @@ class AccountService {
       ctx.body.type = 2 // 交易类型:转账
       ctx.body.hash = transRet.transactionHash
       ctx.body.gas = transRet.cumulativeGasUsed
+      ctx.body.num = num
       let userTransRet = await userTransationService.transafer(ctx, t)
 
       Log.info(`${ctx.uuid}|assetsTransfer().userTransRet`, userTransRet)
