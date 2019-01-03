@@ -508,6 +508,11 @@ class AccountService {
       ]
     })
 
+    data.rows.forEach(async (item) => {
+      let user = await UserModel().model().findById(item.user_id)
+      item.dataValues.mobile = user.mobile || ''
+    })
+
     ret.data = data
     Log.info(`${ctx.uuid}|assetsOutList().ret`, ret)
     ctx.result = ret
