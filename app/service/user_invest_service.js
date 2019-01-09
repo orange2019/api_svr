@@ -310,6 +310,7 @@ class UserInvestService {
     let log = arguments[0] || Log
     let self = this
     let now = parseInt(Date.now() / 1000)
+    // let now = 1546919050
     let userInvests = await UserModel().investModel().findAll({
       where: {
         start_time: {
@@ -334,17 +335,17 @@ class UserInvestService {
         userInvestIds.push(userId)
         isFirst = true
       }
-      await self.investComputed(userInvest, isFirst, log)
+      await self.investComputed(userInvest, isFirst, now, log)
     }
 
     return true
 
   }
 
-  async investComputed(userInvest, isFirst = false) {
-    let log = arguments[2] || Log
+  async investComputed(userInvest, isFirst = false, now = null) {
+    let log = arguments[3] || Log
     log.info(`计算 start ID:${userInvest.id}`)
-    let logDate = dateUtils.dateFormat(null, 'YYYYMMDD')
+    let logDate = dateUtils.dateFormat(now, 'YYYYMMDD')
 
     let userId = userInvest.user_id
     let investId = userInvest.user_id
@@ -379,7 +380,7 @@ class UserInvestService {
 
     if (isFirst) {
       // TODO 去找子级的
-      numChild = await this._computedChild(userId, baseNum, log)
+      numChild = await this._computedChild(userId, baseNum, now, log)
     }
 
     let logsData = {
@@ -389,7 +390,7 @@ class UserInvestService {
       num_frozen: numFrozen,
       num_self: numSelf,
       num_child: numChild,
-      log_date: dateUtils.dateFormat(null, 'YYYYMMDD')
+      log_date: dateUtils.dateFormat(now, 'YYYYMMDD')
     }
     log.info('logsData', logsData)
     let logRet = await UserModel().investLogsModel().create(logsData)
@@ -443,10 +444,12 @@ class UserInvestService {
 
   }
 
-  async _computedChild(pid, baseNum) {
-    let log = arguments[2] || Log
+  async _computedChild(pid, baseNum, now = null) {
+    let log = arguments[3] || Log
 
-    let now = parseInt(Date.now() / 1000)
+    if (!now) {
+      now = parseInt(Date.now() / 1000)
+    }
     let rateLevels = await ConfigModel().getRateLevel()
 
     let childs = await UserModel().getAllChilds([pid])
@@ -494,11 +497,16 @@ class UserInvestService {
       level = childs.length
     }
     log.info('level:', level)
-
+    log.info('childs =======', childs)
     // level = childs.length
     let numChild = 0
     for (let index = 0; index < level; index++) {
       const childArr = childs[index]
+      if (!childArr || !childArr.length) {
+        continue
+      }
+
+      log.info('childArr ==== ', index, childArr)
       // console.log('childArr len', childArr)
       for (let indexC = 0; indexC < childArr.length; indexC++) {
         const child = childArr[indexC]
